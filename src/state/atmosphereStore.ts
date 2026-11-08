@@ -22,8 +22,10 @@ import {
   type MapStackId,
 } from '../engine/globe/MapProviderManager.ts';
 import {
+  computeWeightedEnsembleForecast,
   executeArgonVoiceWorkflow,
   generateArgonScientificReport,
+  validateForecastProvenanceGate,
   type ArgonInvestigationResult,
   type ArgonStructuredReport,
   type WeatherModelId,
@@ -119,6 +121,10 @@ export interface AtmosphereAppState {
   customModelWeights: Partial<Record<WeatherModelId, number>>;
   staleForecastInjected: boolean;
   investigationHistory: ArgonInvestigationResult[];
+
+  // Live open-data pipeline status (server: /api/v1/assistant/query → liveAtmospherePipeline.ts)
+  liveDataStatus: 'LOADING' | 'LIVE' | 'OFFLINE_FALLBACK';
+  liveDataError: string | null;
 }
 
 const STORAGE_MODE_KEY = 'alphaforge_atmosphere_mode_v4';
@@ -138,10 +144,13 @@ const initialGoogleKey = resolveGoogleMapsApiKey();
 const initialStackId: MapStackId = initialGoogleKey ? 'photoreal' : 'esri-imagery';
 const initialStackDesc = getMapStackDescriptor(initialStackId);
 
-const initialInvestigation = executeArgonVoiceWorkflow({
-  query:
-    "Hey ARGON, analyse last week's weather across Asia and tell me which financial markets have been affected and what next week's weather could mean for those markets.",
-});
+const INITIAL_ARGON_QUERY =
+  "Hey ARGON, analyse last week's weather across Asia and tell me which financial markets have been affected and what next week's weather could mean for those markets.";
+
+// Instant offline baseline, replaced by the live investigation as soon as the server returns it
+const initialInvestigation = withFixtureLabel(
+  executeArgonVoiceWorkflow({ query: INITIAL_ARGON_QUERY })
+);
 
 const initialReport = generateArgonScientificReport(
   initialInvestigation,
@@ -205,7 +214,52 @@ let state: AtmosphereAppState = {
   customModelWeights: {},
   staleForecastInjected: false,
   investigationHistory: [initialInvestigation],
+
+  liveDataStatus: 'LOADING',
+  liveDataError: null,
 };
+
+function withFixtureLabel(inv: ArgonInvestigationResult): ArgonInvestigationResult {
+  return inv.dataMode ? inv : { ...inv, dataMode: 'OFFLINE_DEMO_FIXTURE' };
+}
+
+/**
+ * Recomputes a LIVE investigation locally when a judge changes model weights or injects a
+ * stale run: same live model inputs, new weights, same fitted calibration — no fixtures.
+ */
+export function recomputeLiveInvestigation(
+  inv: ArgonInvestigationResult,
+  customWeights: Partial<Record<WeatherModelId, number>>,
+  injectStale: boolean
+): ArgonInvestigationResult {
+  const mc = inv.modelComparison;
+  const modelInputs = mc.modelInputs.map((m) => {
+    const w = customWeights[m.modelId];
+    return w !== undefined && Number.isFinite(w) ? { ...m, weight: Math.max(0, w) } : m;
+  });
+  const ensembleResult = computeWeightedEnsembleForecast(modelInputs, {
+    inflation: mc.calibrationInflation ?? 1,
+    floorMm: 0,
+  });
+  const provenanceCheck = injectStale
+    ? validateForecastProvenanceGate({
+        provider: 'Open-Meteo (judge stale-run test)',
+        modelId: modelInputs[0]?.modelId ?? 'ECMWF_IFS',
+        initTimestampUtc: new Date(Date.now() - 42 * 3_600_000).toISOString(),
+        maxAllowedAgeHours: 24,
+        claimsOfficialPublicSafetyWarning: false,
+        verifiedByNationalMetAgency: false,
+        temperatureUnit: '°C',
+      })
+    : inv.live
+    ? inv.live.provenance.find((p) => p.gate.accepted)?.gate ?? inv.provenanceCheck
+    : inv.provenanceCheck;
+  return { ...inv, modelComparison: { ...mc, modelInputs, ensembleResult }, provenanceCheck };
+}
+
+// Only the newest live request may overwrite state (older, slower answers are dropped)
+let liveRequestSeq = 0;
+let pendingLive: Promise<ArgonInvestigationResult | null> = Promise.resolve(null);
 
 const listeners = new Set<() => void>();
 
@@ -265,11 +319,12 @@ export const atmosphereStore = {
       DEMO_PRESET_PROFILES.find((p) => p.id === presetId) ||
       DEMO_PRESET_PROFILES[0];
     const resolvedLoc = resolveGeographicTarget(preset.defaultLocationQuery);
-    const inv = executeArgonVoiceWorkflow({
+    const inv = withFixtureLabel(executeArgonVoiceWorkflow({
       query: preset.sampleArgonPrompt,
       currentCountryIso2: resolvedLoc.countryIso2,
       previousInvestigation: state.activeInvestigation,
-    });
+    }));
+    void this.requestLiveUpgrade(preset.sampleArgonPrompt, resolvedLoc.countryIso2);
     const report = generateArgonScientificReport(
       inv,
       'FULL_28_SECTION_SCIENTIFIC_REPORT'
@@ -373,11 +428,12 @@ export const atmosphereStore = {
         ? "Hey ARGON, analyse last week's weather across Asia and tell me which financial markets have been affected and what next week's weather could mean for those markets."
         : `Hey ARGON, analyse how predicted weather patterns in ${resolved.name} (${resolved.countryName}) affect financial markets and suggest research-backed trade ideas.`;
 
-    const inv = executeArgonVoiceWorkflow({
+    const inv = withFixtureLabel(executeArgonVoiceWorkflow({
       query: locationQuery,
       currentCountryIso2: resolved.countryIso2,
       previousInvestigation: state.activeInvestigation,
-    });
+    }));
+    void this.requestLiveUpgrade(locationQuery, resolved.countryIso2);
     const report = generateArgonScientificReport(
       inv,
       'FULL_28_SECTION_SCIENTIFIC_REPORT'
@@ -512,6 +568,62 @@ export const atmosphereStore = {
     }
   },
 
+  /** Asks the server for the live investigation and swaps it in when it arrives. */
+  requestLiveUpgrade(query: string, countryIso2?: string): Promise<ArgonInvestigationResult | null> {
+    const seq = ++liveRequestSeq;
+    this.setState({ liveDataStatus: 'LOADING', liveDataError: null });
+    pendingLive = (async () => {
+      try {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 45000);
+        const res = await fetch('/api/v1/assistant/query', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query, currentCountryIso2: countryIso2 ?? state.selectedLocation.countryIso2 }),
+          signal: ctrl.signal,
+        });
+        clearTimeout(timer);
+        const payload = res.ok ? await res.json() : null;
+        const inv: ArgonInvestigationResult | undefined = payload?.investigation;
+        if (seq !== liveRequestSeq) return null; // superseded by a newer question
+        if (!inv || inv.dataMode !== 'LIVE_OPEN_DATA') {
+          this.setState({
+            liveDataStatus: 'OFFLINE_FALLBACK',
+            liveDataError: payload?.liveError ?? (res.ok ? 'Live providers unavailable' : `HTTP ${res.status}`),
+          });
+          return null;
+        }
+        const report = generateArgonScientificReport(inv, 'FULL_28_SECTION_SCIENTIFIC_REPORT');
+        this.setState((curr) => ({
+          liveDataStatus: 'LIVE',
+          liveDataError: null,
+          customModelWeights: {},
+          staleForecastInjected: false,
+          activeInvestigation: inv,
+          activeReport: report,
+          investigationHistory: [
+            inv,
+            ...curr.investigationHistory.filter(
+              (item) => item.investigationId !== curr.activeInvestigation.investigationId && item.investigationId !== inv.investigationId
+            ),
+          ].slice(0, 12),
+        }));
+        return inv;
+      } catch (err) {
+        if (seq === liveRequestSeq) {
+          this.setState({ liveDataStatus: 'OFFLINE_FALLBACK', liveDataError: String((err as Error)?.message ?? err) });
+        }
+        return null;
+      }
+    })();
+    return pendingLive;
+  },
+
+  /** Resolves with the live investigation for the latest question (or null on timeout/fallback). */
+  waitForLiveInvestigation(timeoutMs = 30000): Promise<ArgonInvestigationResult | null> {
+    return Promise.race([pendingLive, new Promise<null>((r) => setTimeout(() => r(null), timeoutMs))]);
+  },
+
   runArgonQuery(
     query: string,
     options?: {
@@ -524,13 +636,33 @@ export const atmosphereStore = {
     const weights = options?.customWeights ?? prev.customModelWeights;
     const stale = options?.injectStaleForecastTest ?? prev.staleForecastInjected;
 
-    const inv = executeArgonVoiceWorkflow({
+    // Judge assumption changes on a live investigation: recompute locally from the live inputs
+    const isAssumptionChange =
+      options?.customWeights !== undefined || options?.injectStaleForecastTest !== undefined;
+    if (
+      isAssumptionChange &&
+      prev.activeInvestigation.dataMode === 'LIVE_OPEN_DATA' &&
+      query === prev.activeInvestigation.userQuery
+    ) {
+      const liveInv = recomputeLiveInvestigation(prev.activeInvestigation, weights, stale);
+      this.setState({
+        activeInvestigation: liveInv,
+        activeReport: generateArgonScientificReport(liveInv, 'FULL_28_SECTION_SCIENTIFIC_REPORT'),
+        customModelWeights: weights,
+        staleForecastInjected: stale,
+        activeWorkspace: options?.openReportWorkspace ? 'SCIENTIFIC_REPORT' : prev.activeWorkspace,
+      });
+      return liveInv;
+    }
+
+    const inv = withFixtureLabel(executeArgonVoiceWorkflow({
       query,
       currentCountryIso2: prev.selectedLocation.countryIso2,
       previousInvestigation: prev.activeInvestigation,
       customWeights: weights,
       injectStaleForecastTest: stale,
-    });
+    }));
+    if (!isAssumptionChange) void this.requestLiveUpgrade(query, prev.selectedLocation.countryIso2);
 
     const report = generateArgonScientificReport(
       inv,
@@ -586,6 +718,18 @@ export const atmosphereStore = {
     return inv;
   },
 };
+
+// Replace the offline baseline with live data on first load (browser only)
+if (typeof window !== 'undefined') {
+  setTimeout(
+    () =>
+      void atmosphereStore.requestLiveUpgrade(
+        `Hey ARGON, analyse how predicted weather in ${initialLocation.name} (${initialLocation.countryName}) could affect markets next week.`,
+        initialLocation.countryIso2
+      ),
+    0
+  );
+}
 
 export function useAtmosphereStore(): AtmosphereAppState {
   return useSyncExternalStore(

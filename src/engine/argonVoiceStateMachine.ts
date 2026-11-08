@@ -281,11 +281,17 @@ class ArgonVoiceStateMachine {
       this.activeToolStep = cmdSummary;
       this.notify();
 
+      // Wait (briefly) for the live open-data investigation so ARGON speaks live numbers, not fixtures
+      this.activeToolStep = 'Fetching live forecasts, verification archives & market data...';
+      this.notify();
+      const liveInv = await atmosphereStore.waitForLiveInvestigation(30000);
+      const spokenInv = liveInv ?? result.investigation;
+
       const st = atmosphereStore.getState();
       let spokenResponse =
         st.userMode === 'ADVANCED'
-          ? result.investigation.spokenExecutiveBriefingAdvanced
-          : result.investigation.spokenExecutiveBriefingBasic;
+          ? spokenInv.spokenExecutiveBriefingAdvanced
+          : spokenInv.spokenExecutiveBriefingBasic;
 
       // Optional server-side Gemini Live/Voice enrichment
       try {

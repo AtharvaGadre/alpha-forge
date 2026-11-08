@@ -6,6 +6,7 @@
 // ============================================================================
 
 import { getCountryDeepDiveProfile, type CountrySpecificDeepProfile } from './countryDeepDiveEngine.ts';
+import type { LiveAtmosphereInvestigation } from './liveAtmospherePipeline.ts';
 
 export type ArgonVoiceModelId = 'gemini-3.8-live' | 'gemini-3.8-live-extended-thinking';
 
@@ -15,7 +16,12 @@ export type WeatherModelId =
   | 'GRAPHCAST_DETERMINISTIC'
   | 'ECMWF_AIFS'
   | 'ECMWF_IFS'
-  | 'NOAA_GFS';
+  | 'NOAA_GFS'
+  | 'DWD_ICON'
+  | 'UKMO_UM'
+  | 'METEOFRANCE_ARPEGE'
+  | 'JMA_GSM'
+  | 'ECCC_GEM';
 
 export interface WeatherModelRegistryEntry {
   modelId: WeatherModelId;
@@ -529,7 +535,10 @@ export interface MultiModelEnsembleResult {
  * calibration so raw ensemble spread is never confused with calibrated predictive uncertainty.
  */
 export function computeWeightedEnsembleForecast(
-  inputs: ModelSingleForecastInput[]
+  inputs: ModelSingleForecastInput[],
+  // Spread-inflation calibration. Live runs pass the factor fitted on held-out
+  // verification days; the default reproduces the original demo constants.
+  calibration: { inflation: number; floorMm: number } = { inflation: 1.18, floorMm: 1.25 }
 ): MultiModelEnsembleResult {
   if (!inputs || inputs.length === 0) {
     throw new Error('computeWeightedEnsembleForecast requires at least one model forecast input.');
@@ -565,8 +574,9 @@ export function computeWeightedEnsembleForecast(
   }
 
   const rawEnsembleSpreadMm = Math.sqrt(withinModelVarMm + betweenModelVarMm);
-  // EMOS calibration factor (α = 1.18 on historical validation data to correct under-dispersion)
-  const calibratedPredictiveStdMm = Number((rawEnsembleSpreadMm * 1.18 + 1.25).toFixed(2));
+  const calibratedPredictiveStdMm = Number(
+    (rawEnsembleSpreadMm * calibration.inflation + calibration.floorMm).toFixed(2)
+  );
   const z90 = 1.64485;
   const low90 = Math.max(0, Number((ensemblePrecip - z90 * calibratedPredictiveStdMm).toFixed(1)));
   const high90 = Number((ensemblePrecip + z90 * calibratedPredictiveStdMm).toFixed(1));
@@ -591,9 +601,9 @@ export function computeWeightedEnsembleForecast(
 
   const disagreementExplanation =
     disagreementLevel === 'MATERIAL_DISAGREEMENT'
-      ? `Material inter-model spread of ${disagreementIndexMm} mm: ${highestModel.modelName} projects ${highestModel.predictedPrecipitationMm.toFixed(1)} mm whereas ${lowestModel.modelName} projects ${lowestModel.predictedPrecipitationMm.toFixed(1)} mm due to convective parameterization vs AI diffusion moisture transport differences.`
+      ? `Material inter-model spread of ${disagreementIndexMm} mm: ${highestModel.modelName} projects ${highestModel.predictedPrecipitationMm.toFixed(1)} mm whereas ${lowestModel.modelName} projects ${lowestModel.predictedPrecipitationMm.toFixed(1)} mm. Treat the spread as genuine forecast uncertainty.`
       : disagreementLevel === 'MODERATE_DIVERGENCE'
-      ? `Moderate spread of ${disagreementIndexMm} mm between ${highestModel.modelName} (${highestModel.predictedPrecipitationMm.toFixed(1)} mm) and ${lowestModel.modelName} (${lowestModel.predictedPrecipitationMm.toFixed(1)} mm); timing aligns within ±6h.`
+      ? `Moderate spread of ${disagreementIndexMm} mm between ${highestModel.modelName} (${highestModel.predictedPrecipitationMm.toFixed(1)} mm) and ${lowestModel.modelName} (${lowestModel.predictedPrecipitationMm.toFixed(1)} mm).`
       : `High multi-model consensus (spread only ${disagreementIndexMm} mm across all ${normalized.length} models).`;
 
   const weightSumCheck = Number(
@@ -997,12 +1007,18 @@ export interface ArgonInvestigationResult {
     modelInputs: ModelSingleForecastInput[];
     ensembleResult: MultiModelEnsembleResult;
     verificationMetrics: WeatherVerificationMetrics;
+    exceedanceLabel?: string;
+    calibrationInflation?: number;
   };
   epistemicMatrix: ArgonEpistemicSeparationMatrix;
   conditionalWatchlist: ArgonConditionalWatchlistItem[];
   provenanceCheck: ForecastProvenanceCheckResult;
   autonomousImprovements: ForecastImprovementExperimentRecord[];
   followUpSuggestions: string[];
+  // LIVE_OPEN_DATA = computed by liveAtmospherePipeline.ts from live APIs;
+  // OFFLINE_DEMO_FIXTURE (or absent) = the built-in deterministic demo values below.
+  dataMode?: 'LIVE_OPEN_DATA' | 'OFFLINE_DEMO_FIXTURE';
+  live?: LiveAtmosphereInvestigation;
 }
 
 /**
@@ -2199,6 +2215,49 @@ export function generateArgonScientificReport(
     },
   ];
 
+  const live = investigation.live;
+  if (live) {
+    // Live investigations: replace sections whose demo text would otherwise describe fixtures
+    const v = live.verification;
+    const override = (n: number, content: string) => {
+      const sec = sections28.find((x) => x.sectionNumber === n);
+      if (sec) sec.content = content;
+    };
+    override(4, live.epistemic.A_whatWeatherOccurred.join(' '));
+    override(
+      5,
+      `Retrieved ${live.generatedAtUtc}. ${live.dataLog.filter((d) => d.ok).length} successful requests: ${Array.from(new Set(live.dataLog.filter((d) => d.ok).map((d) => d.source))).join('; ')}. Failed: ${live.dataLog.filter((d) => !d.ok).map((d) => `${d.source} (${d.note})`).join('; ') || 'none'}.`
+    );
+    override(
+      6,
+      `Forecast window ${live.windows.forecastLabel}; past window ${live.windows.pastLabel}. Model initialisations: ${live.provenance.map((p) => `${p.name} ${p.initTimestampUtc ?? 'unknown'} (${p.gate.status})`).join('; ')}.`
+    );
+    override(
+      7,
+      live.modelForecasts.map((m) => `${m.name}: ${m.includedInEnsemble ? 'used' : `excluded — ${m.exclusionReason}`}`).join('; ') +
+        `. Ensemble members: ECMWF ENS ${live.ensembleMembers.ecmwfMembers}, NOAA GEFS ${live.ensembleMembers.gefsMembers}.`
+    );
+    override(
+      15,
+      `Climatology: Copernicus ERA5 reanalysis for the same calendar weeks over the previous ${live.climatology.years} years. ` +
+        live.signals.map((x) => `${x.label}: ${x.value} vs ${x.normal} ${x.unit} (z = ${x.zScore}, ${x.materiality})`).join('; ') + '.'
+    );
+    override(
+      16,
+      v
+        ? `Chronological split. Weights and spread inflation fitted on ${v.trainWindow} (${v.nTrain} point-days); evaluated on unseen ${v.testWindow} (${v.nTest} point-days) at day-${v.leadDays} lead against ERA5. Equal-weight CRPS ${v.equalWeight.crps} mm vs skill-weighted ${v.skillWeighted.crps} mm → ${v.verdict}.`
+        : 'Held-out evaluation could not be run for this location (insufficient archived forecast/ERA5 overlap).'
+    );
+    override(
+      27,
+      `Reproduce with: GET /api/v2/atmosphere/investigate?q=${encodeURIComponent(live.query)} (returns every raw model input, weight and data-source URL), or npx tsx scripts/live-smoke.ts "${live.query}". Ensemble re-computed from published inputs: ${live.reproducibility.reconciliationPassed ? 'identical' : 'MISMATCH'}. Input SHA-256: ${live.reproducibility.inputsSha256}. Live data changes every model cycle (6 h), so re-runs reflect newer forecasts.`
+    );
+    override(
+      28,
+      `Repository: https://github.com/AtharvaGadre/alpha-forge | Pipeline: ${live.pipelineVersion} | Data: Open-Meteo (CC BY 4.0), Copernicus ERA5, NASA POWER, Yahoo Finance (unofficial) | Input SHA-256: ${live.reproducibility.inputsSha256}`
+    );
+  }
+
   return {
     reportId: `RPT-${investigation.investigationId}`,
     investigationId: investigation.investigationId,
@@ -2206,9 +2265,9 @@ export function generateArgonScientificReport(
     tier,
     title: `AlphaForge Atmosphere Scientific & Market Intelligence Report — ${scope.regionLabel}`,
     regionLabel: scope.regionLabel,
-    commitHash: 'AF-ATMOSPHERE-ARGON-v4.0',
-    datasetSnapshotId: 'AF-WX-ERA5-OPENMETEO-2026.11',
-    modelRegistryChecksum: 'SHA256-9F8A4E2C1B7D06E3A5C81294B70E3D1F',
+    commitHash: live ? live.pipelineVersion : 'AF-ATMOSPHERE-ARGON-v4.0',
+    datasetSnapshotId: live ? `OPEN-METEO-LIVE-${live.generatedAtUtc}` : 'AF-WX-ERA5-OPENMETEO-2026.11 (offline demo fixture)',
+    modelRegistryChecksum: live ? `SHA256-${live.reproducibility.inputsSha256.slice(0, 32).toUpperCase()}` : 'SHA256-9F8A4E2C1B7D06E3A5C81294B70E3D1F',
     executiveSummaryPlain: investigation.spokenExecutiveBriefingBasic,
     thirtySecondSpokenScript: investigation.thirtySecondSpokenSummary,
     equations,
