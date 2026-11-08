@@ -19,6 +19,7 @@ import {
 import { type ArgonStructuredReport } from '../engine/argonAtmosphereEngine';
 import { atmosphereStore, useAtmosphereStore } from '../state/atmosphereStore';
 import { argonAudioManager } from '../engine/argonAudioManager';
+import { DataModeBadge, LiveVerificationPanel } from './LiveVerificationPanel';
 
 export interface ArgonScientificReportModalProps {
   report?: ArgonStructuredReport | null;
@@ -145,8 +146,11 @@ export const ArgonScientificReportModal: React.FC<
             Return to Earth Globe
           </button>
           <div>
-            <div className="text-xs font-mono text-slate-400">
-              {activeReport.reportId} · {activeReport.modelRegistryChecksum.slice(0, 18)}
+            <div className="flex flex-wrap items-center gap-2 text-xs font-mono text-slate-400">
+              <span>
+                {activeReport.reportId} · {activeReport.modelRegistryChecksum.slice(0, 18)}
+              </span>
+              <DataModeBadge inv={activeReport.investigationSnapshot} status={state.liveDataStatus} />
             </div>
             <h1 className="text-sm sm:text-base font-semibold text-white">
               {activeReport.title}
@@ -224,6 +228,10 @@ export const ArgonScientificReportModal: React.FC<
               {activeReport.executiveSummaryPlain}
             </p>
           </div>
+
+          {activeReport.investigationSnapshot.live && (
+            <LiveVerificationPanel live={activeReport.investigationSnapshot.live} />
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
             <div className="bg-slate-950/70 border border-slate-800/90 rounded-xl p-4">

@@ -17,6 +17,35 @@ import {
 } from '@google/genai';
 import { runSlippageMonteCarlo } from './src/engine/slippageMonteCarlo.ts';
 import {
+  runLiveAtmospherePipeline,
+  toArgonInvestigation,
+} from './src/engine/liveAtmospherePipeline.ts';
+
+/**
+ * Runs the live open-data pipeline (predict → consequences → explain → verify) and adapts it
+ * to the ARGON investigation shape. Falls back to the clearly-labelled offline demo fixture
+ * only if the live data providers are unreachable.
+ */
+async function investigateLiveOrFallback(query: string, currentCountryIso2?: string) {
+  const profile = getCountryDeepDiveProfile(String(currentCountryIso2 || 'GB'));
+  try {
+    const live = await runLiveAtmospherePipeline({
+      query,
+      fallbackLocation: {
+        label: `${profile.financialHubCity}, ${profile.countryName}`,
+        countryCode: profile.iso2,
+        lat: profile.lat,
+        lng: profile.lng,
+      },
+    });
+    return { investigation: toArgonInvestigation(live), live, liveError: null as string | null };
+  } catch (err: any) {
+    const investigation = executeArgonVoiceWorkflow({ query, currentCountryIso2 });
+    investigation.dataMode = 'OFFLINE_DEMO_FIXTURE';
+    return { investigation, live: null, liveError: String(err?.message || err) };
+  }
+}
+import {
   runDeterministicBacktest,
   simulateQuantPhysicsSDE,
   FACTOR_CATALOGUE,
@@ -1095,17 +1124,36 @@ Ground your synthesis strictly in the verified country data below (do NOT fabric
   });
 
   // 10d. GET /api/v1/weather/forecast
-  app.get('/api/v1/weather/forecast', (req, res) => {
+  app.get('/api/v1/weather/forecast', async (req, res) => {
     const query = String(req.query.q || req.query.country || 'Asia');
-    const workflow = executeArgonVoiceWorkflow({ query });
+    const { investigation, liveError } = await investigateLiveOrFallback(query);
     res.json({
-      provider: 'AlphaForge Multi-Model Forecast Synthesis',
+      provider: investigation.dataMode === 'LIVE_OPEN_DATA' ? 'Open-Meteo multi-model (live)' : 'Offline demo fixture',
+      dataMode: investigation.dataMode,
+      liveError,
       timestampUtc: new Date().toISOString(),
-      scope: workflow.resolvedScope,
-      modelComparison: workflow.modelComparison,
-      provenanceCheck: workflow.provenanceCheck,
+      scope: investigation.resolvedScope,
+      modelComparison: investigation.modelComparison,
+      provenanceCheck: investigation.provenanceCheck,
     });
   });
+
+  // 10d-2. GET/POST /api/v2/atmosphere/investigate — full live pipeline output (raw inputs, skill, consequences, data log)
+  const handleLiveInvestigate = async (req: express.Request, res: express.Response) => {
+    const query = String(req.body?.query ?? req.query.q ?? '').trim();
+    if (!query) {
+      res.status(400).json({ error: 'Provide ?q=<question or place> or {"query": "..."}' });
+      return;
+    }
+    try {
+      const live = await runLiveAtmospherePipeline({ query, customWeights: req.body?.customWeights });
+      res.json(live);
+    } catch (err: any) {
+      res.status(502).json({ error: String(err?.message || err), dataMode: 'LIVE_UNAVAILABLE' });
+    }
+  };
+  app.get('/api/v2/atmosphere/investigate', handleLiveInvestigate);
+  app.post('/api/v2/atmosphere/investigate', handleLiveInvestigate);
 
   // 10e. GET /api/v1/weather/layers
   app.get('/api/v1/weather/layers', (_req, res) => {
@@ -1227,11 +1275,11 @@ Ground your synthesis strictly in the verified country data below (do NOT fabric
         currentCountryIso2 = 'SE',
       } = req.body || {};
 
-      // 1. Always execute deterministic validated tool pipeline first (Zero Fabrication invariant)
-      const investigation = executeArgonVoiceWorkflow({
-        query: String(query),
-        currentCountryIso2: String(currentCountryIso2),
-      });
+      // 1. Live open-data pipeline first (deterministic maths on live inputs); offline fixture only if providers fail
+      const { investigation, liveError } = await investigateLiveOrFallback(
+        String(query),
+        String(currentCountryIso2)
+      );
 
       // 2. If GEMINI_API_KEY is configured, allow Gemini 3.8 Flash to refine the spoken narrative strictly grounded in the deterministic tool outputs
       if (
@@ -1300,6 +1348,8 @@ Strictly use ONLY the verified tool figures below (never fabricate numbers, and 
         assistantName: 'ARGON',
         investigation,
         reportId: report.reportId,
+        dataMode: investigation.dataMode,
+        liveError,
       });
     } catch (err: any) {
       res.status(400).json({
@@ -1496,7 +1546,7 @@ Strictly use ONLY the verified tool figures below (never fabricate numbers, and 
     const queryArgonWeatherAndMarketsTool: FunctionDeclaration = {
       name: 'queryArgonWeatherAndMarkets',
       description:
-        'Executes deterministic multi-model weather forecast comparison (WeatherNext 3, ECMWF, GFS, GraphCast) and conditional financial market impact analysis for any region or country.',
+        'Runs the live AlphaForge pipeline for any place or region: multi-model forecast (ECMWF IFS/AIFS, GFS, ICON, UKMO), held-out verification against ERA5, climatology anomalies, and conditional market-consequence analysis.',
       behavior: Behavior.NON_BLOCKING,
       parameters: {
         type: Type.OBJECT,
@@ -1549,7 +1599,7 @@ Strictly use ONLY the verified tool figures below (never fabricate numbers, and 
               'You are ARGON, the autonomous voice weather and market intelligence assistant for AlphaForge Atmosphere. Always call queryArgonWeatherAndMarkets for numerical weather forecasts, model comparisons, and market impact data, and distinguish observed history from conditional future scenarios.',
           },
           callbacks: {
-            onmessage: (message: LiveServerMessage) => {
+            onmessage: async (message: LiveServerMessage) => {
               const content = message.serverContent;
               if (content?.inputTranscription?.text) {
                 clientWs.send(
@@ -1575,7 +1625,7 @@ Strictly use ONLY the verified tool figures below (never fabricate numbers, and 
               }
               for (const call of message.toolCall?.functionCalls ?? []) {
                 const q = String((call.args as any)?.query || 'Asia');
-                const inv = executeArgonVoiceWorkflow({ query: q });
+                const { investigation: inv } = await investigateLiveOrFallback(q);
                 clientWs.send(JSON.stringify({ investigation: inv }));
                 liveSession?.sendToolResponse({
                   functionResponses: [

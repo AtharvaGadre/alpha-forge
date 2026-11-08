@@ -28,7 +28,7 @@ jobs:
         run: npm run lint
 
       - name: Run Deterministic Weather, Market & Trade Idea Unit Tests
-        run: npx --yes tsx --test src/engine/quantEngine.test.ts
+        run: npm test
 
       - name: Build Production Web Bundle
         run: npm run build

@@ -998,6 +998,7 @@ export const WorldPulseGlobe3D: React.FC<WorldPulseGlobe3DProps> = ({
     'GOOGLE_3D_GLOBE' | 'GOOGLE_HYBRID_MAP'
   >('GOOGLE_3D_GLOBE');
   const [cameraStage, setCameraStage] = useState<CameraStageMode>('WORLD_GLOBE');
+  const [mapsKeyMissing, setMapsKeyMissing] = useState<boolean>(false);
   const [activeInfoBanner, setActiveInfoBanner] =
     useState<InfoBannerState | null>(null);
   const [internalSelectedVesselId, setInternalSelectedVesselId] = useState<
@@ -1018,10 +1019,12 @@ export const WorldPulseGlobe3D: React.FC<WorldPulseGlobe3DProps> = ({
       .then((data) => {
         if (data?.googleMapsApiKey) {
           setRuntimeMapsKey(String(data.googleMapsApiKey));
+        } else {
+          setMapsKeyMissing(true);
         }
       })
       .catch(() => {
-        // Keep fallback
+        setMapsKeyMissing(true);
       });
   }, [runtimeMapsKey]);
 
@@ -1513,7 +1516,9 @@ export const WorldPulseGlobe3D: React.FC<WorldPulseGlobe3DProps> = ({
           </APIProvider>
         ) : (
           <div className="w-full h-full flex items-center justify-center text-slate-400 text-sm">
-            Initializing Google Photorealistic 3D Globe...
+            {mapsKeyMissing
+              ? '3D globe needs a Google Maps Platform key (set GOOGLE_MAPS_PLATFORM_KEY). ARGON forecasts, verification and reports work without it.'
+              : 'Initializing Google Photorealistic 3D Globe...'}
           </div>
         )}
       </div>

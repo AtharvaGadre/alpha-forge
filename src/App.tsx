@@ -52,6 +52,7 @@ import {
 } from './engine/atmosphereIntelligenceDeckEngine';
 import { argonAudioManager } from './engine/argonAudioManager';
 import { ActionableTradePlaybook } from './components/ActionableTradePlaybook';
+import { DataModeBadge, LiveVerificationPanel } from './components/LiveVerificationPanel';
 
 export function App() {
   const state = useAtmosphereStore();
@@ -160,6 +161,8 @@ export function App() {
                 </div>
               </div>
             </button>
+
+            <DataModeBadge inv={inv} status={state.liveDataStatus} />
 
             {/* Primary Futuristic Navigation Pills */}
             <nav
@@ -1387,7 +1390,9 @@ export function App() {
                         <th className="p-3.5">Predicted Temp</th>
                         <th className="p-3.5">Predicted Precip (mm)</th>
                         <th className="p-3.5">Predicted Wind (m/s)</th>
-                        <th className="p-3.5">Exceedance (&gt;20mm)</th>
+                        <th className="p-3.5">
+                          {inv.modelComparison.exceedanceLabel ?? 'Exceedance (>20mm)'}
+                        </th>
                         <th className="p-3.5">Skill Weight</th>
                       </tr>
                     </thead>
@@ -1465,6 +1470,8 @@ export function App() {
                     </button>
                   </div>
                 </div>
+
+                {inv.live && <LiveVerificationPanel live={inv.live} />}
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {inv.modelComparison.modelInputs.map((m) => (
