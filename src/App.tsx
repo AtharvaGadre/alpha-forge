@@ -51,6 +51,7 @@ import {
   type PredictionMarketTradeIdea,
 } from './engine/atmosphereIntelligenceDeckEngine';
 import { argonAudioManager } from './engine/argonAudioManager';
+import { ActionableTradePlaybook } from './components/ActionableTradePlaybook';
 
 export function App() {
   const state = useAtmosphereStore();
@@ -392,87 +393,112 @@ export function App() {
         {/* Left: Compact Location Summary Card (Level 1) */}
         <LocationSummary />
 
-        {/* Right: Spotlight Card — Predicted Weather Effect on Financial Markets & Top Trade Idea */}
+        {/* Right: Compact Actionable Trade Playbook Preview Card ("What Trades To Act On") */}
         {spotlightIdea && state.activeSidePanel === 'NONE' && (
           <aside
             data-testid="hero-trade-idea-spotlight"
-            className="hidden lg:block pointer-events-auto absolute top-16 right-5 z-20 w-[355px] rounded-2xl bg-slate-950/88 backdrop-blur-xl border border-slate-700/80 shadow-2xl p-4 text-slate-100"
+            className="hidden lg:block pointer-events-auto absolute top-16 right-5 z-20 w-[390px] max-h-[calc(100vh-155px)] overflow-y-auto rounded-2xl bg-[#070d19]/95 backdrop-blur-xl border border-emerald-500/40 shadow-2xl p-4 text-slate-100"
           >
-            <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-slate-800/80">
-              <div className="flex items-center gap-1.5">
-                <TrendingUp className="w-4 h-4 text-emerald-400" />
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-emerald-300">
-                  Weather → Market Trade Idea
-                </span>
-              </div>
-              <span className="px-2 py-0.5 rounded-md bg-sky-500/15 border border-sky-400/30 text-[10px] font-mono text-sky-300">
-                {loc.countryName} ({loc.countryIso2})
+            <div className="flex items-center justify-between gap-2">
+              <span className="px-2.5 py-0.5 rounded bg-emerald-950/90 border border-emerald-500/50 text-emerald-300 font-mono text-[10px] font-bold uppercase tracking-wider">
+                STEP 3 • ACTIONABLE TRADE PLAYBOOK
+              </span>
+              <span className="px-2 py-0.5 rounded bg-slate-900 border border-sky-500/30 font-mono text-[10px] text-sky-300">
+                Horizon: Live ({state.timelineOffsetHours}h)
               </span>
             </div>
 
-            <div className="mt-2.5">
+            <h3 className="text-base font-extrabold text-white mt-2.5">
+              What Trades To Act On ({loc.countryName})
+            </h3>
+            <p className="text-[11px] text-slate-300 mt-1 leading-relaxed">
+              Combining weather simulations, live AIS cargo vessels, and central
+              bank macro indicators yields high-conviction setups in both
+              traditional stocks and binary prediction markets.
+            </p>
+
+            {/* Quick Top Prediction Signal */}
+            <div className="mt-3 p-3 rounded-xl bg-[#0b1220] border border-amber-500/40 space-y-2">
               <div className="flex items-center justify-between gap-2">
-                <span
-                  className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
-                    spotlightIdea.suggestedDirection === 'LONG'
-                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40'
-                      : spotlightIdea.suggestedDirection === 'SHORT'
-                      ? 'bg-rose-500/20 text-rose-300 border border-rose-400/40'
-                      : 'bg-amber-500/20 text-amber-300 border border-amber-400/40'
-                  }`}
-                >
-                  {spotlightIdea.suggestedDirection} •{' '}
-                  {spotlightIdea.convictionScore}/100 Conviction
+                <span className="px-2 py-0.5 rounded bg-emerald-950 border border-emerald-500/50 text-emerald-300 font-mono text-[10px] font-bold">
+                  ▲ BUY YES
                 </span>
-                <span className="text-xs font-mono font-semibold text-sky-300">
-                  {spotlightIdea.impliedProbabilityPct}% Implied Odds
-                </span>
+                <div className="flex items-center gap-1.5 font-mono text-[10px]">
+                  <span className="px-2 py-0.5 rounded bg-amber-950/90 border border-amber-500/40 text-amber-300 font-bold">
+                    +15% Edge
+                  </span>
+                  <span className="px-2 py-0.5 rounded bg-sky-950/90 border border-sky-500/40 text-sky-300 font-bold">
+                    1.43x Payout
+                  </span>
+                </div>
               </div>
-
-              <h3 className="text-xs font-semibold text-white mt-2 leading-snug">
-                {spotlightIdea.tradeThesisTitle}
-              </h3>
-
-              <p className="text-[11px] text-slate-300 mt-1.5 leading-relaxed">
-                <strong className="text-sky-300">Weather Catalyst:</strong>{' '}
-                {spotlightIdea.weatherEvidenceSummary}
-              </p>
-
-              <p className="text-[11px] text-slate-300 mt-1.5 leading-relaxed">
-                <strong className="text-emerald-300">Market Effect:</strong>{' '}
+              <div className="text-xs font-bold text-white leading-snug">
+                {spotlightIdea.contractQuestion}
+              </div>
+              <div className="p-2 rounded-lg bg-[#111a2e] border border-slate-800 space-y-1">
+                <div className="flex items-center justify-between text-[10px] font-mono">
+                  <span className="text-slate-300">
+                    Market Odds:{' '}
+                    <strong className="text-amber-400">70¢ (70%)</strong>
+                  </span>
+                  <span className="text-slate-300">
+                    Model Fair Odds:{' '}
+                    <strong className="text-emerald-400">85¢ (85%)</strong>
+                  </span>
+                </div>
+                <div className="w-full h-1.5 rounded-full bg-slate-950 overflow-hidden">
+                  <div
+                    className="h-full bg-amber-400 rounded-full"
+                    style={{ width: '70%' }}
+                  />
+                </div>
+              </div>
+              <p className="text-[11px] text-slate-300 leading-relaxed">
+                <strong className="text-sky-300">Why Act:</strong>{' '}
+                {spotlightIdea.weatherEvidenceSummary}{' '}
                 {spotlightIdea.economicMechanism}
               </p>
-
-              <div className="mt-2.5 flex flex-wrap gap-1">
-                {spotlightIdea.affectedInstruments.map((inst) => (
-                  <span
-                    key={inst.ticker}
-                    className="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-[10px] font-mono text-slate-200"
-                  >
-                    {inst.ticker} ({inst.expectedSensitivity})
-                  </span>
-                ))}
-              </div>
-
-              <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between gap-2">
-                <button
-                  type="button"
-                  onClick={() => scrollToResearchDeck('under-map-trade-ideas')}
-                  className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 border border-sky-400/40 text-xs font-medium text-sky-200 transition-colors"
-                >
-                  <span>View All Trade Ideas Below</span>
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                </button>
+              <div className="flex items-center justify-between pt-1">
+                <span className="text-[10px] font-mono text-slate-400">
+                  Stocks to Buy:{' '}
+                  <strong className="text-emerald-300">
+                    {spotlightIdea.affectedInstruments
+                      .map((i) => i.ticker)
+                      .join(', ')}
+                  </strong>
+                </span>
                 <button
                   type="button"
                   onClick={() =>
-                    atmosphereStore.openWorkspace('SCIENTIFIC_REPORT')
+                    scrollToResearchDeck('actionable-trade-playbook')
                   }
-                  className="px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[11px] text-slate-200 transition-colors"
+                  className="px-3 py-1 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-mono text-[11px] font-extrabold"
                 >
-                  28-Sec Report
+                  Act: Buy YES ($5k)
                 </button>
               </div>
+            </div>
+
+            <div className="mt-3 pt-2.5 border-t border-slate-800/80 flex items-center justify-between gap-2">
+              <button
+                type="button"
+                onClick={() =>
+                  scrollToResearchDeck('actionable-trade-playbook')
+                }
+                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-400/50 text-xs font-semibold text-emerald-200 transition-colors"
+              >
+                <span>Open Full 7-Signal Playbook Below</span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  atmosphereStore.openWorkspace('SCIENTIFIC_REPORT')
+                }
+                className="px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-[11px] text-slate-200 transition-colors"
+              >
+                28-Sec Report
+              </button>
             </div>
           </aside>
         )}
@@ -740,6 +766,18 @@ export function App() {
         data-testid="under-map-research-deck"
         className="relative z-20 max-w-[1680px] mx-auto px-4 sm:px-6 py-8 space-y-8"
       >
+        {/* ===================================================================
+            STEP 3 • ACTIONABLE TRADE PLAYBOOK ("What Trades To Act On (<Country>)")
+            Exact match to the user's reference UI + Stock Insights ("Which to buy
+            & what is affecting what")
+        =================================================================== */}
+        <ActionableTradePlaybook
+          countryIso2={loc.countryIso2}
+          timelineOffsetHours={state.timelineOffsetHours}
+          onSelectTickerOrRegion={(query) =>
+            atmosphereStore.selectLocation(query, { openSummary: true })
+          }
+        />
         {/* ===================================================================
             SECTION 1: PREDICTED WEATHER EFFECTS ON FINANCIAL MARKETS &
                        RESEARCH-BACKED TRADE IDEAS / PREDICTION MARKETS

@@ -133,7 +133,7 @@ function loadInitialMode(): AtmosphereUserMode {
   return 'BASIC';
 }
 
-const initialLocation = CURATED_GEOGRAPHIC_TARGETS[0]; // London, UK
+const initialLocation = resolveGeographicTarget('Stockholm'); // Default to Sweden (SE) matching the Actionable Trade Playbook, dynamically updates for any selected country
 const initialGoogleKey = resolveGoogleMapsApiKey();
 const initialStackId: MapStackId = initialGoogleKey ? 'photoreal' : 'esri-imagery';
 const initialStackDesc = getMapStackDescriptor(initialStackId);
