@@ -268,7 +268,7 @@ class _AtmosphereHomeScreenState extends State<AtmosphereHomeScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _openArgonSheet,
         backgroundColor: const Color(0xFF0284C7),
-        icon: const Icon(Icons.Graphic_eq, color: Colors.white),
+        icon: const Icon(Icons.graphic_eq, color: Colors.white),
         label: const Text(
           'ARGON',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
