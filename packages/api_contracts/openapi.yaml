@@ -1,0 +1,109 @@
+openapi: 3.1.0
+info:
+  title: AlphaForge Atmosphere Shared Cross-Platform API
+  version: 4.0.0
+  description: >
+    Shared REST and WebSocket API contracts consumed by the AlphaForge Atmosphere
+    Web platform (React/TypeScript + CesiumJS) and Native Mobile applications
+    (Flutter + Dart for iOS and Android).
+servers:
+  - url: http://localhost:3000
+    description: Local / Cloud Run Unified Express + Vite + WebSocket Gateway
+  - url: http://localhost:8000
+    description: Python FastAPI Scientific Verification Companion Service
+paths:
+  /api/health:
+    get:
+      summary: Platform health and dataset provenance check
+      responses:
+        '200':
+          description: Nominal health response
+  /api/v1/weather/current:
+    get:
+      summary: Current weather observations and anomaly telemetry for coordinates
+      parameters:
+        - in: query
+          name: lat
+          schema:
+            type: number
+        - in: query
+          name: lng
+          schema:
+            type: number
+        - in: query
+          name: country
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Current weather telemetry
+  /api/v1/forecasts/compare:
+    get:
+      summary: Multi-model forecast comparison (ECMWF, GFS, GraphCast, WeatherNext, JMA, CPTEC)
+      parameters:
+        - in: query
+          name: region
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Skill-weighted consensus and per-model forecasts
+  /api/v1/trade-ideas:
+    get:
+      summary: Research-backed weather-to-market trade ideas and prediction market contracts
+      parameters:
+        - in: query
+          name: country
+          schema:
+            type: string
+        - in: query
+          name: offsetHours
+          schema:
+            type: number
+      responses:
+        '200':
+          description: List of research-backed trade ideas and prediction market probabilities
+  /api/v1/news-trade-ideas:
+    get:
+      summary: Verified regional meteorological/macro news and derived trade ideas
+      parameters:
+        - in: query
+          name: country
+          schema:
+            type: string
+      responses:
+        '200':
+          description: News items mapped to conditional trade ideas
+  /api/v1/ai-summary:
+    get:
+      summary: Bottom AI executive synthesis of predicted weather effects on financial markets
+      parameters:
+        - in: query
+          name: country
+          schema:
+            type: string
+        - in: query
+          name: locationName
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Structured AI executive synthesis with provenance hash
+  /api/v1/demo-presets:
+    get:
+      summary: Instant Demo Access workspace presets (Guest Explorer, Commodity Analyst, Weather Researcher, Global Macro Analyst)
+      responses:
+        '200':
+          description: Preset demo profiles
+  /api/v1/argon/query:
+    post:
+      summary: Execute ARGON autonomous weather-to-market research workflow
+      responses:
+        '200':
+          description: Full ArgonInvestigationResult and 28-section scientific report
+  /api/v1/argon/tts:
+    post:
+      summary: Synthesize spoken audio briefing via Gemini TTS
+      responses:
+        '200':
+          description: Base64 audio stream or fallback status

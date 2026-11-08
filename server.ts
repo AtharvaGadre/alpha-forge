@@ -67,6 +67,12 @@ import {
   generateArgonScientificReport,
   type ArgonStructuredReport,
 } from './src/engine/argonAtmosphereEngine.ts';
+import {
+  DEMO_PRESET_PROFILES,
+  getPredictionAndTradeIdeasForLocation,
+  getNewsDrivenTradeIdeasForLocation,
+  generateBottomAiResearchSummary,
+} from './src/engine/atmosphereIntelligenceDeckEngine.ts';
 
 
 dotenv.config();
@@ -1380,6 +1386,70 @@ Strictly use ONLY the verified tool figures below (never fabricate numbers, and 
       res.status(400).json({ error: err?.message || 'TTS request failed' });
     }
   });
+
+  // 10n. GET /api/v1/demo-presets — Shared Web & Native Mobile Demo Access Workspace Profiles
+  app.get('/api/v1/demo-presets', (_req, res) => {
+    res.json({
+      count: DEMO_PRESET_PROFILES.length,
+      demoModeLabel: 'DEMO ACCESS — PRESET RESEARCH WORKSPACES',
+      presets: DEMO_PRESET_PROFILES,
+    });
+  });
+
+  // 10o. GET /api/v1/trade-ideas & /api/v1/prediction-markets — Research-Backed Weather-to-Market Trade Ideas
+  app.get(['/api/v1/trade-ideas', '/api/v1/prediction-markets'], (req, res) => {
+    const countryIso2 = String(req.query.country || 'GB').toUpperCase();
+    const offsetHours = Number(req.query.offsetHours || 0);
+    const ideas = getPredictionAndTradeIdeasForLocation(countryIso2, offsetHours);
+    res.json({
+      countryIso2,
+      offsetHours,
+      count: ideas.length,
+      tradeIdeas: ideas,
+    });
+  });
+
+  // 10p. GET /api/v1/news-trade-ideas — General Trade Ideas from Verified Meteorological & Macro News
+  app.get('/api/v1/news-trade-ideas', (req, res) => {
+    const countryIso2 = String(req.query.country || 'GB').toUpperCase();
+    const items = getNewsDrivenTradeIdeasForLocation(countryIso2);
+    res.json({
+      countryIso2,
+      count: items.length,
+      newsTradeIdeas: items,
+    });
+  });
+
+  // 10q. GET /api/v1/ai-summary — Bottom AI Executive Synthesis of Predicted Weather Effects on Markets
+  app.get('/api/v1/ai-summary', (req, res) => {
+    const countryIso2 = String(req.query.country || 'GB').toUpperCase();
+    const locationName = String(req.query.locationName || countryIso2);
+    const offsetHours = Number(req.query.offsetHours || 0);
+    const inv = executeArgonVoiceWorkflow({
+      query: `Hey ARGON, analyse how predicted weather patterns in ${locationName} (${countryIso2}) affect financial markets and suggest research-backed trade ideas.`,
+      currentCountryIso2: countryIso2,
+    });
+    const tradeIdeas = getPredictionAndTradeIdeasForLocation(
+      countryIso2,
+      offsetHours
+    );
+    const newsIdeas = getNewsDrivenTradeIdeasForLocation(countryIso2);
+    const summary = generateBottomAiResearchSummary(
+      countryIso2,
+      locationName,
+      inv,
+      tradeIdeas,
+      newsIdeas
+    );
+    res.json({
+      countryIso2,
+      locationName,
+      summary,
+      investigationId: inv.investigationId,
+      provenanceHash: summary.provenanceHash,
+    });
+  });
+
 
   // Vite middleware in development or static dist serving in production
   if (process.env.NODE_ENV !== 'production') {

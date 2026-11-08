@@ -603,5 +603,63 @@ test('ARGON Atmosphere Engine: 6-Model Ensemble Math, Verification Metrics, Stal
   );
 });
 
+test('Weather-to-Market Intelligence Deck: Prediction Market Trade Ideas, News Trade Ideas, Demo Presets & Bottom AI Summary pass invariants', async () => {
+  const {
+    DEMO_PRESET_PROFILES,
+    getPredictionAndTradeIdeasForLocation,
+    getNewsDrivenTradeIdeasForLocation,
+    generateBottomAiResearchSummary,
+  } = await import('./atmosphereIntelligenceDeckEngine.ts');
+  const { executeArgonVoiceWorkflow } = await import('./argonAtmosphereEngine.ts');
 
+  // 1. Verify all 4 Demo Access Workspace Presets exist
+  assert.equal(DEMO_PRESET_PROFILES.length, 4);
+  assert.ok(DEMO_PRESET_PROFILES.some((p) => p.id === 'GUEST_EXPLORER'));
+  assert.ok(DEMO_PRESET_PROFILES.some((p) => p.id === 'COMMODITY_ANALYST'));
+  assert.ok(DEMO_PRESET_PROFILES.some((p) => p.id === 'WEATHER_RESEARCHER'));
+  assert.ok(DEMO_PRESET_PROFILES.some((p) => p.id === 'GLOBAL_MACRO_ANALYST'));
 
+  // 2. Verify Brazil (BR) research-backed trade ideas include ICE Arabica Coffee (KC=F)
+  const brIdeas = getPredictionAndTradeIdeasForLocation('BR', 0);
+  assert.ok(brIdeas.length >= 2);
+  assert.ok(
+    brIdeas[0].affectedInstruments.some((inst) => inst.ticker === 'KC=F')
+  );
+  assert.ok(brIdeas[0].weatherEvidenceSummary.includes('ECMWF'));
+  assert.ok(brIdeas[0].economicMechanism.length > 30);
+  assert.ok(brIdeas[0].invalidationCriteria.length > 20);
+
+  // 3. Verify Japan/Asia (JP), UK (GB), US, Sweden (SE), and arbitrary country (TD) return tailored trade ideas
+  for (const iso2 of ['JP', 'GB', 'US', 'SE', 'TD']) {
+    const ideas = getPredictionAndTradeIdeasForLocation(iso2, 24);
+    assert.ok(ideas.length >= 2, `Expected >=2 trade ideas for ${iso2}`);
+    for (const idea of ideas) {
+      assert.equal(idea.countryIso2, iso2);
+      assert.ok(idea.impliedProbabilityPct >= 5 && idea.impliedProbabilityPct <= 96);
+      assert.ok(idea.affectedInstruments.length >= 1);
+      assert.ok(idea.forecastSourceModels.length >= 2);
+    }
+
+    const newsIdeas = getNewsDrivenTradeIdeasForLocation(iso2);
+    assert.ok(newsIdeas.length >= 1, `Expected >=1 news trade idea for ${iso2}`);
+    assert.equal(newsIdeas[0].countryIso2, iso2);
+    assert.ok(newsIdeas[0].targetTickers.length >= 1);
+  }
+
+  // 4. Verify Bottom AI Research Summary synthesizes weather, models, prediction markets, and news
+  const brInv = executeArgonVoiceWorkflow({
+    query: 'Show me Brazil coffee regions and compare rainfall forecasts for the next ten days.',
+    currentCountryIso2: 'BR',
+  });
+  const brNews = getNewsDrivenTradeIdeasForLocation('BR');
+  const bottomSummary = generateBottomAiResearchSummary(
+    'BR',
+    'Sul de Minas Coffee Belt',
+    brInv,
+    brIdeas,
+    brNews
+  );
+  assert.ok(bottomSummary.headline.includes('Sul de Minas'));
+  assert.ok(bottomSummary.predictionMarketSynthesis.includes('KC=F'));
+  assert.ok(bottomSummary.confidenceAndRiskCaveat.includes('Conditional scenario'));
+});
