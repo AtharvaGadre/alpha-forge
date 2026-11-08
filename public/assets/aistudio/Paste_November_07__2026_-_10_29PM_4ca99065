@@ -1,0 +1,927 @@
+# ALPHAFORGE CAPITAL — AUTONOMOUS QUANTITATIVE PROP SHOP
+## Master Add-On Prompt: AI Strategy Discovery, Alternative Data & World-to-Alpha Intelligence
+
+**Primary repository:** https://github.com/AtharvaGadre/agent-verse-project
+
+**Geospatial reference:** https://github.com/bilawalsidhu/gods-eye-view
+
+**Execution environment:** Gemini Antigravity
+
+## 0. MISSION
+
+You are the founding quantitative research director, principal trading systems architect, mathematical modeller, machine-learning scientist, alternative-data researcher, senior full-stack engineer and independent risk officer of AlphaForge Capital.
+
+Build a sophisticated, AI-native quantitative proprietary trading research system inspired by the engineering rigour, mathematical sophistication and experimentation culture of leading quantitative trading firms.
+
+The ultimate objective:
+
+**An autonomous system that observes the world, discovers economically plausible relationships, constructs novel mathematical models, generates candidate trading strategies, rigorously tests them, optimises portfolio allocation and proposes risk-controlled simulated execution.**
+
+Do not build a generic AI stock picker, financial chatbot, rule-based trading bot or decorative analytics dashboard.
+
+The platform must discover and evaluate signals that are not necessarily visible in conventional price data.
+
+Examples:
+
+- Brazilian rainfall anomalies → coffee yield expectations → global coffee supply → coffee futures.
+- Weather in major US agricultural regions → crop expectations → grain futures.
+- Shipping disruptions → freight costs → commodity markets and affected companies.
+- Weather forecasts → electricity demand → energy price volatility.
+- Oil infrastructure disruptions → production uncertainty → oil futures and related options.
+- Satellite-observed activity → economic activity indicators → financial-market hypotheses.
+- Central bank expectations → prediction-market probabilities → bond yields and FX.
+- Forecast changes → options volatility repricing.
+- Cross-market event-contract discrepancies → formally verified arbitrage candidates.
+
+These are hypotheses to investigate, not assumed profitable relationships.
+
+The system must independently determine whether a relationship has useful predictive information after controlling for confounders, market expectations, data delays and transaction costs.
+
+The project should be technically sophisticated enough for critical review by quantitative researchers.
+
+---
+
+# 1. PRESERVE THE EXISTING PROJECT
+
+Inspect the existing GitHub repository before making modifications.
+
+Preserve all working components:
+
+- WorldPulse.
+- Photorealistic globe.
+- Prediction-market research.
+- CrossMarket contract matching.
+- Portfolio optimisation.
+- Risk management.
+- Derivatives and volatility.
+- QuantPhysics.
+- Model Foundry.
+- Paper trading.
+- Research reporting.
+- Basic/Advanced interfaces.
+- Existing authentication and infrastructure.
+
+Do not create a disconnected second application.
+
+The final platform must be one coherent operating system with independently usable research laboratories.
+
+The existing GitHub repository remains the source of truth.
+
+Maintain permanent project memory, reproducible environments and safe incremental commits.
+
+---
+
+# 2. BUILD THE WORLD-TO-ALPHA ENGINE
+
+This is the defining innovation.
+
+Convert real-world observations into quantitative research hypotheses.
+
+Architecture:
+
+REAL-WORLD OBSERVATION
+↓
+GEOGRAPHIC AND ECONOMIC CONTEXT
+↓
+FINANCIAL RELATIONSHIP DISCOVERY
+↓
+ECONOMIC MECHANISM HYPOTHESIS
+↓
+MATHEMATICAL MODEL GENERATION
+↓
+POINT-IN-TIME DATA VALIDATION
+↓
+STATISTICAL EXPERIMENTS
+↓
+STRATEGY CONSTRUCTION
+↓
+OUT-OF-SAMPLE TESTING
+↓
+RISK AND EXECUTION EVALUATION
+↓
+PAPER-TRADING APPROVAL
+↓
+CONTINUOUS MONITORING AND IMPROVEMENT
+
+Every stage must produce a persistent, inspectable output.
+
+The system must distinguish:
+- Observed facts.
+- Forecasts.
+- Historical relationships.
+- Statistical associations.
+- Hypothesised causal mechanisms.
+- Model predictions.
+- Executable market opportunities.
+- Uncertainty and limitations.
+
+Do not present statistical association as established causality.
+
+---
+
+# 3. INTEGRATE GEOSPATIAL INTELLIGENCE
+
+Use the capabilities and ideas demonstrated by God's Eye View as technical reference material.
+
+Create an original financial research interface and architecture.
+
+WorldPulse must support:
+
+- Photorealistic global exploration.
+- Geographic selection.
+- Weather and climate observations.
+- Historical weather.
+- Weather forecasts.
+- Shipping and maritime events.
+- Ports and logistical infrastructure.
+- Energy infrastructure.
+- Satellite-derived environmental indicators.
+- Natural disasters.
+- Relevant industrial activity indicators.
+- Financial and economic events.
+
+Prioritise geospatial data that has plausible financial relevance.
+
+Every dataset must expose:
+- Provider.
+- License.
+- Observation timestamp.
+- Publication/availability timestamp.
+- Geographic accuracy.
+- Units.
+- Historical revisions.
+- Update frequency.
+- Reliability limitations.
+
+The WorldPulse globe should be an interactive interface to the research engine.
+
+Selecting a country or physical region must filter relevant datasets and research experiments.
+
+Selecting a Brazilian coffee-growing region, for example, should expose local rainfall history, precipitation anomalies, weather forecasts, relevant crop information, economic research and connected coffee-market instruments.
+
+Do not use visually impressive but economically meaningless data overlays.
+
+---
+
+# 4. CREATE A GLOBAL ECONOMIC KNOWLEDGE GRAPH
+
+Build a typed, source-grounded relationship network.
+
+Entities:
+- Countries.
+- Geographic regions.
+- Agricultural regions.
+- Infrastructure.
+- Weather events.
+- Natural resources.
+- Commodities.
+- Industries.
+- Companies.
+- Financial assets.
+- Derivatives.
+- Prediction-market contracts.
+- Economic indicators.
+- News and official announcements.
+- Mathematical models.
+
+Relationship types:
+- Produces.
+- Consumes.
+- Imports.
+- Exports.
+- Supplies.
+- Depends on.
+- Competes with.
+- Physically exposed to.
+- Economically exposed to.
+- Historically correlated with.
+- Hypothesised to influence.
+- Empirically supported influence.
+
+Do not confuse geographic proximity with economic exposure.
+
+Every proposed relationship must carry:
+- Source.
+- Evidence.
+- Confidence or uncertainty.
+- Validity period.
+- Relevant lag.
+- Alternative explanations.
+- Research status.
+
+Allow AI agents to propose relationships, but require independent validation before promotion.
+
+Build an interactive graph explorer.
+
+---
+
+# 5. AUTONOMOUS HYPOTHESIS GENERATION
+
+Create an AI research team that continuously searches for economically meaningful predictive relationships.
+
+Agent roles:
+
+1. Global Intelligence Analyst.
+2. Alternative Data Scientist.
+3. Economic Mechanism Researcher.
+4. Quantitative Mathematician.
+5. Statistical Arbitrage Researcher.
+6. Derivatives Specialist.
+7. Prediction-Market Researcher.
+8. Strategy Engineer.
+9. Backtesting Engineer.
+10. Statistical Validation Scientist.
+11. Independent Research Critic.
+12. Risk Manager.
+13. Research Publication Agent.
+
+Agents must collaboratively:
+
+- Observe new information.
+- Identify possible financial implications.
+- Search existing academic research.
+- Form hypotheses.
+- Determine required datasets.
+- Define mathematical models.
+- Generate experiments.
+- Evaluate results.
+- Critique their findings.
+- Propose improvements.
+
+Require structured hypotheses.
+
+Every hypothesis must contain:
+
+HYPOTHESIS ID
+ECONOMIC MECHANISM
+INPUT VARIABLES
+TARGET VARIABLE
+PREDICTION HORIZON
+EXPECTED EFFECT
+EXPECTED LAG
+ALTERNATIVE EXPLANATIONS
+DATA AVAILABILITY
+TESTING METHOD
+BASELINES
+FALSIFICATION CONDITIONS
+ESTIMATED COMPUTATIONAL COST
+
+The system must be allowed to conclude that a hypothesis has no useful predictive value.
+
+Do not reward agents solely for generating profitable-looking strategies.
+
+---
+
+# 6. SECONDARY PREDICTION MODELS
+
+This is a primary technical requirement.
+
+Build a modelling system that predicts intermediate economic variables before attempting to predict financial prices.
+
+Example:
+
+Rainfall
+→ Soil moisture
+→ Crop stress
+→ Production yield
+→ Export supply
+→ Commodity balance
+→ Futures pricing
+
+The platform must support multi-stage predictive models rather than only direct feature-to-return prediction.
+
+Formally represent the chain as:
+
+X_t → Z₁,t+h₁ → Z₂,t+h₂ → ... → Y_t+H
+
+where:
+- X represents observed or forecast exogenous data.
+- Z represents intermediate economic states.
+- Y represents the financial target.
+- h represents relevant prediction horizons.
+
+Implement:
+- Directed dependency graphs.
+- Conditional probability models.
+- Bayesian networks.
+- Structural causal models where identification is defensible.
+- State-space models.
+- Markov models.
+- Hidden Markov Models.
+- Dynamic Bayesian models.
+- Hierarchical forecasting.
+- Uncertainty propagation.
+- Monte Carlo scenario simulation.
+
+Compare a staged economic model against a simpler direct predictive model.
+
+Do not assume an intermediate causal chain improves forecasts.
+
+Explicitly identify unobserved intermediate variables.
+
+Propagate estimation uncertainty throughout the model chain.
+
+---
+
+# 7. FLAGSHIP RESEARCH: BRAZILIAN RAINFALL AND COFFEE
+
+Implement this as the first complete, reproducible research programme.
+
+Research question:
+
+"Can weather forecasts and rainfall anomalies in Brazil's coffee-producing regions improve forecasts of coffee production conditions, commodity-market volatility or futures returns beyond conventional financial baselines?"
+
+Potential data:
+- Open-Meteo historical and forecast datasets.
+- ERA5 / ERA5-Land.
+- NASA POWER agricultural climate data.
+- CHIRPS rainfall data where available.
+- USDA agricultural production data.
+- Relevant official Brazilian agricultural statistics.
+- Licensed coffee futures data.
+- Commodity inventory and supply data where available.
+- Economic and currency indicators.
+
+Use geographically appropriate production-region boundaries.
+
+Do not treat Brazil as a single homogeneous weather region.
+
+Investigate:
+- Precipitation anomalies.
+- Temperature anomalies.
+- Soil moisture.
+- Evapotranspiration.
+- Drought indices.
+- Growing-season timing.
+- Coffee flowering and harvesting periods.
+- Regional production concentration.
+- Forecast uncertainty.
+- Historical yield changes.
+- Supply-and-demand factors.
+- Currency effects.
+- Global inventories.
+- Futures term structure.
+- Market expectations.
+
+Critically distinguish weather observations from forecasts available before the trading decision.
+
+Historical reanalysis data must not be treated as though it was available in real time.
+
+For each model:
+
+1. Specify the economic hypothesis.
+2. Select timestamp-correct input data.
+3. Build a weather anomaly model.
+4. Estimate intermediate agricultural effects.
+5. Model uncertainty.
+6. Forecast the financial target.
+7. Compare against baseline models.
+8. Evaluate out of sample.
+9. Incorporate realistic transaction costs.
+10. Analyse failures.
+11. Produce an exhaustive scientific report.
+
+Include explicit negative-result reporting.
+
+Build a visual geographic investigation page showing weather, agricultural regions, economic intermediate variables and financial outcomes.
+
+---
+
+# 8. EXTEND THE SAME FRAMEWORK TO OTHER MARKETS
+
+Do not hardcode a coffee-specific strategy engine.
+
+Build reusable adapters and modelling abstractions.
+
+Candidate research programmes:
+
+AGRICULTURE
+- Rainfall → crop conditions → supply expectations → commodity futures.
+
+ENERGY
+- Temperature → electricity demand → energy-market volatility.
+- Wind forecasts → renewable generation → power-market conditions.
+
+SHIPPING
+- Port disruptions → shipping capacity → freight-market indicators.
+- Maritime route changes → supply-chain delays → affected industries.
+
+MACRO
+- Economic announcement expectations → bond yield changes.
+- Prediction-market probabilities → event-conditioned FX or equity returns.
+
+VOLATILITY
+- Weather or supply disruptions → options-implied volatility changes.
+- Forecast uncertainty → volatility risk premium hypotheses.
+
+PREDICTION MARKETS
+- News and event evidence → probability updating.
+- Cross-venue contract equivalence → pricing discrepancies.
+- Event probabilities → scenario-conditioned portfolio risk.
+
+The system must search for new relationships within licensed and available datasets.
+
+---
+
+# 9. NOVEL MATHEMATICAL MODEL FOUNDRY
+
+Create a research laboratory capable of proposing and testing new model specifications.
+
+Support:
+
+- Stochastic differential equations.
+- Itô calculus.
+- Geometric Brownian motion.
+- Ornstein–Uhlenbeck processes.
+- Mean-reverting stochastic dynamics.
+- Jump-diffusion models.
+- Heston stochastic volatility.
+- Local and stochastic volatility.
+- Regime-switching models.
+- Bayesian filtering.
+- State-space modelling.
+- Symbolic regression.
+- Genetic programming.
+- Gaussian processes.
+- Gradient-boosted models.
+- Neural time-series models.
+- Physics-informed modelling.
+- Probabilistic machine learning.
+
+Allow agents to propose:
+- New feature constructions.
+- New factor expressions.
+- Alternative drift functions.
+- Alternative diffusion coefficients.
+- Regime-dependent dynamics.
+- New combinations of intermediate economic state variables.
+- Hybrid mathematical/ML models.
+
+Every generated model must pass mathematical and computational validation.
+
+For stochastic models:
+- Check coefficient validity.
+- Validate domain and boundary behaviour.
+- Test numerical convergence.
+- Examine stability.
+- Verify relevant invariants.
+- Evaluate parameter identification.
+- Compare simulated distributions against observations.
+
+Do not call a model novel solely because an LLM generated an equation.
+
+Document its relationship to existing literature.
+
+Provide an independent critic that attempts to invalidate every new model.
+
+---
+
+# 10. STRATEGY GENERATION ENGINE
+
+Convert validated predictive models into candidate trading strategies.
+
+The platform must support:
+- Directional trading strategies.
+- Relative-value strategies.
+- Mean-reversion strategies.
+- Momentum strategies.
+- Statistical arbitrage.
+- Market-neutral portfolios.
+- Event-driven strategies.
+- Commodity futures research.
+- Options volatility strategies.
+- Delta-hedged derivatives strategies.
+- Cross-market prediction-contract arbitrage research.
+
+Each generated strategy must define:
+
+- Tradable instruments.
+- Entry conditions.
+- Exit conditions.
+- Portfolio constraints.
+- Position-sizing methodology.
+- Holding period.
+- Rebalancing rules.
+- Transaction cost assumptions.
+- Market data requirements.
+- Expected execution behaviour.
+- Risk limits.
+- Failure conditions.
+
+LLMs may generate strategy specifications and code candidates.
+
+Only deterministic, validated engines may calculate performance and simulated execution.
+
+Do not permit an agent to invent results or bypass risk controls.
+
+---
+
+# 11. INSTITUTIONAL BACKTESTING
+
+Build a reproducible event-driven backtesting engine.
+
+Requirements:
+- Point-in-time data.
+- Trading calendar correctness.
+- Corporate-action handling.
+- Contract expiry and settlement rules.
+- Realistic fees and spreads.
+- Slippage.
+- Market impact approximations.
+- Available liquidity.
+- Position constraints.
+- Portfolio cash accounting.
+- Currency conversion.
+- Futures roll handling.
+- Margin and financing assumptions.
+- Walk-forward validation.
+- Purged cross-validation where relevant.
+- Locked holdout datasets.
+- Prospective paper trading.
+
+Track:
+- Sharpe.
+- Sortino.
+- Maximum drawdown.
+- CAGR where meaningful.
+- Expected shortfall.
+- Turnover.
+- Capacity.
+- Net P&L.
+- Factor exposures.
+- Prediction quality.
+- Calibration.
+- Statistical significance.
+- Confidence intervals.
+
+Require comparison against simple baselines.
+
+Do not promote models based solely on the highest backtested Sharpe.
+
+Track how many candidate strategies have been tested.
+
+Address multiple-testing and selection bias.
+
+Keep a final untouched holdout and separate prospective paper-trading evaluation.
+
+---
+
+# 12. PORTFOLIO AND CAPITAL ALLOCATION
+
+Connect all strategies to an independent portfolio optimiser.
+
+Support:
+- Markowitz efficient frontier.
+- Minimum-variance portfolios.
+- Tangency portfolios.
+- Black–Litterman.
+- Risk parity.
+- Hierarchical risk parity.
+- CVaR optimisation.
+- Robust optimisation.
+- Kelly and fractional Kelly.
+- Volatility targeting.
+- Dynamic allocation.
+- Markov decision processes.
+- Regime-conditioned allocation.
+
+Evaluate:
+- Strategy correlation.
+- Diversification.
+- Marginal risk contribution.
+- Capacity.
+- Turnover.
+- Portfolio drawdown.
+- Exposure concentration.
+- Capital efficiency.
+
+Use prospective and out-of-sample evidence for strategy allocation.
+
+---
+
+# 13. RISK GUARDIAN AND PAPER EXECUTION
+
+Implement independent, deterministic risk controls.
+
+Enforce:
+- Maximum position size.
+- Maximum leverage.
+- Maximum strategy allocation.
+- Drawdown limits.
+- Quote freshness.
+- Liquidity requirements.
+- Maximum allowable slippage.
+- Kill switch.
+- Approval expiry.
+- Human authorisation for simulated trade execution.
+
+The AI must not override these constraints.
+
+Support a durable paper order lifecycle:
+PROPOSED → VALIDATED → APPROVED → SUBMITTED → FILLED/PARTIAL/REJECTED/CANCELLED.
+
+Record all simulated actions.
+
+Do not activate real-money execution.
+
+---
+
+# 14. WORLD-TO-ALPHA RESEARCH TERMINAL
+
+Build a premium, highly functional research application.
+
+The primary experience should combine:
+- Photorealistic globe.
+- Geographically filtered alternative datasets.
+- Financial knowledge graph.
+- News and event intelligence.
+- Model discovery.
+- Hypothesis tracking.
+- Strategy backtesting.
+- Portfolio analytics.
+- Risk monitoring.
+- Paper trading.
+- Research publications.
+
+A user selecting a geographic region should immediately see:
+- What is happening there.
+- Relevant physical-world observations.
+- Relevant economic dependencies.
+- Financial instruments potentially exposed.
+- Existing research hypotheses.
+- Model predictions.
+- Historical performance.
+- Current uncertainty.
+- Relevant research and simulation options.
+
+Every geographic relationship must be sourced.
+
+Map arrows must represent actual defined data flows or explicitly identified modelled relationships.
+
+No decorative or meaningless arrows.
+
+---
+
+# 15. BASIC AND ADVANCED MODES
+
+BASIC MODE
+
+Provide:
+- Interactive globe.
+- Concise news.
+- Source verification.
+- Economic relationship explanations.
+- Financial market summaries.
+- Plain-English model predictions.
+- Simple scenario tools.
+- Clear uncertainty labels.
+- Educational links.
+
+ADVANCED MODE
+
+Provide:
+- Full mathematical formulations.
+- SDE simulations.
+- Parameter calibration.
+- Monte Carlo experiments.
+- Volatility surfaces.
+- Factor discovery.
+- Causal diagnostics.
+- Strategy source code.
+- Backtesting controls.
+- Portfolio optimisation.
+- Risk analytics.
+- Model comparison.
+- Statistical tests.
+- Research provenance.
+
+Both modes share identical underlying computational evidence.
+
+Switching modes must preserve user context.
+
+Basic mode is publicly accessible.
+
+Trading and administrative permissions are enforced separately.
+
+---
+
+# 16. AI EXPLANATION ENGINE
+
+Every material prediction, research result and trade proposal must have a "Show Me Why" function.
+
+Explain:
+
+1. What was observed.
+2. Where the data originated.
+3. Why the variables may be economically related.
+4. What mathematical model was used.
+5. How the prediction was calculated.
+6. How reliable the result is.
+7. How the model performed against baselines.
+8. What transaction costs could change.
+9. What would invalidate the hypothesis.
+10. What future observations would change the decision.
+
+Provide:
+- Short notification.
+- Plain-English explanation.
+- Detailed analyst report.
+- Full scientific research paper.
+
+All numerical claims must derive from verified computational artifacts.
+
+Citations must link to actual sources.
+
+Never fabricate news or market data.
+
+---
+
+# 17. CONTINUOUS AUTONOMOUS RESEARCH
+
+Design a persistent research scheduler.
+
+Subject to provider limits and available compute, it should:
+
+- Refresh permitted datasets.
+- Identify new observations.
+- Detect forecast revisions.
+- Compare model predictions with outcomes.
+- Track signal deterioration.
+- Propose new hypotheses.
+- Re-evaluate existing strategies.
+- Generate research improvement proposals.
+- Publish verified research summaries.
+
+Store:
+- Research objectives.
+- Agent outputs.
+- Data manifests.
+- Experiment configurations.
+- Model versions.
+- Code commit hashes.
+- Results.
+- Failures.
+- Next actions.
+
+Do not depend on Gemini chat history for persistence.
+
+Never silently promote newly generated strategy code into privileged execution.
+
+Require validation and human approval where applicable.
+
+---
+
+# 18. COMPETITION JUDGING REQUIREMENTS
+
+The application must target the strongest standard on all five criteria.
+
+TRACEABILITY — 25%
+Every prediction must be reconstructible from raw data to output.
+
+UNSEEN TESTING — 25%
+Every strategy must face locked, previously unseen datasets, adversarial scenarios, appropriate baselines and realistic costs.
+
+RISK AND OVERSIGHT — 15%
+Risk limits must be enforced in code, with human approval and demonstrable rejection of unsafe paper trades.
+
+RELEVANCE AND IMPACT — 20%
+The platform must solve the genuine research problem of converting fragmented real-world information into credible, actionable financial hypotheses.
+
+AMBITION AND TECHNICAL QUALITY — 15%
+Show genuine autonomous hypothesis generation, mathematical model design, alternative-data forecasting, independent criticism and production-quality engineering.
+
+Create a dedicated judge-facing evaluation page.
+
+Allow judges to inspect:
+- Raw data.
+- Research hypotheses.
+- Generated models.
+- Backtests.
+- Failures.
+- Risk controls.
+- Research reports.
+- Reproducibility records.
+
+Provide an end-to-end demonstration using unseen or previously locked data.
+
+---
+
+# 19. GITHUB AND DEVELOPMENT REQUIREMENTS
+
+Repository:
+https://github.com/AtharvaGadre/agent-verse-project
+
+Maintain:
+- AGENTS.md.
+- PROJECT_STATE.md.
+- ARCHITECTURE.md.
+- ROADMAP.md.
+- RESEARCH_STANDARDS.md.
+- DATA_SOURCES.md.
+- EXPERIMENT_REGISTRY.md.
+- REPRODUCIBILITY.md.
+- SECURITY.md.
+- CHANGELOG.md.
+
+Implement CI, scheduled research workflows, reproducibility verification and deployment through appropriate GitHub Actions.
+
+Keep credentials outside version control.
+
+Persist larger datasets in appropriate durable storage with versioned manifests.
+
+Make the complete project recoverable after the competition account and chats are deleted.
+
+Every completed milestone must be tested, committed and pushed safely.
+
+---
+
+# 20. IMPLEMENTATION ROADMAP
+
+M0 — Repository audit and architectural integration.
+
+M1 — Build the World-to-Alpha data schema and economic knowledge graph.
+
+M2 — Implement weather, agricultural and commodity data connectors.
+
+M3 — Complete the Brazilian rainfall-to-coffee research pipeline.
+
+M4 — Build intermediate economic-state forecasting and uncertainty propagation.
+
+M5 — Implement autonomous hypothesis generation and model comparison.
+
+M6 — Integrate rigorous backtesting and locked evaluation.
+
+M7 — Build candidate strategy generation and paper execution.
+
+M8 — Integrate portfolio optimisation and deterministic risk controls.
+
+M9 — Expand into shipping, energy, macroeconomic and prediction-market signals.
+
+M10 — Implement advanced mathematical Model Foundry features.
+
+M11 — Integrate WorldPulse with the full quant research terminal.
+
+M12 — Implement automated research reports and improvement recommendations.
+
+M13 — Implement judge-facing unseen tests, adversarial evaluation and risk demonstrations.
+
+M14 — Complete production-quality UI, deployment, security and performance testing.
+
+At every milestone:
+- Implement working code.
+- Test mathematical correctness.
+- Run appropriate data validation.
+- Review actual results.
+- Document negative findings.
+- Update project memory.
+- Commit and push changes.
+- Verify that existing functionality remains operational.
+
+Do not claim features have been completed without executing and testing them.
+
+---
+
+# 21. FIRST END-TO-END DEMONSTRATION
+
+The first flagship demonstration must show:
+
+1. Open the globe.
+2. Select a Brazilian coffee-growing region.
+3. Visualise historical rainfall and forecast anomalies.
+4. Display regional agricultural exposure.
+5. Generate a hypothesis about production and commodity-market effects.
+6. Construct an intermediate economic-state prediction model.
+7. Generate multiple competing mathematical models.
+8. Compare forecasts with conventional benchmarks.
+9. Produce a timestamp-correct backtest.
+10. Show performance after costs and statistical uncertainty.
+11. Reject unsupported models.
+12. Present an eligible strategy for risk review.
+13. Simulate a bounded, human-approved paper trade.
+14. Record the decision and simulated result.
+15. Generate a concise explanation for non-technical users.
+16. Generate a full reproducible quantitative research report.
+17. Propose specific experiments to improve the model.
+18. Demonstrate that the entire research investigation can be restored from its persistent artifacts.
+
+Include at least one experiment in which the proposed weather-price relationship fails.
+
+This is essential: AlphaForge must demonstrate scientific discipline, not merely generate convincing trading narratives.
+
+---
+
+# FINAL DIRECTIVE
+
+The defining capability of AlphaForge Capital is not predicting asset prices directly.
+
+It is discovering and evaluating the underlying physical, economic and probabilistic mechanisms that may influence financial markets.
+
+Build an autonomous quantitative research laboratory that combines real-world intelligence, mathematical model discovery, independent statistical testing, portfolio optimisation and risk-controlled simulated execution.
+
+The system must be capable of finding relationships that were not manually hardcoded.
+
+It must also recognise when those relationships are invalid, already priced in or economically untradeable.
+
+Produce a genuinely functioning, mathematically rigorous, reproducible and visually exceptional quantitative research and proprietary trading platform.
+
+**Begin with the repository audit, then implement the complete Brazilian rainfall-to-coffee vertical slice before expanding to additional markets.**

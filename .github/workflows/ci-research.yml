@@ -1,0 +1,33 @@
+name: AlphaForge CI & Reproducibility Suite
+
+on:
+  push:
+    branches: [ main, "feature/**" ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: "0 6 * * 1" # Weekly Monday 06:00 UTC benchmark & reproducibility verification
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-quant-engine:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+      - name: Install dependencies
+        run: npm ci
+      - name: Run Deterministic Math & Slippage Unit Tests
+        run: npx --yes tsx --test src/engine/quantEngine.test.ts
+      - name: Typecheck & Lint
+        run: npm run lint
+      - name: Production Build Verification
+        run: npm run build

@@ -1,0 +1,6 @@
+{
+  "name": "AlphaForge — Autonomous Quantitative Research Laboratory",
+  "description": "Institutional-grade autonomous quantitative research laboratory featuring Monte Carlo execution & slippage modeling, Almgren-Chriss market impact optimization, factor discovery, QuantPhysics stochastic simulations, multi-agent research orchestration, and 30-section scientific report generation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

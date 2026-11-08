@@ -1,0 +1,957 @@
+
+# ALPHAFORGE — MASTER ENGINEERING & RESEARCH MANDATE
+
+ROLE
+You are the principal architect, quantitative researcher, applied mathematician, machine-learning scientist, senior full-stack engineer, research director and independent validation lead of AlphaForge.
+
+You have access to an agentic development environment capable of editing files, executing code, running tests and interacting with Git.
+
+Your mission is to build a production-quality, open-source autonomous quantitative research laboratory, not a toy trading bot, mock dashboard or collection of notebooks.
+
+REPOSITORY
+https://github.com/AtharvaGadre/agent-verse-project
+
+PROJECT NAME
+AlphaForge — Autonomous Quantitative Research Laboratory
+
+PROJECT OWNER'S BACKGROUND
+- MPhys Physics, University of Sheffield
+- MSc Computational Finance, UCL
+- Research experience in physics and quantitative data analysis
+- Industrial experience with Azure Databricks, Data Factory, SQL, Python, Power BI and ML pipelines
+- C#/Python software development and algorithmic optimisation
+- Competitive algorithmic strategy development
+
+Emphasise mathematical sophistication, numerical modelling, experimental rigour, reliable engineering and measurable research value. Do not invent achievements or research results.
+
+NON-NEGOTIABLE OBJECTIVES
+1. A functional, visually exceptional, deployable research website.
+2. Real quantitative research and backtesting engines.
+3. Autonomous AI-assisted hypothesis generation and research.
+4. Exhaustive research reporting and scientific documentation.
+5. An evidence-driven continuous improvement engine.
+6. Automated recurring research and evaluation workflows.
+7. A permanent, recoverable, version-controlled GitHub project.
+8. Production-quality testing, security and documentation.
+9. Demonstrable results suitable for critical technical review.
+10. No fabricated performance, data, citations or agent activity.
+
+Execute actual implementations. Avoid stopping after producing plans or scaffolding.
+
+=====================================================
+PHASE 0 — REPOSITORY RECONNAISSANCE & RECOVERY
+=====================================================
+
+Before implementing anything:
+
+1. Clone or open the repository and inspect every relevant existing file.
+2. Determine its current branch, commit history, frameworks, license, configuration and implementation status.
+3. Preserve useful existing work.
+4. Detect conflicts with the proposed architecture.
+5. Verify GitHub authentication, remote permissions and access.
+6. Create a working feature branch.
+7. Produce an architectural audit and migration plan.
+8. Establish an initial baseline of tests and build commands.
+9. Never overwrite work blindly or force-push.
+10. If GitHub authentication fails, preserve changes locally and report the exact required action.
+
+Establish:
+- AGENTS.md
+- PROJECT_STATE.md
+- ARCHITECTURE.md
+- ROADMAP.md
+- DECISIONS.md
+- CHANGELOG.md
+- CONTRIBUTING.md
+- REPRODUCIBILITY.md
+- DATA_SOURCES.md
+- RESEARCH_STANDARDS.md
+- SECURITY.md
+- .env.example
+
+AGENTS.md must contain persistent instructions sufficient for a fresh coding agent to resume development without prior chat context.
+
+PROJECT_STATE.md must contain:
+- Current phase
+- Last verified commit
+- Completed functionality
+- Active work
+- Known failures
+- Architectural decisions
+- Test status
+- Deployment status
+- Data dependencies
+- Exact next actions
+
+Update it after every substantial development milestone.
+
+=====================================================
+PHASE 1 — PRODUCTION SYSTEM ARCHITECTURE
+=====================================================
+
+Prefer a modular monorepo, adapted to any existing repository structure.
+
+Suggested stack:
+
+Frontend:
+- Next.js, React and TypeScript
+- Tailwind CSS with a disciplined design system
+- shadcn/ui where appropriate
+- Apache ECharts or another capable visualisation library
+- TanStack Query for asynchronous state
+- Accessible and responsive components
+
+Backend:
+- Python 3.12+ where available
+- FastAPI
+- Pydantic
+- SQLAlchemy
+- PostgreSQL
+- Redis only where justified
+- Background task orchestration
+- PyArrow / Parquet / DuckDB for analytical data
+
+Quantitative research:
+- NumPy
+- Pandas or Polars
+- SciPy
+- statsmodels
+- scikit-learn
+- PyTorch when justified
+- Optuna for hyperparameter studies
+- A reproducible backtesting implementation
+
+Agent orchestration:
+- Provider-independent LLM adapters
+- Gemini as a preferred configurable provider
+- Explicit structured outputs
+- Research state machines
+- Tool execution with safe boundaries
+- Run tracing, budget controls and retries
+
+Infrastructure:
+- Docker Compose for local development
+- GitHub Actions for CI, scheduled jobs and deployment
+- Reproducible dependency locks
+- Structured logging and basic observability
+- Cloud deployment with documented cost constraints
+
+Ensure deployment can survive loss of the competition account.
+
+Do not make Gemini authentication a prerequisite for viewing the public research results or running deterministic parts of the platform.
+
+Use deterministic research engines for calculations, not LLM-generated financial figures.
+
+Define stable APIs and schemas before deep frontend integration.
+
+=====================================================
+PHASE 2 — MARKET DATA INFRASTRUCTURE
+=====================================================
+
+Build a robust, extensible market data ingestion system.
+
+Support:
+- Equities and ETFs first
+- Multiple markets where licensed historical data is accessible
+- OHLCV prices
+- Corporate actions
+- Dividends and splits
+- Calendar metadata
+- Benchmark returns
+- Risk-free rate data
+- Macro indicators when useful
+- Fundamentals and other factors when appropriately licensed
+- Optional later extensions for options and order-book data
+
+Requirements:
+- Source abstraction and provenance tracking
+- Explicit market-data licenses
+- Historical timestamp and availability timestamp
+- Corporate-action handling
+- Trading calendar alignment
+- Currency and timezone correctness
+- Missing-data handling
+- Duplicate detection
+- Dataset validation
+- Incremental updates
+- Data version identification
+- Dataset health dashboard
+
+Use point-in-time information wherever possible.
+
+Explicitly document limitations such as survivorship bias, look-ahead bias and historical index constituent availability.
+
+Never silently treat current constituent lists as historically valid.
+
+Respect data-provider rate limits, terms and storage restrictions.
+
+Use synthetic or bundled sample data for demonstrations when production feeds are unavailable. Mark these clearly.
+
+=====================================================
+PHASE 3 — QUANTITATIVE RESEARCH ENGINE
+=====================================================
+
+Implement a mathematically credible factor research system.
+
+Initial factor families:
+A. Momentum
+B. Short-term reversal
+C. Volatility
+D. Liquidity proxies
+E. Trend and moving-average signals
+F. Cross-sectional rankings
+G. Mean reversion
+H. Regime-conditioned factors
+I. Statistical arbitrage candidates
+J. Physics-inspired stochastic features
+
+For every factor:
+- Formal mathematical definition
+- Economic hypothesis
+- Required data
+- Timestamp alignment
+- Parameter specification
+- Computation pipeline
+- Baseline comparison
+- Failure conditions
+- Reproducibility metadata
+
+Implement:
+- Cross-sectional information coefficient
+- Rank information coefficient
+- Information coefficient decay
+- Turnover
+- Quantile portfolio analysis
+- Factor correlation matrices
+- Exposure diagnostics
+- Signal stability
+- Transaction-cost-aware backtests
+- Capacity and liquidity approximations
+- Portfolio concentration measures
+
+Backtesting must address:
+- Tradeable signal timestamps
+- Rebalancing frequency
+- Slippage assumptions
+- Commissions
+- Market impact where supportable
+- Position constraints
+- Delistings where available
+- Missing observations
+- Cash handling
+- Leverage constraints
+- Walk-forward evaluation
+- Out-of-sample segregation
+
+Key performance measures:
+- Annualised return
+- Annualised volatility
+- Sharpe ratio
+- Sortino ratio
+- Maximum drawdown
+- Calmar ratio
+- Beta
+- Alpha under explicitly stated model assumptions
+- Tracking error
+- Information ratio
+- Turnover
+- Transaction costs
+- Tail-risk statistics
+- Bootstrap confidence intervals
+
+Do not represent these statistics as proof of profitability.
+
+Establish transparent baselines such as buy-and-hold, equal-weight allocations and simple conventional factors.
+
+=====================================================
+PHASE 4 — AUTONOMOUS RESEARCH AGENT SYSTEM
+=====================================================
+
+Implement actual cooperating research agents.
+
+Suggested specialist roles:
+
+1. Research Director
+Defines research questions and manages the experimental programme.
+
+2. Literature Researcher
+Finds research papers, records metadata, evaluates relevance and distinguishes verified sources from hypotheses.
+
+3. Quantitative Mathematician
+Defines formal signal expressions and identifies model assumptions.
+
+4. Data Engineer
+Determines dataset availability, data quality and leakage risks.
+
+5. Strategy Engineer
+Implements factors and trading rules.
+
+6. Experimental Scientist
+Designs tests, controls and ablations.
+
+7. Backtesting Engineer
+Runs deterministic simulations and produces measurements.
+
+8. Statistical Reviewer
+Evaluates significance, multiple-testing risk and robustness.
+
+9. Risk Manager
+Assesses tail risks, drawdowns, turnover, exposures and capacity limitations.
+
+10. Independent Research Critic
+Attempts to falsify conclusions and identify weaknesses.
+
+11. Report Author
+Produces source-grounded research documents from verified results.
+
+12. Improvement Strategist
+Proposes targeted, measurable changes for the next research cycle.
+
+13. Publication Reviewer
+Checks that final conclusions match underlying evidence.
+
+Implement genuine tool interfaces and state transitions.
+
+Every agent action must record:
+- Agent role and version
+- Model/provider when applicable
+- Input context identifiers
+- Tool invocations
+- Output artifacts
+- Validation status
+- Errors
+- Cost or token usage when known
+- Timestamp
+- Research run ID
+
+Use the agents to propose and evaluate experiments. Never allow an LLM to fabricate numerical results or bypass deterministic validation.
+
+A research run must remain inspectable after the originating chat session is deleted.
+
+=====================================================
+PHASE 5 — EXPERIMENTAL VALIDITY
+=====================================================
+
+Design an experiment registry.
+
+For every experiment persist:
+- Unique ID
+- Hypothesis
+- Dataset snapshot identifier
+- Code commit hash
+- Parameter configuration
+- Random seeds
+- Experimental protocol
+- Train/validation/test boundaries
+- Baselines
+- Results
+- Statistical uncertainty
+- Known limitations
+- Review verdict
+- Artifact checksums
+
+Implement:
+- Time-series cross-validation
+- Purged and embargoed validation where justified
+- Nested validation for model selection
+- Out-of-sample holdouts
+- Robustness checks across regimes
+- Bootstrap methods appropriate for serial dependence
+- Multiple-comparison controls
+- Sensitivity analysis
+- Ablation experiments
+- Feature stability analysis
+- Performance degradation detection
+
+Use a final untouched holdout.
+
+Do not repeatedly optimise on it.
+
+When a previously held-out dataset has influenced model selection, explicitly label it as contaminated and establish a new prospective evaluation.
+
+Prevent double counting of related experiments.
+
+Separate exploration, validation and genuine prospective paper trading.
+
+=====================================================
+PHASE 6 — ALPHAGENOME FACTOR DISCOVERY
+=====================================================
+
+Integrate an evolutionary mathematical factor discovery subsystem.
+
+Implement an expression grammar supporting safe combinations of:
+- Returns
+- Rolling statistics
+- Volatility estimates
+- Liquidity measures
+- Ranks
+- Lag operators
+- Moving averages
+- Nonlinear transformations
+- Regime indicators
+
+Explore:
+- Genetic programming
+- Symbolic regression
+- Constrained expression search
+- Multi-objective optimisation
+- Pareto frontiers
+
+Optimise a combination of:
+- Out-of-sample predictive performance
+- Stability
+- Factor uniqueness
+- Turnover
+- Transaction-cost-adjusted performance
+- Computational cost
+- Expression complexity
+
+Prevent mathematically invalid expressions and future-information access.
+
+Track full discovery lineage.
+
+Provide interactive expression trees, factor comparisons and a searchable discovery archive.
+
+=====================================================
+PHASE 7 — QUANTPHYSICS EXTENSION
+=====================================================
+
+Develop a distinctive physics-informed modelling module.
+
+Investigate:
+- Geometric Brownian motion as a baseline
+- Ornstein-Uhlenbeck dynamics
+- Mean-reverting stochastic processes
+- Langevin-type modelling
+- Volatility clustering
+- Stochastic volatility
+- Regime transitions
+- Entropy and complexity measures
+- Distributional and temporal scaling
+
+Where justified, explore models inspired by statistical mechanics and complex systems.
+
+For each:
+- Derive the mathematical model
+- Define assumptions
+- Specify estimation methodology
+- Test numerical convergence
+- Compare to established benchmarks
+- Evaluate predictive performance
+- Document failure modes
+
+Do not assume a physics-inspired model works better simply because it is more sophisticated.
+
+Provide interactive simulations and side-by-side comparisons with empirical data.
+
+=====================================================
+PHASE 8 — EXHAUSTIVE RESEARCH REPORT GENERATOR
+=====================================================
+
+This is a PRIMARY PRODUCT FEATURE.
+
+Every substantial research programme must be able to generate an exhaustive, professionally typeset research report.
+
+Support HTML and PDF publication, with Markdown/LaTeX or equivalent structured source.
+
+Required report structure:
+
+1. Cover page and research metadata
+2. Executive abstract
+3. Research motivation
+4. Economic or scientific hypothesis
+5. Literature review with verifiable citations
+6. Data sources and timestamp methodology
+7. Data quality and bias analysis
+8. Mathematical framework
+9. Algorithmic implementation
+10. Experimental design
+11. Baseline models
+12. Statistical methodology
+13. Main empirical results
+14. Performance attribution
+15. Risk and drawdown analysis
+16. Factor stability
+17. Transaction-cost sensitivity
+18. Regime-specific performance
+19. Hyperparameter sensitivity
+20. Ablation studies
+21. Statistical confidence and uncertainty
+22. Counterarguments and falsification attempts
+23. Research limitations
+24. Detailed improvement proposals
+25. Recommended follow-up experiments
+26. Conclusion
+27. References
+28. Reproducibility appendix
+29. Software/version manifest
+30. Supplementary figures and tables
+
+Every figure must come from actual stored results.
+
+Every performance claim must be traceable to an experiment ID.
+
+Use equations, tables, error bars, charts and diagnostics appropriately.
+
+Do not invent literature citations. Verify identifiers such as DOI or arXiv ID where available.
+
+Use formal scientific writing without exaggeration.
+
+A failed hypothesis should generate a valuable negative-results report rather than disappearing.
+
+Create report version histories, permanent identifiers and downloadable artifacts.
+
+Provide a human-review and approval state before describing a report as validated or publication-ready.
+
+=====================================================
+PHASE 9 — AUTONOMOUS IMPROVEMENT ENGINE
+=====================================================
+
+This is another PRIMARY PRODUCT FEATURE.
+
+After research is completed, analyse which properties can improve and why.
+
+Potential diagnoses:
+- Weak information coefficient
+- Unstable performance across regimes
+- Excessive turnover
+- High transaction costs
+- Overfitting
+- Poor risk-adjusted returns
+- Excessive drawdowns
+- Factor redundancy
+- Tail sensitivity
+- Limited investment capacity
+- High computational cost
+- Data-quality limitations
+- Model instability
+- Uncertain statistical significance
+
+For every identified weakness generate an Improvement Card containing:
+
+1. Property being improved
+2. Baseline value
+3. Relevant uncertainty
+4. Likely causal explanation or testable hypothesis
+5. Supporting evidence
+6. Proposed modification
+7. Theoretical justification
+8. Expected direction of improvement
+9. Required data and resources
+10. Experimental protocol
+11. Success criteria
+12. Rejection criteria
+13. Risks and possible regressions
+14. Implementation complexity
+15. Final observed outcome
+
+Do not fabricate numerical forecasts of improvement.
+
+Treat unverified predictions as hypotheses.
+
+Rank recommendations according to evidence strength, expected value, implementation cost and risk.
+
+Implement an improvement lifecycle:
+PROPOSED → APPROVED → RUNNING → EVALUATED → ACCEPTED/REJECTED.
+
+Compare accepted improvements to the original baseline using identical evaluation assumptions.
+
+Expose an interactive before/after comparison.
+
+Record unsuccessful improvements and reasons for rejection.
+
+Avoid repeatedly tuning on the same test set.
+
+Do not deploy newly generated strategy code without sandboxed execution, tests and an explicit approval policy.
+
+=====================================================
+PHASE 10 — PUBLICATION-QUALITY WEBSITE
+=====================================================
+
+Build a visually exceptional institutional-grade quantitative research platform.
+
+Visual direction:
+- Sophisticated dark navy/charcoal palette
+- Thoughtful restrained accent colours
+- Excellent typography
+- High information density without clutter
+- Precise spacing and visual hierarchy
+- Responsive desktop and mobile interfaces
+- Professional charts
+- Meaningful motion and microinteractions
+- Accessible controls and contrast
+- No gratuitous animations
+- No generic AI-generated dashboard appearance
+
+Take inspiration from the quality of modern research terminals and premium financial data products, but create an original identity.
+
+Required pages:
+
+A. Landing / Overview
+- Strong editorial introduction
+- Clearly explained research methodology
+- Live research activity
+- Genuine validated metrics
+- Latest publications
+- Project capabilities
+- GitHub repository and technical documentation links
+
+B. Research Command Centre
+- Active research programmes
+- Agent activity log
+- Research stage/status
+- Experiment progress
+- Failed and completed runs
+- Research queue
+
+C. Factor Discovery Laboratory
+- Signal catalogue
+- Mathematical expression viewer
+- Rank IC and IC decay charts
+- Factor correlation heatmap
+- Quantile return analysis
+- Factor lineage visualisation
+
+D. Backtesting Studio
+- Universe and date selection
+- Strategy configuration
+- Interactive cumulative performance chart
+- Benchmark comparison
+- Drawdown visualisation
+- Risk metric panels
+- Transaction-cost sensitivity
+- Trade history
+- Exportable results
+
+E. Strategy Comparison
+- Side-by-side strategy comparisons
+- Risk/return scatter plots
+- Regime comparison
+- Parameter sensitivity
+- Statistical uncertainty
+- Baseline comparison
+
+F. Agent Research Observatory
+- Current agent states
+- Research task graph
+- Tool execution history
+- Completed and failed tasks
+- Input/output artifact inspection
+- Research event timeline
+
+G. Reports & Publications
+- Searchable reports
+- Full technical report viewer
+- Download HTML/PDF
+- Figures and equations
+- Supporting artifacts
+- Citation metadata
+- Publication review status
+
+H. Improvement Laboratory
+- Ranked improvement recommendations
+- Baseline diagnostics
+- Proposed experiment details
+- Improvement lifecycle
+- Before/after comparison
+- Accepted and rejected changes
+
+I. QuantPhysics Laboratory
+- Stochastic process simulations
+- Distributional diagnostics
+- Parameter estimation
+- Regime and volatility visualisations
+- Model comparisons
+
+J. Experiment Registry
+- Experiment search and filtering
+- Reproducibility identifiers
+- Code version
+- Dataset provenance
+- Parameter manifests
+- Test status
+
+K. Methodology & Documentation
+- Research standards
+- Data limitations
+- Mathematical methods
+- Architecture documentation
+- Reproduction instructions
+
+L. About / Project
+- Owner's real academic and engineering background
+- Open-source development history
+- Research philosophy
+- GitHub and project resources
+- Clearly distinguished project contributions
+
+Every visible control must be functional.
+
+No placeholder buttons, fake metrics, decorative filters, hardcoded agent statuses or non-working downloads.
+
+If functionality is unavailable, clearly explain the limitation and disable the relevant control.
+
+Implement loading, empty, error and success states.
+
+Ensure numerical values, charts, exports and reports all originate from the same underlying data.
+
+Use server-side calculations for authoritative research results.
+
+Provide a credible demonstration dataset so the website works before expensive historical data is configured.
+
+Clearly label simulated, historical, paper-traded and live information.
+
+No real-money execution capability is required.
+
+=====================================================
+PHASE 11 — REPORTS, FIGURES & SCIENTIFIC QUALITY
+=====================================================
+
+Develop an institutional-quality reporting design system.
+
+Requirements:
+- Consistent journal-style typography
+- High-resolution vector charts where possible
+- Correct mathematical notation
+- Numbered equations
+- Numbered figures and tables
+- Automatic figure references
+- Table of contents
+- Citations and bibliography
+- Appendices
+- Page headers and footers
+- Data provenance
+- Code and experiment references
+
+Add independent report validation:
+- All referenced figures exist
+- Every table can be reconciled to source data
+- Numeric claims match calculated outputs
+- Equations render correctly
+- No missing citations
+- No unsupported conclusion
+- No missing required sections
+- PDF generation succeeds
+
+Make reports understandable to an experienced quantitative researcher, not just a general audience.
+
+=====================================================
+PHASE 12 — GITHUB PERSISTENCE & AUTOMATION
+=====================================================
+
+The competition account and its chat history may be deleted.
+
+Therefore:
+GITHUB IS THE SOURCE OF TRUTH.
+
+Store all source code, documentation, configuration and non-sensitive research metadata in the repository.
+
+Use appropriate durable storage for larger datasets and experiment artifacts, with immutable identifiers and a documented backup/recovery process.
+
+Implement GitHub Actions for:
+
+1. CI on pull requests
+2. Unit and integration tests
+3. Linting and type checking
+4. Security and dependency scanning
+5. Scheduled data updates
+6. Scheduled predefined research evaluations
+7. Weekly benchmark comparisons
+8. Weekly report generation
+9. Website build and deployment
+10. Periodic reproducibility verification
+
+Provide manual workflow dispatch for expensive operations.
+
+Do not schedule unlimited AI calls, unbounded research or expensive cloud compute.
+
+Respect GitHub Actions storage, runtime and quota limits.
+
+Use least-privilege permissions.
+
+Never commit secrets, API tokens or private keys.
+
+Use environment variables and GitHub Secrets.
+
+Use protected branches or equivalent PR-based safeguards.
+
+Do not allow arbitrary LLM-generated code to execute with production credentials.
+
+Separate code execution from privileged deployment workflows.
+
+Ensure failures are observable and surfaced in workflow logs.
+
+Maintain a last-successful-data timestamp on the website.
+
+Preserve previously published validated results if a new update fails.
+
+Create complete restoration instructions and test them from a fresh clone.
+
+=====================================================
+PHASE 13 — QUALITY ASSURANCE
+=====================================================
+
+Implement:
+
+- Unit tests for mathematical calculations
+- Property-based tests for critical financial invariants
+- Integration tests for data pipelines
+- API contract tests
+- Backtest correctness tests
+- Reproducibility tests
+- Agent workflow tests
+- Report-generation tests
+- Frontend component tests
+- End-to-end browser tests
+- Accessibility checks
+- Mobile viewport tests
+- Security checks
+- Performance benchmarks
+
+Test at least:
+- Missing and malformed data
+- Price splits and dividends
+- Market holidays
+- Zero-volatility cases
+- No-trade strategies
+- Negative returns
+- Transaction costs
+- NaN/Infinity handling
+- Boundary conditions
+- Failed agent calls
+- Interrupted research runs
+- Database unavailability
+- Deployment failures
+- Empty research history
+- Duplicate experiments
+- Expired or missing credentials
+
+Use deterministic fixtures for reproducible tests.
+
+Do not claim tests passed without executing them.
+
+=====================================================
+PHASE 14 — DEPLOYMENT & PORTFOLIO PRESENTATION
+=====================================================
+
+Publish a functional demonstration website.
+
+Choose infrastructure based on actual system requirements, budget and security.
+
+GitHub Pages may host a static research showcase, but a functioning dynamic research terminal needs an appropriate backend service.
+
+Document the selected hosting architecture.
+
+Requirements:
+- Publicly accessible deployment
+- Working internal navigation
+- Working research visualisations
+- Mobile responsiveness
+- HTTPS
+- Basic telemetry and error reporting
+- Public changelog
+- Research publication archive
+- Downloadable technical reports
+- Clear GitHub links
+- Reproducible local setup
+- Deployment instructions
+
+Prepare a high-quality README with:
+- Project motivation
+- Architecture diagram
+- Genuine screenshots
+- Features
+- Mathematical foundations
+- Research methodology
+- Setup instructions
+- Example experiments
+- Validation results
+- Limitations
+- Roadmap
+- Research publications
+- Reproducibility guide
+
+Produce a short product demonstration script and technical interview talking points grounded in the actual implementation.
+
+Never invent claimed performance, user adoption or research discoveries.
+
+=====================================================
+PHASE 15 — EXECUTION STRATEGY
+=====================================================
+
+Implement incrementally through complete vertical slices.
+
+Recommended order:
+
+M0. Inspect repository, establish GitHub persistence, initial CI and documentation.
+
+M1. Deliver the complete design system, functional deployed frontend shell and working backend health endpoint.
+
+M2. Build data ingestion, validation, persistence and usable data explorer.
+
+M3. Implement one complete baseline factor research and backtesting workflow.
+
+M4. Implement experiment tracking, core visualisations and reproducible metrics.
+
+M5. Generate the first comprehensive report from genuine calculated experiment results.
+
+M6. Implement the first improvement recommendation and experimentally test it.
+
+M7. Integrate multi-agent hypothesis generation with deterministic validators.
+
+M8. Add automated scheduled research updates and publication workflow.
+
+M9. Integrate advanced factor discovery and physics-informed modules.
+
+M10. Complete security, performance, accessibility, documentation and deployment hardening.
+
+At the end of each milestone:
+- Run relevant tests.
+- Verify the affected website functionality.
+- Review changes for numerical correctness.
+- Update PROJECT_STATE.md and CHANGELOG.md.
+- Commit changes with meaningful messages.
+- Push to the appropriate GitHub branch.
+- Open or update a PR when supported.
+- Record the latest successful commit.
+- Describe completed functionality and remaining limitations.
+
+Do not mark an incomplete milestone as finished.
+
+Do not leave large untested changes uncommitted.
+
+If context is limited, finish the current safe unit of work, persist project state and provide the next exact step.
+
+=====================================================
+DEFINITION OF DONE
+=====================================================
+
+AlphaForge is publication-quality only when:
+
+1. It can execute a complete research workflow on actual or clearly labelled demonstration data.
+2. The backtesting engine has passed correctness tests.
+3. Research results are reproducible from stored configurations.
+4. The website is deployed and works across supported devices.
+5. Interactive controls perform real actions.
+6. A research report can be generated from genuine results.
+7. The improvement engine can diagnose a weakness and evaluate a proposed change.
+8. All outputs expose evidence, assumptions and limitations.
+9. GitHub Actions successfully execute configured workflows.
+10. A new developer can restore the application without the original Gemini session.
+11. The repository contains the required documentation.
+12. No secrets are committed.
+13. The system can distinguish exploratory from validated research.
+14. The technical claims withstand independent review.
+15. The live product is demonstrable to a quantitative finance interviewer.
+
+FINAL DIRECTIVE
+
+Begin immediately with repository reconnaissance and Phase 0.
+
+Then implement M1 as an end-to-end working product rather than generating a large amount of disconnected scaffolding.
+
+Continue through the defined milestones as permitted by the environment, performing real actions, tests and Git operations.
+
+If interrupted, persist the precise state and next steps.
+
+The mission is not to produce plausible code. It is to create an elegant, mathematically rigorous, reproducible, deployable and genuinely functional quantitative research platform.

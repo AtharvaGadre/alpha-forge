@@ -1,0 +1,864 @@
+# ALPHAFORGE CAPITAL — WORLDPULSE 3.0
+## Master Implementation Prompt: Photorealistic Global Financial Intelligence
+
+**Existing GitHub repository:** https://github.com/AtharvaGadre/agent-verse-project
+
+**Project:** AlphaForge Capital — Autonomous Quantitative Research & Proprietary Trading Laboratory
+
+**Module:** WorldPulse — Global Financial Intelligence
+
+**Implementation environment:** Gemini Antigravity
+
+**Reference concept:** Google Earth-like geographic exploration, combined with an original financial research experience.
+
+---
+
+# 0. YOUR MISSION
+
+Act as a principal full-stack architect, senior geospatial engineer, institutional quantitative researcher, applied mathematician, financial data scientist, UI/UX designer, data reliability engineer and independent software testing lead.
+
+Transform the existing WorldPulse module into a visually exceptional, fully functional, publicly accessible global financial intelligence platform.
+
+The fundamental user experience must be:
+
+**Explore the world → Select a country → Discover its landmarks, news and financial markets → Understand what's happening → Investigate the underlying data → Access advanced quantitative research.**
+
+The application must support both non-technical visitors and sophisticated quantitative researchers without overwhelming either audience.
+
+It must remain connected to the complete AlphaForge ecosystem.
+
+This is not a request for a prototype, wireframe, decorative globe or static dashboard.
+
+Implement a working, tested, deployable application with real API integrations, appropriate data provenance, persistent state, functional controls and a compelling presentation.
+
+Preserve all existing functionality unless a change is demonstrably necessary.
+
+# 1. FIRST: INSPECT THE EXISTING REPOSITORY
+
+Before editing code:
+
+1. Inspect the repository structure, current branches and commit history.
+2. Identify the existing frontend, backend, geospatial engine and financial data services.
+3. Read existing AGENTS.md, PROJECT_STATE.md, ARCHITECTURE.md and other project documentation.
+4. Identify all existing WorldPulse functionality.
+5. Identify reusable components and services.
+6. Determine whether CesiumJS or another renderer is already installed.
+7. Review existing authentication, environment variables, APIs and deployment configuration.
+8. Document architectural and dependency risks.
+9. Create a feature branch.
+10. Preserve existing working functionality.
+
+Do not blindly recreate the project.
+
+Do not overwrite uncommitted changes.
+
+Work in verified development milestones, committing tested results to GitHub.
+
+# 2. BUILD A GENUINELY PHOTOREALISTIC GLOBE
+
+The existing globe must resemble a professional geographic product such as Google Earth rather than a stylised science-fiction globe.
+
+Evaluate and integrate:
+
+**Preferred option**
+- CesiumJS.
+- Google Map Tiles API Photorealistic 3D Tiles.
+- Google Cloud billing and API key configuration.
+
+**Alternative**
+- Google Maps JavaScript 3D Maps API, if better suited to the current architecture.
+
+**Fallback**
+- A legally usable globe/terrain/imagery provider that remains functional when Google 3D imagery is unavailable.
+
+Make a documented architectural choice based on:
+- Photorealism.
+- Global geographic coverage.
+- User interaction.
+- Custom financial overlays.
+- Performance.
+- Accessibility.
+- Licensing.
+- Hosting costs.
+- API quota limits.
+
+Required globe features:
+
+- Realistic satellite imagery.
+- Natural terrain.
+- Recognisable coastlines.
+- Country boundaries.
+- High-quality city imagery where available.
+- 3D buildings where coverage permits.
+- Smooth zoom and rotation.
+- Clickable geographic regions.
+- Interactive markers.
+- Camera transitions.
+- Search by country, city and landmark.
+- Mouse, touch and keyboard interaction.
+- Responsive layouts.
+- Loading indicators.
+- Graceful API failure handling.
+
+Use proper geographic geometry and coordinate reference systems.
+
+Do not invent buildings, landmarks, coordinates or imagery coverage.
+
+Respect Google Maps Platform terms, attribution requirements and caching restrictions.
+
+Do not expose unrestricted API credentials.
+
+Implement API restrictions, usage monitoring and sensible quota management.
+
+# 3. BUILD A GLOBAL COUNTRY EXPLORER
+
+Every supported country must have a geographically grounded country profile.
+
+Create a country registry containing:
+
+- ISO 3166 country code.
+- Country name.
+- Geographic boundaries.
+- Centroid or camera target.
+- Capital city.
+- Featured landmark.
+- Landmark coordinates.
+- Preferred camera viewpoint.
+- Relevant financial exchanges.
+- Currency.
+- Time zone information.
+- Country-specific economic data sources.
+- Data availability information.
+
+Do not manually hardcode individual handling logic for every country.
+
+Use a reusable country-selection pipeline.
+
+## Country selection behaviour
+
+When a user selects the United Kingdom:
+
+1. Highlight the UK boundary.
+2. Fly smoothly from the current location to a UK-wide view.
+3. Display "United Kingdom" and its geographic context.
+4. Populate a country information panel.
+5. Show a featured landmark photograph, such as Tower Bridge.
+6. Display an "Explore London" control.
+7. When selected, fly into the London metropolitan area.
+8. Where imagery coverage supports it, transition to photorealistic 3D buildings.
+9. Load UK-related news, financial data, macro indicators and prediction-market events.
+10. Display links to relevant AlphaForge laboratories.
+
+The same architecture must work for other countries.
+
+Example landmark defaults:
+- UK: Tower Bridge, London.
+- USA: Manhattan skyline, New York.
+- Japan: Tokyo Tower, Tokyo.
+- France: Eiffel Tower, Paris.
+- India: Gateway of India, Mumbai.
+
+Allow country-specific landmark overrides.
+
+Never assume a country's financial centre is its political capital.
+
+Allow users to explore multiple landmarks where data exists.
+
+Preserve the distinction between selecting a country and zooming into a particular city.
+
+# 4. LANDMARK IMAGES AND LOCAL CONTEXT
+
+Implement a dedicated Landmark Service.
+
+Preferred sources:
+- Wikimedia Commons APIs.
+- Wikipedia/Wikidata where relevant.
+- Google Places Photos as an optional premium provider.
+
+For every landmark image, maintain:
+- Source.
+- Photographer/author where required.
+- License.
+- Attribution.
+- Source URL.
+- Landmark identifier.
+- Geographic coordinates.
+
+Choose photographs that clearly represent the location.
+
+Do not hotlink or redistribute restricted imagery contrary to provider terms.
+
+Show fallback images when a landmark photograph is unavailable.
+
+The country information panel should include:
+- Country identity.
+- Featured city and landmark.
+- Geographic highlights.
+- Relevant financial markets.
+- Economic context.
+- News.
+- Primary sources.
+- Educational explanations.
+
+Do not confuse tourism information with financial evidence.
+
+# 5. TWO SWITCHABLE USER MODES
+
+This is a primary product requirement.
+
+Implement a persistent, highly visible mode switch:
+
+**BASIC | ADVANCED**
+
+Both modes must use the same underlying verified datasets and computational services.
+
+Switching modes must not erase:
+- Selected country.
+- Selected city.
+- Selected event.
+- Selected financial instrument.
+- Date range.
+- Active relevant research context.
+
+The two modes should provide different levels of complexity, not contradictory results.
+
+## BASIC MODE — PUBLIC ACCESS
+
+Basic mode must be intuitive for someone without any background in finance.
+
+It should provide:
+- The photorealistic globe.
+- Country and landmark exploration.
+- Simple map layers.
+- A compact news panel.
+- Relevant market indicators.
+- Prediction-market event summaries.
+- Financial explanations in plain English.
+- Source credibility information.
+- Short event notifications.
+- "Why does this matter?" explanations.
+- Links to original sources.
+- Optional deeper educational material.
+
+Avoid:
+- Unexplained financial jargon.
+- Excessive statistics.
+- Equations by default.
+- Large complex tables.
+- Multiple competing dashboards.
+- Unnecessary controls.
+- Overwhelming map overlays.
+
+Use progressive disclosure.
+
+Create three explanation depths:
+
+1. Quick explanation — approximately 15 seconds to read.
+2. Understand more — concepts, sources and context.
+3. Full analysis — opens advanced research details.
+
+Basic mode must be publicly accessible without requiring trading credentials.
+
+## ADVANCED MODE — QUANTITATIVE RESEARCH
+
+Advanced mode must expose institutional-grade analytical functionality.
+
+Include contextual access to:
+
+- Portfolio optimisation.
+- Markowitz efficient frontiers.
+- Black–Litterman.
+- Risk parity and hierarchical risk parity.
+- Hidden Markov Models.
+- Markov decision processes.
+- Monte Carlo simulation.
+- Kelly and fractional Kelly sizing.
+- VaR and CVaR.
+- Stochastic differential equations.
+- Itô calculus.
+- Geometric Brownian motion.
+- Ornstein–Uhlenbeck processes.
+- Heston stochastic volatility.
+- Volatility surfaces.
+- Implied and realised volatility.
+- Options pricing.
+- Derivative Greeks.
+- Cross-market arbitrage.
+- Prediction-market calibration.
+- Model Foundry experiments.
+- Strategy backtesting.
+- Scenario analysis.
+- Risk and execution simulation.
+
+Advanced mode should allow users to:
+- Inspect raw data.
+- Inspect mathematical formulations.
+- Change model parameters.
+- Run deterministic calculations.
+- Compare models.
+- Analyse uncertainty.
+- Generate research reports.
+- Inspect experiment provenance.
+
+Do not hide important information simply because the user is in Basic mode.
+
+Basic/Advanced is a presentation setting, not a security permission.
+
+Authentication and operational permissions must be enforced independently.
+
+# 6. GEOGRAPHIC CONTEXT MUST FILTER ALL LABS
+
+Implement a shared GeographicContext architecture.
+
+When users select a country, region, city or relevant physical asset, that geographic selection must be available across all connected AlphaForge modules.
+
+Relevant modules include:
+- News & Event Intelligence.
+- Prediction Markets.
+- Portfolio Lab.
+- Risk Lab.
+- Derivatives & Volatility Lab.
+- Arbitrage Lab.
+- Macro Research.
+- QuantPhysics.
+- Model Foundry.
+- Research Publications.
+
+A module must not be forced to display irrelevant data merely because a geographic selection exists.
+
+Classify relationships into:
+- Physically located in.
+- Headquartered in.
+- Listed in.
+- Revenue exposed to.
+- Supply-chain exposed to.
+- Currency exposed to.
+- Economically connected to.
+- Event-linked.
+
+Every relationship must have a documented reason and evidence source.
+
+For the UK, a geographic filter might show:
+- UK macroeconomic announcements.
+- UK-listed equities.
+- Sterling-related currency pairs.
+- Gilt yields.
+- Bank of England data.
+- UK-related prediction contracts.
+- Companies with material UK exposure.
+- Related options and volatility data.
+
+Do not treat geographic listing location as equivalent to economic exposure.
+
+Expose geographic relationship categories clearly.
+
+Allow users to remove, change or refine the filter.
+
+# 7. REDESIGN MAP ARROWS AND LAYERS
+
+Remove meaningless decorative geographic arrows.
+
+Every visual element must have a documented interpretation.
+
+Implement selectable layers:
+
+1. News and events.
+2. Major financial markets.
+3. Prediction-market events.
+4. Shipping and logistics.
+5. Weather and disruptions.
+6. Energy infrastructure.
+7. Commodity and trade flows.
+8. Economic indicators.
+9. Documented financial exposure relationships.
+
+Default Basic mode to only:
+- News and events.
+- Financial markets.
+
+Represent:
+- Locations with markers.
+- Geographic regions with bounded overlays.
+- Verified physical routes with lines.
+- Directional flows with arrows.
+- Economic relationships in linked graphs or relevant side panels.
+
+An arrow must have a meaning such as:
+- Measured physical movement.
+- Verified directional trade flow.
+- A formally defined network relationship.
+
+Do not use an arrow merely for visual effect.
+
+Every layer must provide:
+- A legend.
+- Data source.
+- Units.
+- Observation timestamp.
+- Coverage limitations.
+- Visibility controls.
+- Explanation in ordinary language.
+
+When an arrow is selected, display:
+- What it represents.
+- Where its underlying data came from.
+- How the direction was determined.
+- What the arrow width or colour encodes.
+- Whether the data is observed, estimated or simulated.
+
+Add a prominent:
+
+"Explain what I'm looking at"
+
+control that describes all currently visible layers and selected elements.
+
+# 8. GLOBAL NEWS DATA ARCHITECTURE
+
+Implement a modular news ingestion system.
+
+Preferred initial sources:
+
+A. GDELT
+For global news discovery, relevant headlines, coverage trends and geographic/event classification.
+
+B. The Guardian Open Platform
+For structured journalism, subject to developer terms and licensing.
+
+C. Permitted publisher RSS
+For headline discovery and direct source links.
+
+D. Official primary sources
+Including central banks, government statistical agencies, relevant regulators and economic institutions.
+
+E. Licensed commercial news providers
+Optional future adapters.
+
+Respect:
+- API terms.
+- Rate limits.
+- Article redistribution restrictions.
+- Licensing.
+- Attribution.
+- Data-retention conditions.
+
+Prioritise article metadata, short permitted excerpts and links to original content.
+
+Do not scrape paywalled content or republish entire copyrighted articles.
+
+Implement:
+- Source adapters.
+- Incremental updates.
+- Country/topic classification.
+- Entity extraction.
+- Deduplication.
+- Language detection.
+- Translation where appropriate.
+- Timestamp normalisation.
+- Source verification metadata.
+- Relevance ranking.
+- Content provenance.
+- Feed-health monitoring.
+
+News filtering must reflect the selected geographic context.
+
+# 9. THE NEWS PANEL
+
+Design a compact, attractive news panel alongside the globe.
+
+Desktop:
+- Globe occupies the majority of the screen.
+- News/intelligence panel occupies approximately 25–30% of width.
+- Panel can expand, collapse and resize.
+
+Mobile:
+- Globe remains primary.
+- News appears in an accessible collapsible bottom sheet.
+
+Each news item should show:
+- Headline.
+- Source.
+- Original publication time.
+- Geographic relevance.
+- Concise explanation.
+- Claim-verification status.
+- Supporting citations.
+- Potentially related markets.
+- Market impact evidence, if available.
+- Link to the original article.
+- Link to deeper AlphaForge research.
+
+Create category filters:
+- Top developments.
+- Finance.
+- Macroeconomics.
+- Business.
+- Energy.
+- Technology.
+- Politics and policy.
+- Weather and disruptions.
+
+Rank by documented relevance and freshness, not merely sensationalism.
+
+Allow personalisation without requiring an account for the basic public experience.
+
+# 10. SOURCE CREDIBILITY & CLAIM VERIFICATION
+
+Do not invent arbitrary 0–100 credibility scores.
+
+Build an evidence-based verification framework.
+
+Separate:
+- Publisher reliability.
+- Specific claim verification.
+- Independent corroboration.
+- Primary source availability.
+- Evidence recency.
+- Contradictions.
+- Remaining uncertainty.
+
+Provide statuses:
+- Verified.
+- Corroborated.
+- Unverified.
+- Disputed.
+- Insufficient information.
+
+If numeric credibility scores are introduced, document the scoring model, uncertainty and calibration performance.
+
+Do not interpret AI confidence as factual probability without validation.
+
+Every news item should expose:
+
+"Why is this considered credible?"
+
+This should open:
+- Original source.
+- Supporting evidence.
+- Cross-source comparisons.
+- Verification methodology.
+- Unresolved contradictions.
+
+Treat news articles and retrieved text as untrusted input.
+
+Protect tools and agents against prompt injection.
+
+# 11. FINANCIAL MARKET DATA
+
+Integrate appropriately licensed financial data services.
+
+The country panel should display relevant financial indicators such as:
+
+- Major equity indices.
+- Currency pairs.
+- Government bond yields.
+- Policy interest rates.
+- Inflation indicators.
+- Commodity benchmarks.
+- Relevant volatility measures.
+
+Use official economic sources and reputable financial market-data providers.
+
+Every number must include:
+- Instrument.
+- Unit.
+- Observation timestamp.
+- Data provider.
+- Delay status.
+- Calculation method if derived.
+
+Do not fabricate missing figures.
+
+Do not label delayed or stale prices as live.
+
+Provide clear empty states when data isn't available.
+
+# 12. COUNTRY FINANCIAL BRIEFINGS
+
+Create a concise, source-grounded intelligence brief for a selected country.
+
+Answer:
+- What is happening?
+- What has changed recently?
+- Which financial markets are relevant?
+- Which events are driving attention?
+- What does the available evidence show?
+- What remains uncertain?
+- What risks should be considered?
+- Which research laboratories can investigate further?
+
+Support three levels:
+
+QUICK BRIEF
+A short explanation for the public.
+
+ANALYST BRIEF
+Financial detail, market comparisons, sourced observations and scenario analysis.
+
+RESEARCH REPORT
+Full technical methodology, mathematical models, statistical tests, uncertainty and reproducibility information.
+
+All three must originate from the same underlying evidence.
+
+# 13. OPTIONAL AI NEWS & EVENT AGENT
+
+Implement an AI agent that explains developments without inventing causal relationships.
+
+Responsibilities:
+- Summarise verified information.
+- Identify financial relevance.
+- Find related market data.
+- Explain unfamiliar concepts.
+- Detect source contradictions.
+- Propose research questions.
+- Recommend relevant AlphaForge labs.
+- Distinguish observations from interpretations.
+
+It must explicitly say when:
+- Information is incomplete.
+- Claims conflict.
+- A causal relationship cannot be established.
+- Market movements have multiple possible explanations.
+- Data is stale.
+- No significant financial effect is supported.
+
+The agent must not initiate orders from news summaries.
+
+Any simulated trading proposal goes through the existing independent approval and risk-control architecture.
+
+# 14. USER EXPERIENCE & ACCESSIBILITY
+
+The application must be visually extraordinary but easy to navigate.
+
+Establish:
+- Clear information hierarchy.
+- Minimal visible controls.
+- Predictable navigation.
+- Large clickable targets.
+- Keyboard navigation.
+- Screen-reader support.
+- WCAG-oriented contrast and interaction testing.
+- Reduced-motion options.
+- Clear loading states.
+- Tooltips and legends.
+- Accessible text alternatives for the map.
+- Beginner explanations.
+- Responsive mobile design.
+
+Do not force users to interpret dense financial charts.
+
+Do not depend on globe interaction as the only way to access geographic content.
+
+Provide a searchable country list as an equivalent accessible navigation mechanism.
+
+Advanced visualisations must have textual descriptions and accessible data alternatives.
+
+Prefer functional clarity over decorative complexity.
+
+# 15. TESTING AGAINST THE COMPETITION RUBRIC
+
+Design to target the strongest scoring standard in every category.
+
+## Traceable reasoning — 25%
+
+A judge must be able to:
+- Select any geographic news item.
+- Inspect its original source.
+- Verify its location.
+- Review financial relationships.
+- Inspect numerical calculations.
+- Distinguish AI interpretation from facts.
+- Change assumptions and observe recalculation.
+- Identify what would change the conclusion.
+
+## Testing on unseen data — 25%
+
+Test:
+- Unfamiliar countries.
+- New geographic events.
+- Missing images.
+- Inaccurate article geotags.
+- Contradictory reporting.
+- Missing market feeds.
+- Stale information.
+- Incorrect financial relationships.
+- Malicious article instructions.
+- Incomplete numerical data.
+
+Compare event classification and geographic matching against labelled baselines.
+
+Report accuracy, false positives, uncertainty and failure cases.
+
+## Risk controls — 15%
+
+Verify:
+- Unverified events cannot trigger trades.
+- Stale financial data blocks simulated execution.
+- Risk limits remain enforced.
+- Human approvals are necessary where applicable.
+- The kill switch works.
+- Every action is audited.
+
+Provide a live risk-rejection demonstration.
+
+## Relevance & impact — 20%
+
+Demonstrate how a user moves from an unfamiliar global event to an understandable, sourced financial analysis without needing specialist knowledge.
+
+Measure:
+- Time to locate relevant information.
+- Ability to identify supporting evidence.
+- Accuracy of geographic filtering.
+- User comprehension.
+- Successful task completion.
+
+## Ambition & technical quality — 15%
+
+Demonstrate:
+- Realistic geospatial rendering.
+- Global information integration.
+- Geographic financial knowledge graph.
+- Autonomous source-grounded explanations.
+- Independent quantitative labs.
+- Reproducible research.
+- Original interaction design.
+
+Do not claim a perfect score or unverified benchmark results.
+
+# 16. TESTING AND ACCEPTANCE CRITERIA
+
+Write and run:
+
+- Unit tests.
+- Integration tests.
+- API contract tests.
+- Country-selection tests.
+- Camera navigation tests.
+- Geographic boundary tests.
+- News filtering tests.
+- Source-verification tests.
+- Financial data provenance tests.
+- Basic/Advanced mode-switch tests.
+- Cross-lab context tests.
+- UI accessibility tests.
+- Mobile browser tests.
+- Performance tests.
+- Data-provider outage tests.
+- End-to-end browser tests.
+
+The following must work:
+
+1. Select the UK.
+2. Globe zooms to the correct geographic region.
+3. Country panel loads.
+4. Featured London landmark appears.
+5. User can explore London in 3D where coverage allows.
+6. News panel shows UK-relevant information.
+7. Credibility and original sources can be inspected.
+8. UK financial indicators populate from real data.
+9. Relevant AlphaForge labs receive the UK context.
+10. User switches to Advanced mode without losing context.
+11. Quantitative analysis remains functional.
+12. User returns to Basic mode.
+13. Map layers can be enabled and disabled.
+14. Every arrow/visual relationship has a documented meaning.
+15. A missing feed produces a clear error state.
+16. An unfamiliar country works through the same reusable architecture.
+17. A judge can challenge an AI interpretation.
+18. Financial risk controls remain independent and enforced.
+19. A research report can be generated using actual evidence.
+20. The deployed site survives a restart and reconnects to persistent storage.
+
+No decorative control may be presented as functional unless it performs its intended action.
+
+# 17. GITHUB, PERSISTENCE & DEPLOYMENT
+
+The existing repository remains the permanent source of truth:
+
+https://github.com/AtharvaGadre/agent-verse-project
+
+Update project documentation and maintain:
+- AGENTS.md.
+- PROJECT_STATE.md.
+- ARCHITECTURE.md.
+- ROADMAP.md.
+- DATA_SOURCES.md.
+- REPRODUCIBILITY.md.
+- CHANGELOG.md.
+- SECURITY.md.
+
+Use GitHub Actions for:
+- CI.
+- Automated tests.
+- Build verification.
+- Security checks.
+- Deployment.
+- Permitted scheduled data refreshes.
+- Selected report generation.
+- Periodic reproducibility tests.
+
+Persist large datasets outside Git with documented manifests, backups and access procedures.
+
+Keep all API keys out of the repository.
+
+Ensure the project remains functional and recoverable after the Gemini competition account and chats are deleted.
+
+# 18. IMPLEMENTATION ORDER
+
+M0 — Audit the actual repository.
+
+M1 — Establish the realistic globe, provider configuration and graceful fallback.
+
+M2 — Implement reusable country boundaries, selection, camera transitions and location search.
+
+M3 — Build landmark imagery and country information cards.
+
+M4 — Integrate global news discovery and geographic filtering.
+
+M5 — Implement source credibility and evidence inspection.
+
+M6 — Integrate real economic and financial market data.
+
+M7 — Implement the accessible Basic mode.
+
+M8 — Connect Advanced mode to existing quantitative laboratories.
+
+M9 — Implement shared geographic context across all labs.
+
+M10 — Redesign map layers, meaningful arrows and legends.
+
+M11 — Add country briefs and AI explanation capabilities.
+
+M12 — Run adversarial tests, accessibility verification and competition-oriented end-to-end demonstrations.
+
+M13 — Deploy, document, benchmark, commit and push the finished working implementation.
+
+At every milestone:
+- Implement the functionality.
+- Execute relevant tests.
+- Verify the actual browser experience.
+- Update persistent project state.
+- Document unresolved limitations.
+- Commit and push safely.
+- Do not claim completion without evidence.
+
+# FINAL DIRECTIVE
+
+Build WorldPulse as a world-class, accessible and technically serious global financial intelligence application.
+
+The globe must feel geographically real.
+
+The interface must feel intuitive.
+
+The news must be sourced and verifiable.
+
+The figures must be accurate and timestamped.
+
+The country selection must have meaningful effects throughout AlphaForge.
+
+The Basic mode must help non-technical users understand the world.
+
+The Advanced mode must expose genuine quantitative research.
+
+The application must be original, beautiful, functional, reproducible and independently reviewable.
+
+**Begin with the existing repository audit, preserve current working functionality, and implement the first tested vertical slice immediately.**
