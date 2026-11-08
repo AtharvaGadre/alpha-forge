@@ -721,7 +721,14 @@ export const atmosphereStore = {
 
 // Replace the offline baseline with live data on first load (browser only)
 if (typeof window !== 'undefined') {
-  setTimeout(() => void atmosphereStore.requestLiveUpgrade(INITIAL_ARGON_QUERY), 0);
+  setTimeout(
+    () =>
+      void atmosphereStore.requestLiveUpgrade(
+        `Hey ARGON, analyse how predicted weather in ${initialLocation.name} (${initialLocation.countryName}) could affect markets next week.`,
+        initialLocation.countryIso2
+      ),
+    0
+  );
 }
 
 export function useAtmosphereStore(): AtmosphereAppState {

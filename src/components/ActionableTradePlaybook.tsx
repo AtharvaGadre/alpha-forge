@@ -25,6 +25,8 @@ import {
   Zap,
 } from 'lucide-react';
 import { getCountryDeepDiveProfile } from '../engine/countryDeepDiveEngine';
+import { useAtmosphereStore } from '../state/atmosphereStore';
+import { FixtureBanner, LiveResearchIdeas } from './LiveVerificationPanel';
 
 export interface ActionableTradePlaybookProps {
   countryIso2: string;
@@ -71,6 +73,7 @@ interface TraditionalStockSignal {
 export const ActionableTradePlaybook: React.FC<
   ActionableTradePlaybookProps
 > = ({ countryIso2, timelineOffsetHours, onSelectTickerOrRegion }) => {
+  const atmosphere = useAtmosphereStore();
   const [activeFilter, setActiveFilter] = useState<SignalFilterTab>('ALL');
   const [executedOrders, setExecutedOrders] = useState<Record<string, string>>(
     {}
@@ -311,12 +314,26 @@ export const ActionableTradePlaybook: React.FC<
     }));
   };
 
+  const liveInvestigation = atmosphere.activeInvestigation.live;
+  if (liveInvestigation) {
+    return (
+      <section
+        id="actionable-trade-playbook"
+        data-testid="actionable-trade-playbook"
+        className="rounded-3xl bg-[#070d19] border border-emerald-500/30 p-5 sm:p-7 shadow-2xl"
+      >
+        <LiveResearchIdeas live={liveInvestigation} />
+      </section>
+    );
+  }
+
   return (
     <section
       id="actionable-trade-playbook"
       data-testid="actionable-trade-playbook"
       className="rounded-3xl bg-[#070d19] border border-emerald-500/30 p-5 sm:p-7 shadow-2xl space-y-6"
     >
+      <FixtureBanner />
       {/* Top Badges matching reference screenshot */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2.5">

@@ -52,7 +52,13 @@ import {
 } from './engine/atmosphereIntelligenceDeckEngine';
 import { argonAudioManager } from './engine/argonAudioManager';
 import { ActionableTradePlaybook } from './components/ActionableTradePlaybook';
-import { DataModeBadge, LiveVerificationPanel } from './components/LiveVerificationPanel';
+import {
+  DataModeBadge,
+  FixtureBanner,
+  LiveHeroCard,
+  LiveResearchIdeas,
+  LiveVerificationPanel,
+} from './components/LiveVerificationPanel';
 
 export function App() {
   const state = useAtmosphereStore();
@@ -402,6 +408,15 @@ export function App() {
             data-testid="hero-trade-idea-spotlight"
             className="hidden lg:block pointer-events-auto absolute top-16 right-5 z-20 w-[390px] max-h-[calc(100vh-155px)] overflow-y-auto rounded-2xl bg-[#070d19]/95 backdrop-blur-xl border border-emerald-500/40 shadow-2xl p-4 text-slate-100"
           >
+            {inv.live ? (
+              <LiveHeroCard
+                live={inv.live}
+                onOpenIdeas={() => scrollToResearchDeck('actionable-trade-playbook')}
+                onOpenReport={() => atmosphereStore.openWorkspace('SCIENTIFIC_REPORT')}
+              />
+            ) : (
+            <>
+            <FixtureBanner />
             <div className="flex items-center justify-between gap-2">
               <span className="px-2.5 py-0.5 rounded bg-emerald-950/90 border border-emerald-500/50 text-emerald-300 font-mono text-[10px] font-bold uppercase tracking-wider">
                 STEP 3 • ACTIONABLE TRADE PLAYBOOK
@@ -503,6 +518,8 @@ export function App() {
                 28-Sec Report
               </button>
             </div>
+            </>
+            )}
           </aside>
         )}
 
@@ -804,10 +821,9 @@ export function App() {
                 & Prediction Market Ideas
               </h2>
               <p className="text-xs text-slate-400 mt-1">
-                All trade ideas and prediction market probabilities below are
-                backed by multi-model meteorological forecasts (WeatherNext 3,
-                ECMWF IFS, ECMWF AIFS, GraphCast, NOAA GFS) and historical
-                cross-asset sensitivity.
+                {inv.live
+                  ? `Computed live from ${inv.live.modelInputs.map((m) => m.modelName).join(', ')}, a 10-year ERA5 climatology and observed market data. Hypotheses for research, not trading recommendations.`
+                  : 'Illustrative demo content (fixed values) — live research ideas replace this when live data loads.'}
               </p>
             </div>
 
@@ -923,8 +939,9 @@ export function App() {
             </div>
           </div>
 
-          {/* Prediction Market Ideas & Research-Backed Trade Ideas Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {/* Live research ideas replace the illustrative fixture grid once live data loads */}
+          {inv.live ? <LiveResearchIdeas live={inv.live} /> : <FixtureBanner />}
+          <div className={`grid grid-cols-1 md:grid-cols-2 gap-5 ${inv.live ? 'hidden' : ''}`}>
             {predictionAndTradeIdeas.map((idea) => {
               const isSelected = idea.id === spotlightIdea?.id;
               return (
