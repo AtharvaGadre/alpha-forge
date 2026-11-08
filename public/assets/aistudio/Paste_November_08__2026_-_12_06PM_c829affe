@@ -1,0 +1,1329 @@
+# ALPHAFORGE ATMOSPHERE
+## Autonomous Weather Prediction, Global Intelligence & Economic Impact Platform
+### Full-Stack Production Engineering Master Prompt
+
+**Primary repository:** https://github.com/AtharvaGadre/agent-verse-project
+
+**Geospatial foundation:** https://github.com/bilawalsidhu/gods-eye-view
+
+**Development environment:** Gemini Antigravity
+
+**Primary inspiration:** Google DeepMind WeatherNext, modern meteorological intelligence systems, and futuristic conversational computer interfaces.
+
+**Final objective:** A fully functional, public-facing AI weather forecasting application with an advanced research environment and optional financial-impact analysis.
+
+---
+
+# 1. YOUR ROLE AND MISSION
+
+You are a multidisciplinary engineering team consisting of:
+
+- Principal software architect.
+- Senior meteorological scientist.
+- Machine-learning research engineer.
+- AI forecasting specialist.
+- Geospatial visualisation engineer.
+- Senior frontend and UX engineer.
+- Backend and infrastructure engineer.
+- Data reliability engineer.
+- Financial impact research analyst.
+- Security engineer.
+- Independent quality assurance lead.
+
+Your mission is to transform the existing project into an exceptionally capable, visually distinctive, fully functioning AI weather intelligence platform.
+
+Do not create a UI mockup, disconnected proof of concept, collection of placeholder cards, or application displaying fabricated predictions.
+
+The final application must:
+
+1. Display a photorealistic, interactive Earth.
+2. Retrieve and visualise genuine weather observations and forecasts.
+3. Integrate Google's WeatherNext models and other reputable forecasting systems.
+4. Compare, combine and statistically evaluate competing forecasts.
+5. Develop and test improved regional forecasting models.
+6. Identify developing weather risks and explain uncertainty.
+7. Provide a conversational, voice-enabled weather AI assistant.
+8. Automatically discover relevant news and official weather warnings.
+9. Generate clear explanations for non-technical users.
+10. Provide an Advanced environment for model research and forecasting analysis.
+11. Investigate how forecast weather changes may affect economic sectors, commodities and listed companies.
+12. Produce detailed, reproducible research reports.
+13. Run reliably on desktop, tablet and mobile devices.
+14. Remain recoverable and maintainable from GitHub.
+15. Demonstrate the strongest judging requirements for traceability, unseen-data testing, safety, relevance and technical ambition.
+
+Implement both frontend and backend, with working data integrations and persistent storage.
+
+# 2. REPOSITORY RECONNAISSANCE AND RESTRUCTURING
+
+Before editing code:
+
+- Clone and inspect the existing AlphaForge repository.
+- Determine its actual frameworks, modules and dependencies.
+- Inspect all existing weather and geospatial implementations.
+- Determine whether God's Eye View source code is already incorporated.
+- Review the upstream God's Eye View architecture.
+- Read the existing documentation and test infrastructure.
+- Check build and deployment status.
+- Identify security issues and broken dependencies.
+- Check any outstanding work before modifying it.
+
+God's Eye View currently uses Vue 3, Pinia, CesiumJS and Vite.
+
+Prefer maintaining the existing working frontend stack rather than performing an unnecessary full rewrite.
+
+Reuse its working geospatial renderer, weather overlays, camera controls and relevant UI utilities where appropriate.
+
+Do not blindly merge entire repositories or overwrite working modules.
+
+Where code is reused, preserve all required MIT copyright and license notices. Audit third-party data, imagery and asset licenses separately.
+
+Create a clean weather-first architecture.
+
+Old quantitative finance applications should no longer dominate the navigation.
+
+Preserve useful existing code, configurations and research artifacts, but move unrelated finance functionality behind optional, independent integrations rather than making it part of the weather application's core.
+
+Rename and reorganise the public experience around AlphaForge Atmosphere.
+
+Use a feature-based modular structure with documented boundaries.
+
+Update:
+- AGENTS.md
+- PROJECT_STATE.md
+- ARCHITECTURE.md
+- ROADMAP.md
+- DATA_SOURCES.md
+- MODEL_REGISTRY.md
+- REPRODUCIBILITY.md
+- SECURITY.md
+- CHANGELOG.md
+
+Persist all critical implementation decisions.
+
+# 3. PRIMARY PRODUCT EXPERIENCE
+
+Design the application around three straightforward questions:
+
+**What's happening with the weather?**
+
+**What is likely to happen next?**
+
+**How confident are we, and why does it matter?**
+
+These questions must drive the entire product.
+
+The application opens directly into a photorealistic globe.
+
+Do not open with a dense dashboard or a technical navigation system.
+
+The first experience must show:
+
+- The Earth.
+- Current weather conditions.
+- An animated forecast.
+- A search bar.
+- A forecast timeline.
+- A compact information panel.
+- A clear Basic/Advanced switch.
+- A conversational AI assistant.
+- Optional weather-layer controls.
+
+All other features should be discoverable progressively.
+
+The application should feel immediately usable without documentation.
+
+# 4. PHOTOREALISTIC EARTH AND WEATHER VISUALISATION
+
+Build on the existing CesiumJS globe.
+
+Preferred rendering providers:
+- Google Photorealistic 3D Tiles.
+- Google Maps Platform where appropriate.
+- Existing licensed Cesium/imagery providers.
+- Open fallback imagery and terrain where permitted.
+
+Preserve working Google 3D integrations if present.
+
+Required globe functionality:
+
+- Smooth global navigation.
+- Country selection.
+- City and location search.
+- Realistic terrain.
+- Satellite imagery.
+- 3D city imagery where supported.
+- Search-to-location camera transitions.
+- Zoom controls.
+- Mouse, keyboard and touch support.
+- North-up and orientation controls.
+- Fullscreen mode.
+- Reset camera.
+- Bookmark and share selected views.
+
+Provide realistic global weather visualisation.
+
+Weather layers:
+
+1. Temperature.
+2. Rainfall accumulation.
+3. Rainfall probability.
+4. Wind speed.
+5. Wind direction.
+6. Humidity.
+7. Atmospheric pressure.
+8. Cloud coverage.
+9. Satellite cloud imagery.
+10. Radar observations where available.
+11. Severe weather warnings.
+12. Storm tracks.
+13. Forecast uncertainty.
+14. Temperature anomalies.
+15. Rainfall anomalies.
+16. Drought indicators.
+17. Renewable-energy weather variables where supported.
+
+Do not enable every layer simultaneously.
+
+Default to a clean map with only selected essential weather data.
+
+Use:
+- Particle animations for wind.
+- Raster or gridded fields for temperature.
+- Semi-transparent precipitation overlays.
+- Geographic polygons for official warnings.
+- Actual observed storm tracks.
+- Probability bands for uncertain outcomes.
+
+Every layer must have a clear legend.
+
+Every animation must represent a real dataset or explicitly labelled simulation.
+
+Do not create arbitrary moving lines or visually dramatic effects that misrepresent weather.
+
+Support:
+- Observation timeline.
+- Forecast timeline.
+- Historical replay.
+- Forecast run selection.
+- Variable selection.
+- Uncertainty overlays.
+
+All displayed weather fields must have provider, timestamp, unit, model and forecast horizon metadata.
+
+# 5. FORECAST MODEL INTEGRATION
+
+Implement a provider-independent Weather Model Registry.
+
+Priority models:
+
+A. Google WeatherNext 3 — preferred operational source.
+
+B. Google WeatherNext 2 — supported historical/comparison model when data is available.
+
+C. Google GraphCast / WeatherNext Graph — open-source research and deterministic baseline.
+
+D. ECMWF AIFS — AI forecast comparison.
+
+E. ECMWF IFS — conventional numerical forecast baseline.
+
+F. NOAA GFS — independent forecast baseline.
+
+G. Other scientifically credible models where data, licenses and infrastructure are available.
+
+Do not assume all models can be accessed in the same way.
+
+Each adapter must declare whether it provides:
+- Hosted forecasts.
+- Downloadable forecast datasets.
+- Pretrained weights.
+- Local inference.
+- Managed inference.
+- Historical forecasts.
+- Ensemble members.
+- Supported atmospheric variables.
+
+Do not claim AlphaForge ran GraphCast simply because it visualised Google's published forecast.
+
+## WeatherNext 3
+
+Investigate the latest official Google documentation for:
+- BigQuery Analytics Hub.
+- Google Earth Engine.
+- Google Cloud Storage.
+- Forecast model access permissions.
+- Forecast archive.
+- Real-time usage terms.
+- Forecast variable coverage.
+- Ensemble statistics.
+
+Use the simplest cost-effective access method that can support a fully functional website.
+
+Prefer querying relevant regional and temporal slices rather than downloading entire global ensembles.
+
+If access approval is required, implement a documented integration path and use an independently operational fallback model until approval is obtained.
+
+## GraphCast
+
+Integrate Google's open-source WeatherNext/GraphCast research implementation if computationally feasible.
+
+Inspect:
+- Pretrained model weights.
+- Compatible input data.
+- GPU requirements.
+- Inference setup.
+- Model license.
+- Validation datasets.
+- Forecast lead times.
+
+Provide a controlled inference worker where infrastructure supports it.
+
+If full-resolution inference is impractical, support scientifically valid smaller configurations or use published GraphCast forecasts for comparison.
+
+Clearly identify the distinction.
+
+Never silently substitute a different model while displaying the GraphCast name.
+
+## Forecast data normalisation
+
+Use consistent:
+- Geographic coordinate conventions.
+- UTC timestamps.
+- Forecast initialization time.
+- Forecast lead time.
+- Temperature units.
+- Wind units.
+- Precipitation accumulation intervals.
+- Atmospheric pressure units.
+- Spatial resolution.
+- Ensemble statistics.
+
+Implement explicit conversion and interpolation rules.
+
+Do not interpolate coarse forecasts into visually high-resolution imagery and describe the result as genuinely higher-resolution predictive information.
+
+# 6. MULTI-MODEL FORECASTING ENGINE
+
+A primary feature is the ability to search, compare, select and synthesise weather prediction models.
+
+Create an intelligent Model Selection Engine.
+
+For any selected location and weather variable, the system should determine:
+
+- Which forecast providers are available.
+- Their data freshness.
+- Their spatial resolution.
+- Their forecast horizons.
+- Historical performance where measured.
+- Whether they contain probabilistic output.
+- Which models are appropriate for the task.
+
+Implement:
+
+1. Individual model forecasts.
+2. Model comparison.
+3. Weighted multi-model ensembles.
+4. Model consensus.
+5. Forecast disagreement analysis.
+6. Bias correction.
+7. Calibration.
+8. Region-specific weighting.
+9. Horizon-specific weighting.
+10. Weather-variable-specific weighting.
+11. Uncertainty propagation.
+
+Potential combination techniques:
+- Simple ensemble mean.
+- Median aggregation.
+- Performance-weighted ensembles.
+- Bayesian model averaging.
+- Ensemble model output statistics.
+- Learned stacking.
+- Quantile regression.
+- Probabilistic calibration.
+- Spatial bias correction.
+
+Do not assume a sophisticated ensemble is superior.
+
+Compare every new approach against simpler baselines.
+
+Weights must be estimated on appropriate historical training/validation periods.
+
+Use forward-chaining evaluation and untouched out-of-sample periods.
+
+Do not leak future forecast accuracy into historical model selection.
+
+Provide an interactive comparison showing which models agree or disagree and why a particular forecast was selected.
+
+# 7. NOVEL FORECAST MODEL RESEARCH
+
+Build an independent Model Laboratory.
+
+This environment should allow AI research agents to propose, implement, test and improve weather prediction methods.
+
+Potential research areas:
+- Local precipitation calibration.
+- Regional downscaling.
+- Temperature bias correction.
+- Extreme rainfall classification.
+- Storm intensity estimation.
+- Ensemble post-processing.
+- Forecast uncertainty calibration.
+- Local terrain-aware correction.
+- Satellite-informed nowcasting.
+- Weather regime recognition.
+- Hybrid physics/ML forecasting.
+- Model residual correction.
+
+Agents should:
+1. Identify an observed forecasting weakness.
+2. Review relevant scientific research.
+3. Formulate a testable hypothesis.
+4. Select a dataset.
+5. Design an experiment.
+6. Generate a bounded candidate model.
+7. Execute training or inference.
+8. Compare against established baselines.
+9. Evaluate unseen data.
+10. Critique results.
+11. Recommend improvements.
+12. Publish a reproducible report.
+
+Use established pretrained models as baselines.
+
+Do not attempt to retrain a frontier global weather model from scratch unless the required computational resources, data and scientific justification are genuinely available.
+
+Prioritise meaningful regional improvements that can actually be measured.
+
+Prevent automatically generated code from executing with privileged production credentials.
+
+# 8. FORECAST ACCURACY AND SCIENTIFIC VALIDATION
+
+Every model must be evaluated scientifically.
+
+Implement weather-appropriate metrics:
+
+- MAE.
+- RMSE.
+- Mean bias.
+- Brier score.
+- Brier skill score.
+- CRPS.
+- Reliability diagrams.
+- Prediction interval coverage.
+- Temperature forecast accuracy.
+- Precipitation-event detection.
+- False alarm ratio.
+- Probability of detection.
+- Critical success index.
+- Lead-time-specific accuracy.
+- Region-specific accuracy.
+- Extreme-event performance.
+
+Use the correct metrics for each prediction type.
+
+Test across:
+- Different countries.
+- Different climate zones.
+- Different seasons.
+- Multiple forecast horizons.
+- Urban versus rural regions.
+- Coastal versus inland regions.
+- Extreme versus ordinary conditions.
+
+Store actual forecasts before comparing them with observations.
+
+Support historical forecast archives, not only historical weather observations.
+
+Report cases where AlphaForge performs worse than the baseline.
+
+Do not invent accuracy improvements.
+
+# 9. INTELLIGENT WEATHER NEWS ENGINE
+
+Implement a global weather-related news and intelligence service.
+
+Suggested inputs:
+- GDELT.
+- Official national weather agencies.
+- NOAA/NWS.
+- Met Office where appropriate.
+- ECMWF publications.
+- NASA observations.
+- Permitted publisher feeds.
+- Official disaster and environmental monitoring services.
+
+Focus on:
+- Severe weather.
+- Floods.
+- Storms.
+- Drought.
+- Heatwaves.
+- Cold waves.
+- Agricultural weather.
+- Energy-related weather.
+- Shipping disruptions.
+- Weather and climate research.
+
+Geographically filter news according to the selected location.
+
+Each news item should contain:
+- Headline.
+- Original source.
+- Publication timestamp.
+- Location.
+- Verification status.
+- Corroborating sources.
+- Plain-English summary.
+- Weather data supporting or contradicting the claim.
+- Links to original material.
+
+Do not fabricate a numerical credibility score.
+
+Distinguish source reputation from verification of a particular claim.
+
+Treat all retrieved articles as untrusted data.
+
+# 10. BUILD THE WEATHER AI ASSISTANT
+
+Create an original futuristic voice-and-text assistant.
+
+Working name: ATLAS.
+
+ATLAS should deliver the experience of an advanced cinematic computer assistant without copying a copyrighted character, voice or existing branded interface.
+
+Design direction:
+- Minimal futuristic HUD.
+- Subtle animated voice waveform.
+- Floating contextual information.
+- Clear, precise spoken responses.
+- Optional atmospheric sound design.
+- Smooth globe camera control.
+- Real-time task status.
+- Source-grounded visual explanations.
+
+Do not make the interface look like a movie prop at the expense of functionality.
+
+## Voice capabilities
+
+Support:
+- Microphone permission handling.
+- Speech recognition.
+- Text-to-speech.
+- Conversational interaction.
+- Interruptible responses.
+- Voice playback controls.
+- Accessible text equivalents.
+- Explicit user controls for starting/stopping listening.
+
+Evaluate suitable speech providers and browser capabilities.
+
+Do not automatically record or continuously listen without informed permission.
+
+## Example commands
+
+"Show me rainfall forecasts for Brazil."
+
+"Fly to London."
+
+"Compare WeatherNext against ECMWF for the next five days."
+
+"Where are the biggest forecast disagreements?"
+
+"Show me developing storms in the Atlantic."
+
+"Why is the model uncertain about rainfall?"
+
+"Explain this weather map."
+
+"Show me the source of this prediction."
+
+"Forecast agricultural weather risks in southern Brazil."
+
+"What happened to the previous forecast?"
+
+"Generate a detailed research report."
+
+"How could this weather affect coffee production?"
+
+## Agent tools
+
+Provide structured, permission-controlled tools for:
+- Searching locations.
+- Navigating the globe.
+- Selecting layers.
+- Querying weather models.
+- Comparing forecasts.
+- Retrieving historical observations.
+- Inspecting model accuracy.
+- Searching weather-related news.
+- Opening source documents.
+- Running authorised research experiments.
+- Creating reports.
+- Navigating the application.
+
+Every numerical answer must come from a computational tool or source dataset.
+
+The language model must not invent weather observations, probabilities or performance metrics.
+
+When information is unavailable, it should explicitly say so.
+
+# 11. BASIC MODE
+
+Basic mode is the default public experience.
+
+The interface should be beautiful, understandable and extremely simple.
+
+Core components:
+- Photorealistic globe.
+- Current weather.
+- Forecast timeline.
+- Location search.
+- Forecast layers.
+- Weather alerts.
+- Short news panel.
+- ATLAS assistant.
+- Simple uncertainty display.
+- Plain-English explanations.
+
+Example:
+
+"Rain is likely in London tomorrow afternoon. Three forecast systems agree on the timing, but they differ on how much rainfall to expect."
+
+Only state this when real model outputs support it.
+
+Avoid technical terminology in navigation, cards and primary buttons.
+
+Do not place terms such as:
+- Itô calculus.
+- Markov processes.
+- Stochastic differential equations.
+- Bayesian filtering.
+- Numerical PDEs.
+
+in the main interface.
+
+These concepts belong within the detailed mathematical methodology of Advanced mode, where relevant.
+
+Provide:
+- What does this mean?
+- Why is this forecast uncertain?
+- Compare forecasts.
+- Show sources.
+- Explore further.
+
+Ensure a first-time visitor can understand the core application in less than a minute.
+
+# 12. ADVANCED MODE
+
+Advanced mode provides deeper research, analysis and investigation.
+
+Main sections:
+
+A. WEATHER MODEL COMPARISON
+- Compare providers.
+- View accuracy.
+- Study forecast disagreements.
+- Analyse uncertainty.
+
+B. FORECAST LABORATORY
+- Model selection.
+- Parameter exploration.
+- Bias correction.
+- Calibration.
+- Experiment execution.
+- Model creation and evaluation.
+
+C. EXTREME WEATHER INTELLIGENCE
+- Event detection.
+- Historical comparisons.
+- Storm analysis.
+- Risk scenarios.
+- Forecast reliability.
+
+D. NEWS & EVENT RESEARCH
+- Weather news.
+- Primary evidence.
+- Geographic corroboration.
+- Event timelines.
+- Source verification.
+
+E. ECONOMIC & MARKET IMPACT
+- Agriculture.
+- Energy.
+- Commodities.
+- Shipping.
+- Insurance exposure.
+- Related publicly traded companies.
+- Relevant financial-market scenarios.
+
+F. RESEARCH REPORTS
+- Detailed methodology.
+- Experiment results.
+- Model comparisons.
+- Statistical testing.
+- Citations.
+- Reproducibility.
+
+Technical mathematics should appear only when needed to explain an analysis.
+
+Do not make Advanced mode a dumping ground for unrelated quant finance terminology.
+
+Switching modes must preserve selected location, time, weather variable and model context.
+
+# 13. WEATHER-TO-ECONOMIC-IMPACT ENGINE
+
+Create an optional Advanced module that analyses how forecast weather may affect economic activity.
+
+The weather forecast remains the primary prediction.
+
+Financial implications are secondary, conditional research conclusions.
+
+Example:
+
+Reduced rainfall forecast
+→ Water availability uncertainty
+→ Possible crop stress
+→ Potential harvest impact
+→ Commodity supply scenario
+→ Financial-market exposure.
+
+The system must distinguish a weather forecast from a crop forecast and from a commodity-price forecast.
+
+Implement sector-specific research:
+
+AGRICULTURE
+- Coffee.
+- Wheat.
+- Corn.
+- Soybeans.
+- Other crops with reliable data.
+
+ENERGY
+- Electricity demand.
+- Natural gas demand.
+- Wind generation.
+- Solar generation.
+- Heating/cooling demand.
+
+LOGISTICS
+- Port weather disruptions.
+- Shipping delays.
+- Extreme-weather route exposure.
+
+INSURANCE
+- Storm and flood exposure.
+- Weather-linked loss scenarios where data is available.
+
+FINANCIAL MARKETS
+- Relevant commodity futures.
+- Related listed companies.
+- Related industry indices.
+- Weather-exposed business operations.
+
+For every candidate market implication:
+- Identify the economic mechanism.
+- Identify affected instruments.
+- Retrieve licensed financial observations.
+- Analyse historical relationships.
+- Consider market expectations.
+- Quantify uncertainty.
+- Compare simple baselines.
+- Present risks and alternative explanations.
+
+Where the model has sufficient supporting evidence, generate a research watchlist using:
+
+- Positive scenario.
+- Negative scenario.
+- Neutral / insufficient evidence.
+- Conditional buy/sell research hypothesis where justified.
+
+Never turn a weather forecast directly into an unsupported buy/sell recommendation.
+
+Show the assumptions that would support or invalidate each trade hypothesis.
+
+Do not execute live orders.
+
+Keep paper-trading capability behind explicit permission and independent risk controls.
+
+# 14. REPORTING AND EXPLAINABILITY
+
+Every major forecast and analysis should support multiple output levels.
+
+QUICK WEATHER BRIEF
+A concise explanation of what is likely to happen, where, when and with what uncertainty.
+
+ANALYST BRIEF
+Model comparison, disagreement, forecast history and relevant context.
+
+FULL SCIENTIFIC REPORT
+- Research question.
+- Forecast sources.
+- Model versions.
+- Data availability.
+- Mathematical methodology.
+- Training and evaluation data.
+- Model comparison.
+- Forecast errors.
+- Confidence and calibration.
+- Spatial analysis.
+- Limitations.
+- Potential improvements.
+- References.
+- Reproducibility appendix.
+
+ECONOMIC IMPACT REPORT
+- Weather scenario.
+- Economic transmission mechanism.
+- Supporting evidence.
+- Market expectations.
+- Relevant financial instruments.
+- Alternative scenarios.
+- Risks and uncertainty.
+- Conditional research conclusions.
+
+Support web and downloadable PDF reports.
+
+Every graph, number and conclusion must be linked to its underlying evidence.
+
+Include "Show me why" and "What would change this forecast?" controls.
+
+Provide plain-English explanations alongside technical results.
+
+# 15. PRODUCTION BACKEND ARCHITECTURE
+
+Implement a reliable backend appropriate for real forecast workloads.
+
+Preferred architecture:
+- Python.
+- FastAPI.
+- Pydantic.
+- Xarray.
+- Dask where justified.
+- Zarr.
+- NetCDF.
+- GRIB2 support.
+- NumPy.
+- SciPy.
+- PyTorch/JAX when required.
+- PostgreSQL with PostGIS for spatial metadata.
+- Object storage for forecast cubes and large model artifacts.
+- Durable background job processing.
+- Redis only where appropriate.
+- Scheduled ingestion and validation workers.
+
+Use existing compatible services where possible.
+
+Separate services logically:
+
+1. Geospatial API.
+2. Weather observation ingestion.
+3. Forecast provider adapters.
+4. Weather model registry.
+5. Forecast comparison and synthesis.
+6. Forecast verification.
+7. Research experiment service.
+8. News intelligence.
+9. AI assistant orchestration.
+10. Economic impact analysis.
+11. Report generation.
+12. Authentication and permissions.
+13. Observability and system health.
+
+Do not make one giant backend process responsible for everything.
+
+## Required API capabilities
+
+Implement versioned endpoints or equivalent typed service interfaces for:
+
+GET /api/v1/locations/search
+GET /api/v1/weather/current
+GET /api/v1/weather/forecast
+GET /api/v1/weather/layers
+GET /api/v1/weather/alerts
+GET /api/v1/models
+GET /api/v1/models/compare
+GET /api/v1/models/skill
+POST /api/v1/forecasts/ensemble
+GET /api/v1/events
+GET /api/v1/news
+POST /api/v1/assistant/query
+POST /api/v1/research/experiments
+GET /api/v1/research/experiments/{id}
+POST /api/v1/reports
+GET /api/v1/reports/{id}
+GET /api/v1/system/health
+
+Adapt endpoint naming to existing project conventions.
+
+Document schemas and responses with OpenAPI.
+
+Use persistent background jobs for expensive operations.
+
+Implement progress updates and cancellation.
+
+Support retries without duplicating jobs.
+
+Do not load global forecast datasets into browser memory.
+
+Return regional tiles, slices, summaries or precomputed visualisation products.
+
+# 16. FORECAST DATA STORAGE AND PROVENANCE
+
+Every forecast record should contain:
+
+- Provider.
+- Model name.
+- Model version.
+- Forecast initialization time.
+- Valid forecast time.
+- Lead time.
+- Geographic extent.
+- Spatial resolution.
+- Variable.
+- Unit.
+- Ensemble member or statistic.
+- Retrieval timestamp.
+- Source URL or dataset identifier.
+- Data checksum.
+- Processing version.
+- Quality flags.
+
+Keep observations separate from predictions.
+
+Track:
+- Missing values.
+- Stale feeds.
+- Failed downloads.
+- Model outages.
+- Duplicate forecast runs.
+- Revised records.
+- Invalid units.
+- Spatial alignment errors.
+- Data licensing constraints.
+
+Never mix historical observed weather with an archived forecast without explicitly identifying the difference.
+
+Support reproducible data snapshots.
+
+# 17. FRONTEND ENGINEERING REQUIREMENTS
+
+Build a complete responsive interface.
+
+Prefer retaining the current Vue/Cesium frontend where practical.
+
+Use a coherent design system with reusable components.
+
+Required responsive environments:
+- Large desktop monitors.
+- Typical laptop displays.
+- Tablets in portrait and landscape.
+- Modern phones.
+- Touchscreen devices.
+
+Desktop:
+- Globe as dominant visual element.
+- Compact contextual weather/news panel.
+- Top location search.
+- Time slider.
+- Layer selector.
+- Basic/Advanced switch.
+- Assistant access.
+
+Tablet:
+- Collapsible side panels.
+- Adaptive map controls.
+- Touch-optimised timelines.
+
+Mobile:
+- Globe remains interactive.
+- Information moves into bottom sheets.
+- Assistant opens as an accessible overlay.
+- Controls avoid obscuring the map.
+- Charts adapt to narrow screens.
+- Landscape mode remains usable.
+
+Implement:
+- Keyboard access.
+- Accessible controls.
+- Reduced-motion preference.
+- Screen-reader descriptions.
+- High-contrast states.
+- Visible focus indicators.
+- Consistent loading states.
+- Error recovery.
+- Low-bandwidth fallbacks.
+- WebGL failure fallback.
+- Clear data timestamps.
+
+Do not optimise only for screenshots.
+
+Verify the real application in browsers.
+
+# 18. ORIGINAL FUTURISTIC UI DIRECTION
+
+The visual identity should feel like a premium AI meteorological command centre.
+
+Aesthetic:
+- Dark charcoal/navy.
+- Restrained cyan/blue accents.
+- Elegant translucent panels.
+- High-quality atmospheric overlays.
+- Precise typography.
+- Subtle motion.
+- Animated forecast trajectories.
+- Sophisticated voice visualisation.
+- Clearly organised information hierarchy.
+
+Use cinematic transitions selectively.
+
+Do not introduce visual effects that make forecasts harder to interpret.
+
+The assistant should feel capable and responsive, not theatrical or distracting.
+
+Avoid excessive labels, cards, jargon and unrelated analytics.
+
+A beginner should see weather.
+
+A researcher should be able to reveal the mathematics.
+
+The same app must serve both without sacrificing clarity.
+
+# 19. PERFORMANCE ENGINEERING
+
+Optimise the globe and backend deliberately.
+
+Frontend:
+- Dynamic layer loading.
+- Tile and asset caching within licensing terms.
+- Rendering quality based on device capability.
+- Viewport culling.
+- Debounced geographic queries.
+- GPU-aware animation limits.
+- Efficient time-series rendering.
+- Lazy-loaded Advanced tools.
+- Memory cleanup when switching layers.
+
+Backend:
+- Forecast data chunking.
+- Spatial and temporal slicing.
+- Region-first queries.
+- Model output caching where permitted.
+- Async ingestion.
+- Job limits.
+- Compute quotas.
+- Database indexing.
+- API rate limiting.
+- Concurrency controls.
+
+Ensure a forecast request does not launch an expensive global inference job unless explicitly authorised.
+
+Track latency, memory usage, rendering performance and infrastructure costs.
+
+# 20. SECURITY, PRIVACY AND RELIABILITY
+
+Implement:
+- Strict API credential management.
+- Environment-based configuration.
+- No hardcoded secrets.
+- Appropriate browser key restrictions.
+- Backend credential isolation.
+- Authentication for privileged actions.
+- Rate limiting.
+- Input validation.
+- Signed or controlled artifact access.
+- Sandboxed generated-code execution.
+- Prompt-injection-resistant external data handling.
+- Auditable model and agent activity.
+- Explicit voice/microphone permissions.
+- Secure deployment configuration.
+
+Weather predictions should not be presented as official public-safety warnings.
+
+Show links to authoritative meteorological agencies for severe-weather guidance.
+
+Never fabricate alerts.
+
+Implement provider outage handling and clear fallback source labelling.
+
+# 21. COMPETITION REQUIREMENTS
+
+Target the strongest judging standard in all five categories.
+
+## TRACEABILITY — 25%
+
+A judge can select any forecast and inspect:
+- Provider.
+- Model.
+- Data timestamp.
+- Processing pipeline.
+- Mathematical calculation.
+- Ensemble weights.
+- Uncertainty.
+- Source data.
+- Version and reproducibility record.
+
+The judge can change an assumption and recompute the relevant result.
+
+## UNSEEN TESTING — 25%
+
+Use locked validation datasets.
+
+Allow a judge to select an unfamiliar location, forecast period or archived forecast for evaluation.
+
+Show:
+- Baseline predictions.
+- Model forecasts.
+- Observed outcomes.
+- Forecast errors.
+- Uncertainty.
+- Unsuccessful cases.
+- Model skill by horizon.
+
+Test adversarial and malformed inputs.
+
+## RISK AND OVERSIGHT — 15%
+
+Prevent:
+- Fabricated forecasts.
+- Unverified severe-weather alerts.
+- Misleading model labels.
+- Autonomous live trading.
+- Privileged actions without permission.
+
+Demonstrate a case where a stale or invalid forecast is rejected.
+
+## RELEVANCE AND IMPACT — 20%
+
+Show how AlphaForge helps a user understand local weather, compare conflicting predictions and identify meaningful developing risks without needing meteorological training.
+
+Use the agricultural or energy impact module to demonstrate additional real-world value.
+
+## AMBITION AND TECHNICAL QUALITY — 15%
+
+Demonstrate:
+- Real AI weather-model integrations.
+- Multi-model synthesis.
+- Forecast verification.
+- Autonomous research experiments.
+- Global 3D visualisation.
+- Conversational tool-using AI.
+- Original full-stack engineering.
+- Reproducible scientific reporting.
+
+Do not claim performance improvements without evidence.
+
+# 22. REQUIRED TESTS
+
+Implement and execute:
+
+FRONTEND
+- Responsive rendering.
+- Browser compatibility.
+- Globe navigation.
+- Search.
+- Forecast timeline.
+- Layer switching.
+- Assistant interaction.
+- Basic/Advanced switching.
+- Accessibility.
+
+BACKEND
+- API contracts.
+- Forecast ingestion.
+- Unit conversions.
+- Geospatial alignment.
+- Model metadata validation.
+- Missing-data handling.
+- Ensemble calculations.
+- Forecast skill calculation.
+- Job retries.
+- Database persistence.
+
+AI
+- Tool-call correctness.
+- Unsupported forecast claim rejection.
+- Source attribution.
+- Model selection.
+- Prompt-injection resistance.
+- Uncertainty explanation.
+
+WEATHER SCIENCE
+- Forecast/observation alignment.
+- Historical forecast replay.
+- Ensemble calibration.
+- Model benchmark comparison.
+- Extreme-event detection.
+- Unseen geographical evaluation.
+- Reproducibility.
+
+END-TO-END
+- Search for London.
+- Fly to London.
+- Display actual observations.
+- Retrieve a genuine forecast.
+- Animate forecast layers.
+- Compare multiple models.
+- Explain forecast disagreement.
+- Generate a report.
+- Switch to Advanced mode.
+- Evaluate forecast accuracy.
+- Investigate a weather-linked economic scenario.
+- Return to Basic mode without losing context.
+
+No placeholder buttons or fake model results.
+
+# 23. DEPLOYMENT AND GITHUB
+
+Keep the existing GitHub repository as the permanent source of truth.
+
+Implement:
+- Automated CI.
+- Dependency verification.
+- Build checks.
+- Unit and integration tests.
+- Browser end-to-end tests.
+- Security scans.
+- Deployment workflows.
+- Scheduled weather data updates.
+- Forecast verification jobs.
+- Research report generation.
+- Data-health monitoring.
+
+Use durable external storage for large forecasting datasets.
+
+Do not commit gigantic weather datasets or trained model weights to ordinary Git history.
+
+Store dataset manifests and reproducibility metadata.
+
+Maintain backup and recovery instructions.
+
+Test restoration from a fresh clone.
+
+The deployed website must continue functioning independently of the original Gemini competition account and conversation history.
+
+# 24. EXECUTION PLAN
+
+Implement in complete working vertical slices.
+
+M0 — Audit repository, fix broken foundations and document architecture.
+
+M1 — Preserve and improve the photorealistic globe, weather layers and country navigation.
+
+M2 — Implement the weather data backend, persistence and provider interfaces.
+
+M3 — Connect genuine weather observations and initial operational forecasts.
+
+M4 — Integrate WeatherNext 3 where access permits, plus ECMWF/GFS fallback and comparison.
+
+M5 — Create forecast timeline, animations, model selection and uncertainty visualisations.
+
+M6 — Build the Basic-mode user experience.
+
+M7 — Integrate ATLAS text and voice assistant with actual weather tools.
+
+M8 — Add verified weather news and official alerts.
+
+M9 — Develop the multi-model forecast synthesis and calibration engine.
+
+M10 — Build the Advanced forecast research environment.
+
+M11 — Implement scientific evaluation, backtesting and model-improvement experiments.
+
+M12 — Add optional weather-to-economic-impact research.
+
+M13 — Implement scientific reports and plain-English explanations.
+
+M14 — Complete responsive UI, accessibility and performance optimisation.
+
+M15 — Implement judge-facing evaluation, unseen-data tests and failure demonstrations.
+
+M16 — Deploy, secure, document, commit and verify the full system.
+
+For every milestone:
+- Implement real functionality.
+- Execute tests.
+- Inspect the UI.
+- Validate data accuracy.
+- Record remaining limitations.
+- Update PROJECT_STATE.md.
+- Commit to GitHub safely.
+- Verify the build.
+- Continue to the next dependency-ready milestone.
+
+Prioritise a working end-to-end system over a large number of incomplete modules.
+
+# 25. DEFINITION OF DONE
+
+The application is complete only when:
+
+1. The public website loads reliably.
+2. The globe is interactive on desktop and mobile.
+3. Real observations are displayed accurately.
+4. At least two real forecasting sources can be compared.
+5. WeatherNext integration is working where authorised, with transparent fallback behaviour otherwise.
+6. Forecast model identity, timestamps and uncertainty are visible.
+7. Forecast animations reflect genuine weather fields.
+8. The AI assistant successfully performs real map and forecast operations.
+9. Basic mode is clear to a non-technical visitor.
+10. Advanced mode supports genuine forecasting experiments.
+11. Forecast accuracy is evaluated on historical and unseen data.
+12. The economic impact module distinguishes weather evidence from financial speculation.
+13. Reports can be generated using actual model outputs.
+14. No visible control is merely decorative.
+15. Security and data provenance tests pass.
+16. The system can be restored from its GitHub repository and documented storage.
+17. A judge can independently reproduce and challenge an important forecast.
+
+# 26. FLAGSHIP COMPETITION DEMONSTRATION
+
+Prepare an end-to-end demonstration:
+
+1. Open AlphaForge Atmosphere.
+2. Ask ATLAS: "Show me Brazil's coffee-growing regions."
+3. The globe moves to Brazil.
+4. Display observed and forecast rainfall.
+5. Compare WeatherNext and ECMWF/GFS predictions.
+6. Show where the models disagree.
+7. Explain uncertainty in ordinary language.
+8. Display rainfall anomalies relative to a justified historical baseline.
+9. Investigate possible agricultural impacts.
+10. Present conditional coffee-market scenarios without claiming guaranteed price movements.
+11. Open Advanced mode.
+12. Inspect forecast-model performance on archived unseen cases.
+13. Let the AI propose a regional forecast improvement experiment.
+14. Run and evaluate the experiment against an established baseline.
+15. Show a failed or inconclusive candidate as well as any successful candidate.
+16. Generate a concise weather briefing.
+17. Generate a full scientific report.
+18. Show the underlying data, calculations and reproducibility record.
+19. Inject a stale or invalid forecast and demonstrate that the system detects it.
+20. Show that the entire investigation remains available after restarting the application.
+
+# FINAL DIRECTIVE
+
+Build AlphaForge Atmosphere as a genuinely capable autonomous AI weather intelligence platform.
+
+The primary value is accurate, transparent, accessible weather forecasting.
+
+The technical innovation is multi-model forecast synthesis, independent verification, intelligent research agents and the ability to investigate complex weather-driven consequences.
+
+The globe is the interface.
+
+Weather models are the computational foundation.
+
+ATLAS is the interactive intelligence layer.
+
+The Advanced environment supports scientific experimentation and optional economic analysis.
+
+Do not build decorative dashboards.
+
+Do not invent forecasts.
+
+Do not mislabel prediction models.
+
+Do not claim new scientific discoveries without evidence.
+
+Deliver complete frontend and backend functionality, responsive design, genuine provider integrations, reproducible research and production-grade engineering.
+
+**Begin by auditing the existing repository, then implement a functioning globe-to-forecast-to-AI-explanation workflow before building additional research features.**

@@ -44,6 +44,7 @@ import {
   type TradeRouteFilterMode,
 } from './WorldPulseTradeRoutesPanel.tsx';
 import { WorldPulseStreetVisionPanel } from './WorldPulseStreetVisionPanel.tsx';
+import { ArgonVoiceAssistantHud } from './ArgonVoiceAssistantHud.tsx';
 
 interface WorldPulseAppProps {
   userMode?: UserExperienceMode;
@@ -611,6 +612,36 @@ export const WorldPulseApp: React.FC<WorldPulseAppProps> = ({
             {showMeWhyOpen ? 'Hide "Show Me Why"' : 'Show Me Why (Plain English)'}
           </button>
         </div>
+      </div>
+
+      {/* ARGON Autonomous Voice Weather & Market Intelligence Assistant HUD */}
+      <div id="section-argon-assistant" className="min-w-0">
+        <ArgonVoiceAssistantHud
+          userMode={userMode}
+          currentCountryIso2={deepProfile.iso2}
+          onNavigateGlobeToTarget={(lat, lng, rangeMeters, label, countryIso2) => {
+            if (countryIso2 && countryIso2 !== deepProfile.iso2) {
+              const resolved = resolveCountryOrUnseenProfile(countryIso2);
+              setActiveCountry(resolved);
+              if (onSelectCountryIso) {
+                onSelectCountryIso(resolved.iso2);
+              }
+            }
+            setCustomFocusTarget({
+              lat,
+              lng,
+              label,
+              rangeMeters,
+              zoomLevel: rangeMeters < 2_000_000 ? 6 : 4,
+              tiltDeg: 32,
+            });
+            setViewportCameraState({
+              lat,
+              lng,
+              rangeMeters,
+            });
+          }}
+        />
       </div>
 
       {/* "Show Me Why" Interactive Causal Chain Drawer (100% Country-Dependent) */}

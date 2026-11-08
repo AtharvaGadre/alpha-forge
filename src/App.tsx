@@ -44,8 +44,9 @@ export default function App() {
     { id: 'GOVERNANCE', label: 'Quant Agents & Reports', shortLabel: 'Agents' },
   ];
 
-  // Unified WorldPulse section anchors for consistent navigation across Website, Tablet & Mobile
+  // Unified AlphaForge Atmosphere & WorldPulse section anchors for consistent navigation across Website, Tablet & Mobile
   const worldPulseSections = [
+    { href: '#section-argon-assistant', label: 'ARGON Voice AI', shortLabel: 'ARGON AI' },
     { href: '#section-globe-zoom', label: 'Globe & Zoom AI', shortLabel: '3D Globe' },
     { href: '#section-country-deepdive', label: 'Country Deep-Dive', shortLabel: 'Country Intel' },
     { href: '#section-trade-routes', label: 'Trade & AIS Ships', shortLabel: 'Trade & Ships' },
@@ -55,7 +56,7 @@ export default function App() {
   return (
     <div id="top" className="min-h-screen w-full max-w-[100vw] overflow-x-hidden bg-[#050811] text-slate-100 flex flex-col pb-16 lg:pb-0">
       {/* 3-Zone Responsive Top Bar (Consistent across Mobile 375px+, Tablet 768px+, and Website 1440px) */}
-      <header className="h-13 sm:h-14 flex items-center justify-between gap-2 sm:gap-6 px-3 sm:px-6 border-b border-slate-800/90 bg-[#050811]/95 backdrop-blur-md sticky top-0 z-40 w-full">
+      <header className="h-13 sm:h-14 flex items-center justify-between gap-2 sm:gap-4 px-3 sm:px-6 border-b border-slate-800/90 bg-[#050811]/95 backdrop-blur-md sticky top-0 z-40 w-full">
         {/* Zone 1: Single-line Brand Wordmark */}
         <a
           href="#top"
@@ -65,14 +66,17 @@ export default function App() {
           }}
           className="text-sm sm:text-base font-bold tracking-tight text-white whitespace-nowrap shrink-0"
         >
-          AlphaForge · <span className="text-cyan-400">WorldPulse</span>
+          AlphaForge · <span className="text-cyan-400">Atmosphere</span>{' '}
+          <span className="hidden sm:inline text-xs font-mono text-emerald-300">
+            [ARGON]
+          </span>
         </a>
 
         {/* Zone 2: Center Navigation Links (Desktop lg+ where bottom quick-nav is hidden) */}
         {userMode === 'BASIC' ? (
           <nav
-            aria-label="WorldPulse Section Navigation"
-            className="hidden lg:flex items-center gap-5 xl:gap-7 text-xs font-medium text-slate-300"
+            aria-label="AlphaForge Atmosphere and ARGON Section Navigation"
+            className="hidden lg:flex items-center gap-4 xl:gap-6 text-xs font-medium text-slate-300"
           >
             {worldPulseSections.map((sec) => (
               <a
@@ -257,7 +261,7 @@ export default function App() {
       {/* Mobile & Tablet Thumb-Zone Bottom Navigation Bar (Consistent with Website Top Nav, < 15% Sticky Cap) */}
       <nav
         aria-label="Mobile and Tablet Quick Navigation"
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 h-13 bg-[#050811]/95 backdrop-blur-md border-t border-slate-800/90 grid grid-cols-4 items-center px-2"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 h-13 bg-[#050811]/95 backdrop-blur-md border-t border-slate-800/90 grid grid-cols-5 items-center px-1.5"
       >
         {worldPulseSections.map((sec) => (
           <a
@@ -268,7 +272,7 @@ export default function App() {
                 setActiveTab('WORLDPULSE');
               }
             }}
-            className="flex flex-col items-center justify-center min-h-[44px] text-[11px] font-semibold text-slate-300 hover:text-cyan-300 active:text-cyan-400 transition-colors whitespace-nowrap truncate px-1"
+            className="flex flex-col items-center justify-center min-h-[44px] text-[10px] sm:text-[11px] font-semibold text-slate-300 hover:text-cyan-300 active:text-cyan-400 transition-colors whitespace-nowrap truncate px-1"
           >
             <span>{sec.shortLabel}</span>
           </a>

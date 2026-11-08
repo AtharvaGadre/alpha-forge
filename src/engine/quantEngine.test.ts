@@ -466,3 +466,142 @@ test('CountryDeepDiveEngine: Sweden (SE) and Chad (TD) dynamically resolve count
   assert.equal(tacticalPred.localSurveillanceMetrics.length, 3);
 });
 
+test('ARGON Atmosphere Engine: 6-Model Ensemble Math, Verification Metrics, Stale Provenance Gate, Asia 10-Step Workflow & 28-Section Report pass invariants', async () => {
+  const {
+    WEATHER_MODEL_REGISTRY,
+    ATMOSPHERE_WEATHER_LAYERS,
+    AUTONOMOUS_FORECAST_IMPROVEMENTS,
+    computeWeatherVerificationMetrics,
+    validateForecastProvenanceGate,
+    executeArgonVoiceWorkflow,
+    generateArgonScientificReport,
+  } = await import('./argonAtmosphereEngine.ts');
+
+  // 1. Verify 6 registered weather models and 17 weather layers
+  assert.equal(WEATHER_MODEL_REGISTRY.length, 6);
+  assert.equal(ATMOSPHERE_WEATHER_LAYERS.length, 17);
+  assert.ok(WEATHER_MODEL_REGISTRY.some((m) => m.modelId === 'WEATHERNEXT_3'));
+  assert.ok(WEATHER_MODEL_REGISTRY.some((m) => m.modelId === 'ECMWF_IFS'));
+  assert.ok(WEATHER_MODEL_REGISTRY.some((m) => m.modelId === 'NOAA_GFS'));
+
+  // 2. Verify constrained multi-model ensemble math (sum w_i = 1, calibrated 90% PI > raw spread)
+  const asiaWorkflow = executeArgonVoiceWorkflow({
+    query:
+      "Hey ARGON, analyse last week's weather across Asia and tell me which financial markets have been affected and what next week's weather could mean for those markets.",
+  });
+  assert.ok(asiaWorkflow.investigationId.startsWith('ARGON-'));
+  assert.equal(asiaWorkflow.resolvedScope.scopeType, 'ASIA_REGIONAL');
+  assert.equal(asiaWorkflow.workflowSteps.length, 10);
+  assert.equal(
+    asiaWorkflow.workflowSteps.every((s) => s.status === 'COMPLETED'),
+    true
+  );
+
+  // Verify Epistemic Separation A-F
+  assert.ok(asiaWorkflow.epistemicMatrix.A_whatWeatherOccurred.length >= 2);
+  assert.ok(asiaWorkflow.epistemicMatrix.B_whatModelsPredict.length >= 2);
+  assert.ok(asiaWorkflow.epistemicMatrix.C_economicMechanisms.length >= 2);
+  assert.ok(asiaWorkflow.epistemicMatrix.D_whatAssetPricesDid.length >= 2);
+  assert.ok(asiaWorkflow.epistemicMatrix.E_modelSupportedFutureScenarios.length >= 2);
+  assert.ok(asiaWorkflow.epistemicMatrix.F_whatRemainsUncertainOrUnverified.length >= 2);
+
+  // Verify normalized weights sum to 1.0
+  const ens = asiaWorkflow.modelComparison.ensembleResult;
+  assert.ok(Math.abs(ens.weightSumCheck - 1.0) < 1e-3);
+  const calWidth = ens.calibrated90PctIntervalMm[1] - ens.calibrated90PctIntervalMm[0];
+  assert.ok(calWidth > ens.rawEnsembleSpreadMm);
+
+  // 3. Verify Out-of-Sample Weather Verification Metrics (MAE, RMSE, CRPS, Brier Score, POD, FAR, CSI)
+  const ver = computeWeatherVerificationMetrics({
+    observedValues: [20, 27, 17, 29, 14, 25],
+    predictedValues: [22, 26, 18, 30, 12, 28],
+    predictiveStdDevs: [2.5, 2.8, 2.2, 3.0, 2.1, 2.6],
+    predictedExceedanceProbs: [0.35, 0.72, 0.2, 0.85, 0.1, 0.68],
+    eventThreshold: 24,
+  });
+  assert.ok(ver.mae > 0 && ver.mae < 5);
+  assert.ok(ver.rmse >= ver.mae);
+  assert.ok(ver.crps > 0);
+  assert.ok(ver.brierScore >= 0 && ver.brierScore <= 1);
+  assert.ok(ver.predictionIntervalCoverage90Pct >= 50);
+
+  // 4. Verify Forecast Provenance & Safety Gate (3h fresh vs 42h stale rejection)
+  const nowIso = new Date().toISOString();
+  const freshInit = new Date(Date.now() - 3 * 3_600_000).toISOString();
+  const staleInit = new Date(Date.now() - 42 * 3_600_000).toISOString();
+
+  const freshGate = validateForecastProvenanceGate({
+    provider: 'WeatherNext 3',
+    modelId: 'WEATHERNEXT_3',
+    initTimestampUtc: freshInit,
+    currentTimestampUtc: nowIso,
+    maxAllowedAgeHours: 18,
+  });
+  assert.equal(freshGate.accepted, true);
+  assert.equal(freshGate.status, 'VALID_OPERATIONAL_FORECAST');
+
+  const staleGate = validateForecastProvenanceGate({
+    provider: 'WeatherNext 3',
+    modelId: 'WEATHERNEXT_3',
+    initTimestampUtc: staleInit,
+    currentTimestampUtc: nowIso,
+    maxAllowedAgeHours: 18,
+  });
+  assert.equal(staleGate.accepted, false);
+  assert.equal(staleGate.status, 'REJECTED_STALE_FORECAST');
+
+  // 5. Verify Autonomous Forecast Improvement Laboratory records both Validated and Rejected experiments
+  assert.ok(
+    AUTONOMOUS_FORECAST_IMPROVEMENTS.some((e) => e.status === 'VALIDATED_IMPROVEMENT')
+  );
+  assert.ok(
+    AUTONOMOUS_FORECAST_IMPROVEMENTS.some(
+      (e) => e.status === 'REJECTED_UNDERPERFORMED_BASELINE'
+    )
+  );
+
+  // 6. Verify Flagship Brazil Coffee Rainfall Workflow & Full 28-Section Report
+  const brazilWorkflow = executeArgonVoiceWorkflow({
+    query:
+      'Hey ARGON, analyse the rainfall forecasts for Brazil, compare the major models, explain the uncertainty and generate a detailed report on the potential effects on coffee production and prices.',
+  });
+  assert.equal(brazilWorkflow.resolvedScope.scopeType, 'BRAZIL_COFFEE');
+  assert.equal(brazilWorkflow.resolvedScope.countryIso2, 'BR');
+
+  const brazilReport = generateArgonScientificReport(
+    brazilWorkflow,
+    'FULL_28_SECTION_SCIENTIFIC_REPORT'
+  );
+  assert.equal(brazilReport.sections28.length, 28);
+  assert.equal(brazilReport.equations.length, 8);
+  assert.ok(
+    brazilReport.equations.some(
+      (eq) => eq.implementationStatus === 'IMPLEMENTED_IN_ENGINE'
+    )
+  );
+  assert.ok(
+    brazilReport.equations.some(
+      (eq) => eq.implementationStatus === 'EXPLANATORY_BACKGROUND'
+    )
+  );
+
+  // Verify custom weight overrides dynamically recompute ensemble mean in executeArgonVoiceWorkflow
+  const customBrazilWorkflow = executeArgonVoiceWorkflow({
+    query: 'Analyse Brazil coffee rainfall',
+    customWeights: {
+      WEATHERNEXT_3: 0.85,
+      ECMWF_IFS: 0.15,
+      ECMWF_AIFS: 0,
+      GRAPHCAST_DETERMINISTIC: 0,
+      NOAA_GFS: 0,
+      WEATHERNEXT_2: 0,
+    },
+  });
+  assert.notEqual(
+    customBrazilWorkflow.modelComparison.ensembleResult.ensemblePrecipitationMm,
+    brazilWorkflow.modelComparison.ensembleResult.ensemblePrecipitationMm
+  );
+});
+
+
+
