@@ -1,3 +1,66 @@
+## Real forecast weather layers
+
+The globe starts with precipitation shading and animated 10 m wind. Independent toggles, opacity, and a 72-hour / 3-hour-step timeline control the layers. Commodity markers remain on top and retain their separate interpretation.
+
+`GET /api/v1/weather/globe` requests NOAA GFS Global forecasts through Open-Meteo at 144 global sample points on a coarse 20° lattice (-70° to +70°). Precipitation values are totals for the preceding hour, not 3-hour accumulations. The map interpolates samples for visual context; it is not a high-resolution local weather or hazard product. Wind uses the meteorological FROM direction converted to flow vectors; animated streak timing is illustrative, not a real-time trajectory simulation.
+
+The endpoint caches successful grids for 30 minutes and deduplicates in-flight fetches. Missing values, wrong units and timestamps remain absent. Insufficient grids and runs known to be older than 24 hours are rejected. Missing initialization metadata is explicitly disclosed. Source, retrieved time, model initialization, coverage warnings and SHA-256 provenance are available in the globe's source disclosure. Failed refreshes remove the weather layer rather than substitute fixtures.
+
+## Globe-first landing and navigation
+
+The default web landing page is the restored interactive globe, configured for the commodity catalogue. Hash navigation supports `#globe`, `#markets`, `#watchlist`, `#advanced`, and `#methodology`, including browser back/forward. The brand and Back to globe action return home. Selected commodity, region, analyses and session history remain shared across views.
+
+The globe uses the existing canvas renderer with commodity-region markers, direct marker selection, searchable region cards, sector filters, pointer rotation, scroll zoom, keyboard camera controls and focus/reset buttons. It does not require Cesium, a WebGL context or external imagery downloads in commodity mode. This is a schematic geographic view; legacy synthetic weather fields, wind animation, alerts, buildings and unrelated market hubs are suppressed. Forecast pressure colors reflect retrieved analyses only.
+
+A selected-exposure inspector runs regional live forecasts and opens the commodity dashboard or forecast lab for the same selection. Regions on the far side become visible by rotation or selecting their labelled cards. Several commodities can share a coordinate; the card list disambiguates these exposures.
+
+## Forecast-focused advanced workspace
+
+The active web UI now includes **Linked markets** and **Forecast lab**:
+- Transmission map: upstream/downstream mechanism cards with source references, conditions and lags.
+- Scenario lab: manual up/down price-pressure scenarios or an existing single-direction forecast seed, one to three steps. Input costs, demand, margins and price pressure retain separate meanings; context-only links do not propagate. No path weights or return targets are invented.
+- Regional comparison: actual saved analyses across a commodity's sample regions, with a sequential refresh action.
+- Forecast revisions: up to 12 distinct snapshots per commodity/region in the current session. Cache repeats do not count as revisions; different rule versions are not compared as forecast changes.
+- Model diagnostics: actual model forecasts, inclusion decisions, initialization timestamps and available held-out rainfall verification. Weather skill is explicitly distinct from price-prediction skill.
+
+`GET /api/v1/commodities/transmission` exposes the mechanism graph; `/api/v1/commodities/transmission/scenario?source=natural-gas&direction=UP&hops=2` traces a manual scenario. Mechanism links are curated hypotheses, not empirically fitted causal coefficients. Background sources are attached to each route. Transport and power transmission depend on local contracts, energy mix and pass-through.
+
+Legacy quant-physics, execution/slippage and factor modules remain source history; they are not advanced navigation in the commodity forecast UI. Mobile migration remains separate.
+
+# AlphaForge — Forecast-driven commodity intelligence
+
+The web workspace covers 28 commodities across six sectors. Select a commodity and region, run a live seven-day weather analysis, and inspect conditional physical price pressure, fundamental offsets, provenance and observed market context.
+
+This is a research screen, **not a calibrated price predictor**. Unsupported mechanisms and unavailable data remain visible. No price targets, probabilities, synthetic quotes or fictional backtest results are generated.
+
+## Run and verify
+
+```sh
+npm install
+npm run dev
+npm test
+npm run lint
+npm run build
+```
+
+The server defaults to http://localhost:3000. No AI API key is needed for commodity analysis. Public weather and unofficial market-data services must be reachable; requests can take about a minute. Results are cached for 15 minutes. Failed requests are not cached.
+
+## Commodity API
+
+- `GET /api/v1/commodities` — coverage and allowed regions.
+- `GET /api/v1/commodities/:id/forecast?region=:regionId` — live analysis; 404 for unknown commodities, 400 for invalid regions, 502 when live forecasts cannot be obtained.
+- `GET /api/v1/prediction-markets` — 410 (removed).
+- Legacy `/api/v1/trade-ideas` now returns the commodity catalogue. Legacy fixture news/summary endpoints return 410.
+
+The UI supports search, sector filtering, watchlists saved on the device, sequential watchlist analysis, source inspection and JSON export. Analysis results themselves remain session-local.
+
+Coverage is a configurable catalogue, not a claim of production-weighted global coverage. To add a commodity, define its symbol, unit, representative regions, sensitivity months, mechanism rules and fundamental checklist in `src/engine/commodityForecastEngine.ts`. Price-model validation is deliberately separate from weather verification.
+
+Native mobile clients still require migration from the retired deck endpoints. Existing historical components and engines remain in the repository but are not exposed by the web entry point.
+
+---
+## Historical platform documentation
+
 # AlphaForge — Autonomous Quantitative Research Laboratory
 
 **Repository:** `https://github.com/AtharvaGadre/alpha-forge`  

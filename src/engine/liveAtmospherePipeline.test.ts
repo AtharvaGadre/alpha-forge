@@ -258,3 +258,20 @@ test('Live pipeline: throws when forecasts are unreachable so the server can fal
   );
   assert.equal(LIVE_MODEL_SPECS.length, 8);
 });
+
+
+test('Commodity target override keeps coordinates and symbols instead of resolving a coffee preset', async () => {
+  clearLivePipelineCache();
+  const { COMMODITIES, commodityTarget, buildCommodityForecast } = await import('./commodityForecastEngine.ts');
+  const c = COMMODITIES.find(c => c.id === 'wheat')!;
+  const region = c.regions[0];
+  const target = commodityTarget(c, region);
+  const result = await runLiveAtmospherePipeline({ query: 'coffee', target, now: NOW, fetchJson: mockFetch() });
+  assert.equal(result.target.label, region.name);
+  assert.equal(result.target.points[0].lat, region.lat);
+  assert.equal(result.target.exposures[0].symbol, 'ZW=F');
+  assert.equal(result.consequences[0].historical, null);
+  const forecast = buildCommodityForecast(c, region, result);
+  assert.equal(forecast.commodityId, 'wheat');
+  assert.equal(forecast.evidence.priceModelValidated, false);
+});

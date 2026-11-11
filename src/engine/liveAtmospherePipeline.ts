@@ -46,7 +46,7 @@ export type ExposureDriver = 'PRECIP' | 'TEMP_DEMAND' | 'HEAT' | 'WIND' | 'CONTE
 export interface MarketExposure {
   symbol: string;
   name: string;
-  sector: 'AGRICULTURE' | 'ENERGY' | 'EQUITY_INDEX' | 'FX';
+  sector: 'AGRICULTURE' | 'ENERGY' | 'METALS' | 'LIVESTOCK' | 'EQUITY_INDEX' | 'FX';
   driver: ExposureDriver;
 }
 
@@ -1165,6 +1165,8 @@ async function sha256Hex(text: string): Promise<string> {
 }
 
 export interface RunLivePipelineOptions {
+  /** Explicit validated region supplied by the commodity catalogue. */
+  target?: ResolvedTarget;
   query: string;
   fetchJson?: FetchJson;
   now?: Date;
@@ -1183,7 +1185,7 @@ export async function runLiveAtmospherePipeline(opts: RunLivePipelineOptions): P
     steps.push({ stepNumber: steps.length + 1, stepTitle: title, toolCalled: tool, status: warn ? 'WARNING' : 'COMPLETED', timestampUtc: new Date().toISOString(), summary, sourceCitation: citation });
 
   // --- Step 1: resolve location ------------------------------------------------
-  const target = await resolveTarget(opts.query, fetchJson, log, opts.fallbackLocation);
+  const target = opts.target ?? await resolveTarget(opts.query, fetchJson, log, opts.fallbackLocation);
   step(
     'Resolve the place the user asked about',
     'resolveTarget()',

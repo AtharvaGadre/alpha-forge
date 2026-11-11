@@ -28,6 +28,25 @@ export const LocationSummary: React.FC = () => {
   }
 
   const wx = place.weatherSummaryDefault;
+  const tel = state.liveTelemetry;
+  const n24 = tel?.next24h ?? null;
+
+  // Use the live 7-day investigation only when it is about this place (centroid within ~600 km)
+  const live = state.activeInvestigation.live;
+  const liveHere =
+    live &&
+    live.target.points.some(
+      (p) => Math.hypot(p.lat - place.lat, (p.lng - place.lng) * Math.cos((place.lat * Math.PI) / 180)) * 111 < 600
+    );
+  const precipSignal = live?.signals.find((x) => x.id === 'PRECIP_NEXT7');
+  const leadIdea = live?.consequences.find((c) => c.exposure.driver !== 'CONTEXT');
+  const summarySentence = liveHere
+    ? `${live!.modelInputs.length}-model ensemble: ${live!.ensemble.ensemblePrecipitationMm} mm over the next 7 days` +
+      (precipSignal ? ` vs ${precipSignal.normal} mm normal (z = ${precipSignal.zScore}, ${precipSignal.materiality.replace('_', ' ').toLowerCase()})` : '') +
+      (leadIdea ? `. ${leadIdea.exposure.symbol}: ${leadIdea.hypothesisDirection.replaceAll('_', ' ').toLowerCase()}.` : '.')
+    : state.liveDataStatus === 'LOADING'
+    ? 'Loading the live 7-day multi-model forecast…'
+    : `${wx.oneSentenceSummary} (illustrative)`;
 
   return (
     <aside
@@ -75,10 +94,10 @@ export const LocationSummary: React.FC = () => {
             <Thermometer className="w-3 h-3 text-sky-400" /> Now
           </span>
           <span className="text-base font-semibold text-white mt-0.5">
-            {wx.temperatureC.toFixed(1)}°C
+            {(tel?.temperatureC ?? wx.temperatureC).toFixed(1)}°C
           </span>
           <span className="text-[10px] text-slate-400 truncate">
-            {wx.conditionLabel}
+            {tel ? 'Live · Open-Meteo' : 'Demo value'}
           </span>
         </div>
 
@@ -87,10 +106,11 @@ export const LocationSummary: React.FC = () => {
             <Calendar className="w-3 h-3 text-emerald-400" /> Next 24h
           </span>
           <span className="text-sm font-semibold text-emerald-300 mt-0.5">
-            {wx.next24hTempRangeC[0]}°–{wx.next24hTempRangeC[1]}°C
+            {n24 ? `${n24.tempMinC}°–${n24.tempMaxC}°C` : `${wx.next24hTempRangeC[0]}°–${wx.next24hTempRangeC[1]}°C`}
           </span>
           <span className="text-[10px] text-slate-400">
-            Rain: {wx.precipitation24hMm.toFixed(1)} mm ({wx.next24hRainProbPct}%)
+            Rain: {(n24?.precipMm ?? wx.precipitation24hMm).toFixed(1)} mm (
+            {n24 ? n24.maxRainProbPct ?? '—' : wx.next24hRainProbPct}%)
           </span>
         </div>
 
@@ -99,18 +119,18 @@ export const LocationSummary: React.FC = () => {
             <Wind className="w-3 h-3 text-amber-400" /> Wind / RH
           </span>
           <span className="text-sm font-semibold text-slate-100 mt-0.5">
-            {wx.windSpeedMs.toFixed(1)} m/s
+            {(tel?.windSpeedMs ?? wx.windSpeedMs).toFixed(1)} m/s
           </span>
           <span className="text-[10px] text-slate-400 flex items-center gap-1">
             <CloudRain className="w-2.5 h-2.5 text-sky-400" />
-            {wx.humidityPct}% RH
+            {tel?.humidityPct ?? wx.humidityPct}% RH
           </span>
         </div>
       </div>
 
       {/* 1-Sentence Plain-Language Summary */}
       <p className="text-xs text-slate-300 leading-relaxed mt-3">
-        {wx.oneSentenceSummary}
+        {summarySentence}
       </p>
 
       {/* Optional 3D Landmark Fly-In Button */}

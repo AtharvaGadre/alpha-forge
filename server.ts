@@ -1,3 +1,7 @@
+import { fetchGlobeWeather, type GlobeWeatherField } from './src/engine/liveGlobeWeather.ts';
+import { TRANSMISSION_VERSION, TRANSMISSION_NODES, TRANSMISSION_LINKS, traceTransmission } from './src/engine/commodityTransmissionEngine.ts';
+import { createHash } from 'node:crypto';
+import { COMMODITIES, COMMODITY_ENGINE_VERSION, commodityTarget, buildCommodityForecast, type CommodityForecast } from './src/engine/commodityForecastEngine.ts';
 import express from 'express';
 import http from 'http';
 import path from 'path';
@@ -1092,6 +1096,7 @@ Ground your synthesis strictly in the verified country data below (do NOT fabric
       precipitationMm: 0.0,
       units: { temperature: '°C', windSpeed: 'm/s', humidity: '%', precipitation: 'mm' },
     };
+    let next24h: { tempMinC: number; tempMaxC: number; precipMm: number; maxRainProbPct: number | null } | null = null;
 
     try {
       const ctrl = new AbortController();
@@ -1100,12 +1105,24 @@ Ground your synthesis strictly in the verified country data below (do NOT fabric
         String(lat)
       )}&longitude=${encodeURIComponent(
         String(lng)
-      )}&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m&wind_speed_unit=ms&timezone=UTC`;
+      )}&current=temperature_2m,relative_humidity_2m,precipitation,wind_speed_10m&hourly=temperature_2m,precipitation,precipitation_probability&forecast_hours=24&wind_speed_unit=ms&timezone=UTC`;
       const wxRes = await fetch(url, { signal: ctrl.signal });
       clearTimeout(t);
       if (wxRes.ok) {
         const data: any = await wxRes.json();
         if (data?.current) {
+          const nums = (xs: any[]) => (xs ?? []).map(Number).filter(Number.isFinite);
+          const temps = nums(data.hourly?.temperature_2m);
+          const rain = nums(data.hourly?.precipitation);
+          const prob = nums(data.hourly?.precipitation_probability);
+          next24h = temps.length
+            ? {
+                tempMinC: Number(Math.min(...temps).toFixed(1)),
+                tempMaxC: Number(Math.max(...temps).toFixed(1)),
+                precipMm: Number(rain.reduce((a, b) => a + b, 0).toFixed(1)),
+                maxRainProbPct: prob.length ? Math.max(...prob) : null,
+              }
+            : null;
           observation = {
             ...observation,
             provider: 'OPEN_METEO_WMO_LIVE',
@@ -1120,7 +1137,24 @@ Ground your synthesis strictly in the verified country data below (do NOT fabric
       // Keep baseline observation
     }
 
-    res.json(observation);
+    res.json({
+      ...observation,
+      next24h,
+      // Shape consumed by the web store (null when the live provider was unreachable)
+      telemetry:
+        observation.provider === 'OPEN_METEO_WMO_LIVE'
+          ? {
+              temperatureC: observation.temperatureC,
+              windSpeedMs: observation.windSpeedMs,
+              humidityPct: observation.relativeHumidityPct,
+              precipitationMm: observation.precipitationMm,
+              conditionLabel: 'Live · Open-Meteo current conditions',
+              fetchedAtUtc: new Date().toISOString(),
+              provider: 'Open-Meteo',
+              next24h,
+            }
+          : null,
+    });
   });
 
   // 10d. GET /api/v1/weather/forecast
@@ -1446,58 +1480,84 @@ Strictly use ONLY the verified tool figures below (never fabricate numbers, and 
     });
   });
 
-  // 10o. GET /api/v1/trade-ideas & /api/v1/prediction-markets — Research-Backed Weather-to-Market Trade Ideas
-  app.get(['/api/v1/trade-ideas', '/api/v1/prediction-markets'], (req, res) => {
-    const countryIso2 = String(req.query.country || 'GB').toUpperCase();
-    const offsetHours = Number(req.query.offsetHours || 0);
-    const ideas = getPredictionAndTradeIdeasForLocation(countryIso2, offsetHours);
-    res.json({
-      countryIso2,
-      offsetHours,
-      count: ideas.length,
-      tradeIdeas: ideas,
-    });
+  // Commodity research replaces binary contracts and hard-coded trade cards.
+  app.get('/api/v1/prediction-markets', (_req, res) => {
+    res.status(410).json({ error: 'Prediction markets have been removed. Use /api/v1/commodities.' });
   });
-
-  // 10p. GET /api/v1/news-trade-ideas — General Trade Ideas from Verified Meteorological & Macro News
-  app.get('/api/v1/news-trade-ideas', (req, res) => {
-    const countryIso2 = String(req.query.country || 'GB').toUpperCase();
-    const items = getNewsDrivenTradeIdeasForLocation(countryIso2);
-    res.json({
-      countryIso2,
-      count: items.length,
-      newsTradeIdeas: items,
-    });
+  app.get(['/api/v1/commodities', '/api/v1/trade-ideas'], (_req, res) => {
+    res.json({ commodities: COMMODITIES, count: COMMODITIES.length });
   });
-
-  // 10q. GET /api/v1/ai-summary — Bottom AI Executive Synthesis of Predicted Weather Effects on Markets
-  app.get('/api/v1/ai-summary', (req, res) => {
-    const countryIso2 = String(req.query.country || 'GB').toUpperCase();
-    const locationName = String(req.query.locationName || countryIso2);
-    const offsetHours = Number(req.query.offsetHours || 0);
-    const inv = executeArgonVoiceWorkflow({
-      query: `Hey ARGON, analyse how predicted weather patterns in ${locationName} (${countryIso2}) affect financial markets and suggest research-backed trade ideas.`,
-      currentCountryIso2: countryIso2,
-    });
-    const tradeIdeas = getPredictionAndTradeIdeasForLocation(
-      countryIso2,
-      offsetHours
-    );
-    const newsIdeas = getNewsDrivenTradeIdeasForLocation(countryIso2);
-    const summary = generateBottomAiResearchSummary(
-      countryIso2,
-      locationName,
-      inv,
-      tradeIdeas,
-      newsIdeas
-    );
-    res.json({
-      countryIso2,
-      locationName,
-      summary,
-      investigationId: inv.investigationId,
-      provenanceHash: summary.provenanceHash,
-    });
+  // Old fixture news and summaries must not leak fictional contract data to older clients.
+  app.get(['/api/v1/news-trade-ideas', '/api/v1/ai-summary'], (_req, res) => {
+    res.status(410).json({ error: 'Fixture trade decks retired. Use commodity forecasts with traceable evidence.' });
+  });
+  let weatherGridCache: { field: GlobeWeatherField; expires: number } | null = null;
+  let weatherGridPending: Promise<GlobeWeatherField> | null = null;
+  app.get('/api/v1/weather/globe', async (_req, res) => {
+    if (weatherGridCache && weatherGridCache.expires > Date.now()) { res.json({ ...weatherGridCache.field, cached: true }); return; }
+    try {
+      if (!weatherGridPending) {
+        weatherGridPending = (async () => {
+          const field = await fetchGlobeWeather(async url => {
+            const response = await fetch(url, { signal: AbortSignal.timeout(20_000) });
+            if (!response.ok) throw new Error(`Weather provider HTTP ${response.status}`);
+            return response.json();
+          });
+          const inputSha256 = createHash('sha256').update(JSON.stringify({ model:field.model,initialized:field.modelInitializedAtUtc,frames:field.frames })).digest('hex');
+          const result: GlobeWeatherField = { ...field, inputSha256 };
+          weatherGridCache = { field:result,expires:Date.now()+30*60_000 };
+          return result;
+        })();
+      }
+      res.json({ ...await weatherGridPending,cached:false });
+    } catch (err: any) { res.status(502).json({ error:err?.message || 'Weather grid unavailable.',dataMode:'LIVE_UNAVAILABLE' }); }
+    finally { weatherGridPending=null; }
+  });
+  app.get('/api/v1/commodities/transmission', (_req, res) => {
+    res.json({ version: TRANSMISSION_VERSION, nodes: TRANSMISSION_NODES, links: TRANSMISSION_LINKS, evidence: 'MECHANISM_ONLY' });
+  });
+  app.get('/api/v1/commodities/transmission/scenario', (req, res) => {
+    const source = String(req.query.source ?? '');
+    const direction = String(req.query.direction ?? 'UP');
+    const hops = Number(req.query.hops ?? 2);
+    if (!COMMODITIES.some(c => c.id === source) || !['UP', 'DOWN'].includes(direction)) {
+      res.status(400).json({ error: 'Choose a catalogue commodity and direction UP or DOWN.' }); return;
+    }
+    try {
+      const paths = traceTransmission(source, direction as 'UP' | 'DOWN', hops);
+      res.json({ version: TRANSMISSION_VERSION, origin: 'MANUAL_HYPOTHESIS', source, direction, hops, paths, note: 'Conditional mechanisms only; costs, demand and prices stay separate. No calibrated return forecast.' });
+    } catch (err: any) { res.status(400).json({ error: err.message }); }
+  });
+  const commodityCache = new Map<string, { result: CommodityForecast; expires: number }>();
+  const commodityPending = new Map<string, Promise<CommodityForecast>>();
+  app.get('/api/v1/commodities/:id/forecast', async (req, res) => {
+    const commodity = COMMODITIES.find(c => c.id === req.params.id);
+    if (!commodity) { res.status(404).json({ error: 'Unknown commodity.' }); return; }
+    const region = req.query.region == null ? commodity.regions[0] : commodity.regions.find(r => r.id === String(req.query.region));
+    if (!region) { res.status(400).json({ error: 'Choose a region from this commodity’s catalogue.' }); return; }
+    const key = `${commodity.id}:${region.id}`;
+    const hit = commodityCache.get(key);
+    if (hit && hit.expires > Date.now()) { res.json({ ...hit.result, cached: true }); return; }
+    try {
+      let pending = commodityPending.get(key);
+      if (!pending) {
+        pending = (async () => {
+          const live = await runLiveAtmospherePipeline({ query: `${commodity.name}: ${region.name}`, target: commodityTarget(commodity, region) });
+          const result = buildCommodityForecast(commodity, region, live);
+          const parametersSha256 = createHash('sha256').update(JSON.stringify({ version: COMMODITY_ENGINE_VERSION, commodity, region })).digest('hex');
+          result.evidence.parametersSha256 = parametersSha256;
+          result.evidence.experimentId = `CF-${commodity.id}-${parametersSha256.slice(0, 12)}-${result.evidence.inputHash.slice(0, 12)}`;
+          commodityCache.set(key, { result, expires: Date.now() + 15 * 60_000 });
+          return result;
+        })();
+        commodityPending.set(key, pending);
+      }
+      res.json({ ...await pending, cached: false });
+    } catch (err: any) {
+      res.status(502).json({ error: err?.message || 'Live data unavailable.', dataMode: 'LIVE_UNAVAILABLE' });
+    } finally {
+      commodityPending.delete(key);
+    }
   });
 
 

@@ -113,6 +113,7 @@ export interface AtmosphereAppState {
     conditionLabel: string;
     fetchedAtUtc: string;
     provider: string;
+    next24h?: { tempMinC: number; tempMaxC: number; precipMm: number; maxRainProbPct: number | null } | null;
   } | null;
 
   // ARGON Investigation & Report State
@@ -719,15 +720,12 @@ export const atmosphereStore = {
   },
 };
 
-// Replace the offline baseline with live data on first load (browser only)
-if (typeof window !== 'undefined') {
-  setTimeout(
-    () =>
-      void atmosphereStore.requestLiveUpgrade(
-        `Hey ARGON, analyse how predicted weather in ${initialLocation.name} (${initialLocation.countryName}) could affect markets next week.`,
-        initialLocation.countryIso2
-      ),
-    0
+// Legacy atmosphere upgrades are opt-in. Importing the globe camera store must not
+// trigger unrelated investigations or move a commodity user's selected camera.
+export function startLegacyAtmosphereUpgrade(): void {
+  void atmosphereStore.requestLiveUpgrade(
+    `Hey ARGON, analyse how predicted weather in ${initialLocation.name} (${initialLocation.countryName}) could affect markets next week.`,
+    initialLocation.countryIso2
   );
 }
 

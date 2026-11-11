@@ -1,3 +1,5 @@
+import { buildWindFlowPaths } from '../../engine/windFlow';
+import { sampleWeather, rainColor, type WeatherFrame } from '../../engine/liveGlobeWeather';
 // ============================================================================
 // ALPHAFORGE ATMOSPHERE — GOD'S EYE VIEW CESIUM + ATMOSPHERIC GLOBE CANVAS
 // Adapted from https://github.com/bilawalsidhu/gods-eye-view (MIT)
@@ -71,17 +73,22 @@ const CONTINENT_POLYGONS: Array<Array<[number, number]>> = [
   ],
 ];
 
-export const GlobeCanvas: React.FC = () => {
+export interface CommodityGlobePoint { key: string; label: string; lat: number; lng: number; color: string }
+export interface CommodityGlobeOverlay { points: CommodityGlobePoint[]; selectedKey: string; onSelect: (key: string) => void }
+export interface GlobeWeatherOverlay { frame: WeatherFrame; wind: boolean; precipitation: boolean; opacity: number; animateWind: boolean }
+export const GlobeCanvas: React.FC<{ commodityOverlay?: CommodityGlobeOverlay; weatherOverlay?: GlobeWeatherOverlay }> = ({ commodityOverlay, weatherOverlay }) => {
   const state = useAtmosphereStore();
   const cesiumContainerRef = useRef<HTMLDivElement | null>(null);
   const overlayCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const viewerRef = useRef<any>(null);
   const isDraggingRef = useRef(false);
   const dragMovedRef = useRef(false);
+  const pointerStartRef = useRef({ x: 0, y: 0 });
   const lastPointerRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const targetCameraRef = useRef(state.cameraPose);
   const currentCameraRef = useRef({ ...state.cameraPose });
   const [cesiumReady, setCesiumReady] = useState(false);
+  const markerHits = useRef<Array<{ key: string; x: number; y: number }>>([]);
 
   // Sync external store camera updates into targetCameraRef
   useEffect(() => {
@@ -120,7 +127,7 @@ export const GlobeCanvas: React.FC = () => {
   // 1. Initialize CesiumJS Viewer adapted from God's Eye View
   useEffect(() => {
     const container = cesiumContainerRef.current;
-    if (!container || typeof window === 'undefined') return;
+    if (!container || typeof window === 'undefined' || commodityOverlay) return;
 
     let viewer: any = null;
     let cleanupPinch: (() => void) | null = null;
@@ -244,6 +251,14 @@ export const GlobeCanvas: React.FC = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    const rainCells: Array<{lat:number;lng:number;mm:number}> = [];
+    if (weatherOverlay?.precipitation) {
+      for (let lat=-67.5;lat<70;lat+=5) for(let lng=-177.5;lng<180;lng+=5) {
+        const mm=sampleWeather(weatherOverlay.frame,lat,lng)?.precipitationMm;
+        if(mm!=null && mm>=.05) rainCells.push({lat,lng,mm});
+      }
+    }
+    const windPaths = weatherOverlay?.wind ? buildWindFlowPaths(weatherOverlay.frame) : [];
     let animFrameId = 0;
 
     const renderFrame = (timestampMs: number) => {
@@ -441,7 +456,7 @@ export const GlobeCanvas: React.FC = () => {
       }
 
       // Build weather field snapshot from WeatherOverlayManager
-      const snapshot = buildWeatherFieldSnapshot({
+      const snapshot = commodityOverlay ? { gridNodes: [], windStreamlines: [], alertPolygons: [], stormTracks: [] } : buildWeatherFieldSnapshot({
         activeLayers:
           state.activeWeatherLayers.length > 0
             ? state.activeWeatherLayers
@@ -474,7 +489,7 @@ export const GlobeCanvas: React.FC = () => {
       }
 
       // Render equal-area midpoint wind streamlines
-      const streamlines =
+      const streamlines = commodityOverlay ? [] :
         snapshot.windStreamlines.length > 0
           ? snapshot.windStreamlines
           : buildWeatherFieldSnapshot({
@@ -552,7 +567,7 @@ export const GlobeCanvas: React.FC = () => {
       }
 
       // Render 3D Landmark Prisms when zoomed in (< 1,200,000m altitude)
-      if (cur.altitudeMeters < 1_200_000 && state.selectedLocation) {
+      if (!commodityOverlay && cur.altitudeMeters < 1_200_000 && state.selectedLocation) {
         const sel = state.selectedLocation;
         const centerProj = projectLatLon(sel.lat, sel.lng);
         if (centerProj.cosC > 0.2) {
@@ -575,8 +590,61 @@ export const GlobeCanvas: React.FC = () => {
         }
       }
 
-      // Glowing Place Nodes & Market Hubs
-      for (const place of CURATED_GEOGRAPHIC_TARGETS) {
+      // Real forecast layers share the earth projection. Always draw below commodity markers.
+      if (weatherOverlay) {
+        ctx.save();
+        ctx.globalAlpha = weatherOverlay.opacity;
+        for(const cell of rainCells) {
+          const corners=[[-2.5,-2.5],[-2.5,2.5],[2.5,2.5],[2.5,-2.5]].map(([dy,dx])=>projectLatLon(cell.lat+dy,cell.lng+dx));
+          if(corners.some(p=>p.cosC<.025)) continue;
+          ctx.beginPath();corners.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();
+          ctx.fillStyle=rainColor(cell.mm);ctx.fill();
+        }
+        if(weatherOverlay.wind) {
+          ctx.lineCap='round';ctx.lineJoin='round';
+          for(const path of windPaths) {
+            const phase=weatherOverlay.animateWind?(timestampMs*.000055*(.5+Math.min(path.speedMs,30)/18)+path.phase)%1:.64;
+            const color=path.speedMs>=15?'255,222,171':path.speedMs>=8?'160,218,206':'171,207,230';
+            const points=path.points.map(p=>projectLatLon(p.lat,p.lng));
+            // A faint continuous curve provides the flow structure; tapered highlights move along it.
+            ctx.beginPath();let pen=false;
+            for(const p of points) {if(p.cosC<.055){pen=false;continue;}if(pen)ctx.lineTo(p.x,p.y);else{ctx.moveTo(p.x,p.y);pen=true;}}
+            ctx.strokeStyle=`rgba(${color},0.10)`;ctx.lineWidth=.65;ctx.stroke();
+            for(let k=1;k<points.length;k++) {
+              const tail=points[k-1],head=points[k];
+              if(tail.cosC<.055||head.cosC<.055)continue;
+              const age=(phase-k/(points.length-1)+1)%1;
+              if(age>.30)continue;
+              const fade=1-age/.30;
+              const horizon=Math.min(1,Math.min(tail.cosC,head.cosC)*5);
+              ctx.strokeStyle=`rgba(${color},${(.12+fade*.8)*horizon})`;
+              ctx.lineWidth=.45+fade*(path.speedMs>=15?1.5:1.05);
+              ctx.beginPath();ctx.moveTo(tail.x,tail.y);ctx.lineTo(head.x,head.y);ctx.stroke();
+            }
+          }
+        }
+        ctx.restore();
+      }
+      markerHits.current = [];
+      for (const point of commodityOverlay?.points ?? []) {
+        const p = projectLatLon(point.lat, point.lng);
+        if (p.cosC <= 0.1) continue;
+        markerHits.current.push({ key: point.key, x: p.x, y: p.y });
+        const selected = point.key === commodityOverlay?.selectedKey;
+        ctx.beginPath(); ctx.arc(p.x, p.y, selected ? 12 : 7, 0, Math.PI * 2);
+        ctx.fillStyle = selected ? 'rgba(241,181,124,0.18)' : 'rgba(117,166,151,0.09)'; ctx.fill();
+        ctx.beginPath(); ctx.arc(p.x, p.y, selected ? 5 : 3, 0, Math.PI * 2);
+        ctx.fillStyle = point.color; ctx.fill();
+        ctx.strokeStyle = selected ? '#ffe3bf' : 'rgba(255,255,255,0.45)'; ctx.lineWidth = 1; ctx.stroke();
+        if (selected) {
+          ctx.font = '500 11px system-ui, sans-serif';
+          const w = ctx.measureText(point.label).width;
+          ctx.fillStyle = 'rgba(10,26,35,0.88)'; ctx.fillRect(p.x+12,p.y-12,w+15,24);
+          ctx.fillStyle = '#f5e7d5'; ctx.fillText(point.label,p.x+19,p.y+4);
+        }
+      }
+      // Legacy hubs are suppressed in the commodity workspace.
+      for (const place of commodityOverlay ? [] : CURATED_GEOGRAPHIC_TARGETS) {
         const p = projectLatLon(place.lat, place.lng);
         if (p.cosC <= 0.08) continue;
 
@@ -635,11 +703,23 @@ export const GlobeCanvas: React.FC = () => {
     state.selectedLocation,
     state.locationSummaryOpen,
     state.liveTelemetry,
+    commodityOverlay,
+    weatherOverlay,
   ]);
 
+  useEffect(() => {
+    const canvas = overlayCanvasRef.current;
+    if (!canvas || !commodityOverlay) return;
+    const preventPageScroll = (event: WheelEvent) => event.preventDefault();
+    canvas.addEventListener('wheel', preventPageScroll, { passive: false });
+    return () => canvas.removeEventListener('wheel', preventPageScroll);
+  }, [Boolean(commodityOverlay)]);
+
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
     isDraggingRef.current = true;
     dragMovedRef.current = false;
+    pointerStartRef.current = { x: e.clientX, y: e.clientY };
     lastPointerRef.current = { x: e.clientX, y: e.clientY };
   };
 
@@ -647,7 +727,7 @@ export const GlobeCanvas: React.FC = () => {
     if (!isDraggingRef.current) return;
     const dx = e.clientX - lastPointerRef.current.x;
     const dy = e.clientY - lastPointerRef.current.y;
-    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) {
+    if (Math.hypot(e.clientX - pointerStartRef.current.x, e.clientY - pointerStartRef.current.y) > 5) {
       dragMovedRef.current = true;
     }
     lastPointerRef.current = { x: e.clientX, y: e.clientY };
@@ -673,6 +753,7 @@ export const GlobeCanvas: React.FC = () => {
   };
 
   const handlePointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
     const wasDragged = dragMovedRef.current;
     isDraggingRef.current = false;
 
@@ -688,6 +769,12 @@ export const GlobeCanvas: React.FC = () => {
     const rect = canvas.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
     const clickY = e.clientY - rect.top;
+    if (commodityOverlay) {
+      const hit = markerHits.current.map(h => ({ ...h, distance: Math.hypot(h.x - clickX, h.y - clickY) }))
+        .filter(h => h.distance <= 16).sort((a,b) => a.distance-b.distance || Number(b.key === commodityOverlay.selectedKey)-Number(a.key === commodityOverlay.selectedKey))[0];
+      if (hit) commodityOverlay.onSelect(hit.key);
+      return;
+    }
     const cx = rect.width * 0.5;
     const cy = rect.height * 0.5;
 
@@ -736,7 +823,7 @@ export const GlobeCanvas: React.FC = () => {
     const cur = targetCameraRef.current;
     const factor = e.deltaY > 0 ? 1.18 : 0.84;
     const nextAlt = Math.max(
-      1_200,
+      commodityOverlay ? 4_000_000 : 1_200,
       Math.min(24_000_000, Math.round(cur.altitudeMeters * factor))
     );
     const nextPose = {
@@ -766,6 +853,8 @@ export const GlobeCanvas: React.FC = () => {
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
+        onPointerCancel={() => { isDraggingRef.current = false; }}
+        style={{ touchAction: 'none' }}
         onWheel={handleWheel}
         className="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing"
         aria-label="Interactive 3D Earth and Atmospheric Forecast Globe"
