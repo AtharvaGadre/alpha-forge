@@ -1,4 +1,4 @@
-export const WORKSPACE_VIEWS = ['globe', 'markets', 'watchlist', 'advanced', 'methodology'] as const;
+export const WORKSPACE_VIEWS = ['globe', 'markets', 'watchlist', 'advanced', 'research', 'methodology'] as const;
 export type WorkspaceView = typeof WORKSPACE_VIEWS[number];
 export function workspaceViewFromHash(hash: string): WorkspaceView {
   const candidate = hash.replace(/^#/, '');

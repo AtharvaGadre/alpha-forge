@@ -1,9 +1,10 @@
+import { expandCommodityRegions, type ExposureRole } from './commodityRegions';
 import type { ClimateSignal, LiveAtmosphereInvestigation, ResolvedTarget } from './liveAtmospherePipeline.ts';
 
 export type CommoditySector = 'Grains & oilseeds' | 'Soft commodities' | 'Energy' | 'Industrial metals' | 'Precious metals' | 'Livestock';
-type RuleKind = 'CROP_RAIN' | 'CROP_HEAT' | 'COLD' | 'DEMAND' | 'WIND' | 'DISRUPTION';
+type RuleKind = 'CROP_RAIN' | 'CROP_WATER_BALANCE' | 'CROP_SOIL_MOISTURE' | 'CROP_HEAT' | 'COLD' | 'DEMAND' | 'WIND' | 'DISRUPTION';
 export interface DriverRule { kind: RuleKind; label: string; mechanism: string }
-export interface CommodityRegion { id: string; name: string; country: string; lat: number; lng: number; activeMonths?: number[] }
+export interface CommodityRegion { id: string; name: string; country: string; lat: number; lng: number; activeMonths?: number[]; role?:ExposureRole; source?:{title:string;url:string}; coordinateNote?:string; instrumentNote?:string }
 export interface CommodityDefinition {
   id: string; name: string; symbol: string; sector: CommoditySector; unit: string;
   regions: CommodityRegion[]; rules: DriverRule[]; horizon: string;
@@ -11,19 +12,21 @@ export interface CommodityDefinition {
 }
 const r = (id: string, name: string, country: string, lat: number, lng: number, activeMonths?: number[]): CommodityRegion => ({ id, name, country, lat, lng, activeMonths });
 const rain: DriverRule = { kind: 'CROP_RAIN', label: 'Rainfall & crop water', mechanism: 'A rainfall deficit can stress crops; unusually heavy rain can disrupt harvest or increase disease. Near-normal rain alone is not a bearish price forecast.' };
+const waterBalance: DriverRule = { kind: 'CROP_WATER_BALANCE', label: '30-day atmospheric water balance', mechanism: 'Precipitation minus FAO-56 reference evapotranspiration (ET₀) compares recent moisture supply and atmospheric demand. It complements, but is not, the separate ERA5 root-zone soil-moisture state or a crop-yield model.' };
+const soilMoisture: DriverRule = { kind: 'CROP_SOIL_MOISTURE', label: 'Antecedent root-zone soil moisture', mechanism: 'A same-calendar ERA5 anomaly in depth-weighted 0–100 cm volumetric soil moisture can capture antecedent land-surface water stress. It is a reanalysis state, not a forecast or field measurement.' };
 const heat: DriverRule = { kind: 'CROP_HEAT', label: 'Crop heat stress', mechanism: 'Anomalously frequent days above 32°C may reduce crop productivity. Thresholds are a screening proxy, not a calibrated yield model.' };
 const cold: DriverRule = { kind: 'COLD', label: 'Cold exposure', mechanism: 'A sub-zero seven-day mean would warrant frost investigation. Daily minimum temperatures are needed to detect individual frost events.' };
 const demand: DriverRule = { kind: 'DEMAND', label: 'Heating & cooling demand', mechanism: 'More heating or cooling degree-days can increase fuel demand; fewer can reduce it. Storage and generation mix can offset the effect.' };
 const wind: DriverRule = { kind: 'WIND', label: 'Renewable substitution', mechanism: 'Lower wind can increase dispatchable generation demand. Surface wind is only a proxy for turbine-height output.' };
 const disruption: DriverRule = { kind: 'DISRUPTION', label: 'Physical disruption', mechanism: 'Exceptional rainfall may interrupt mines, transport or production. Rainfall alone does not establish an outage.' };
-const cropRules = [rain, heat, cold];
+const cropRules = [rain, waterBalance, soilMoisture, heat, cold];
 const grains = ['Crop progress and yield reports', 'Export demand and inventories', 'USD and competing origins'];
 const energy = ['Storage and inventory releases', 'Production and outages', 'Forward curve and transport constraints'];
 const metals = ['Exchange inventories', 'Industrial demand and PMIs', 'USD, real yields and production reports'];
 const c = (id: string, name: string, symbol: string, sector: CommoditySector, unit: string, regions: CommodityRegion[], rules: DriverRule[], fundamentals: string[], weatherRole: CommodityDefinition['weatherRole'] = 'DIRECT'): CommodityDefinition => ({ id, name, symbol, sector, unit, regions, rules, fundamentals, weatherRole, horizon: sector === 'Energy' ? 'Days to weeks' : 'Weeks to months', invalidation: 'Reassess if the anomaly disappears, the relevant exposure is outside its sensitive season, observed production is unaffected, or inventories and demand offset the physical effect.' });
 
 /** Coverage registry, not fabricated market data. Regions are explicit sample points, never claimed as global production coverage. */
-export const COMMODITIES: CommodityDefinition[] = [
+const BASE_COMMODITIES: CommodityDefinition[] = [
   c('corn', 'Corn', 'ZC=F', 'Grains & oilseeds', 'US¢/bushel', [r('iowa', 'Iowa · US Corn Belt', 'US', 42.03, -93.62, [4,5,6,7,8,9]), r('parana', 'Paraná · Brazil', 'BR', -24.95, -53.46, [1,2,3,4,5,6])], cropRules, grains),
   c('wheat', 'Wheat', 'ZW=F', 'Grains & oilseeds', 'US¢/bushel', [r('kansas', 'Kansas · US Plains', 'US', 38.84, -97.61, [3,4,5,6,9,10]), r('nsw', 'New South Wales · Australia', 'AU', -32.25, 148.60, [5,6,7,8,9,10,11])], cropRules, grains),
   c('soybeans', 'Soybeans', 'ZS=F', 'Grains & oilseeds', 'US¢/bushel', [r('mato-grosso', 'Mato Grosso · Brazil', 'BR', -12.54, -55.72, [10,11,12,1,2,3]), r('illinois', 'Illinois · United States', 'US', 40.11, -88.24, [5,6,7,8,9])], cropRules, grains),
@@ -53,9 +56,10 @@ export const COMMODITIES: CommodityDefinition[] = [
   c('cattle', 'Live cattle', 'LE=F', 'Livestock', 'US¢/lb', [r('amarillo', 'Texas Panhandle · United States', 'US', 35.22, -101.83, [5,6,7,8,9])], [heat], ['Feed costs and placements', 'Slaughter weights and herd size', 'Beef demand'], 'INDIRECT'),
   c('hogs', 'Lean hogs', 'HE=F', 'Livestock', 'US¢/lb', [r('iowa', 'Iowa · United States', 'US', 42.03, -93.62, [5,6,7,8,9])], [heat], ['Feed costs and herd size', 'Disease and slaughter data', 'Export and retail demand'], 'INDIRECT'),
 ];
-export const COMMODITY_ENGINE_VERSION = 'commodity-pressure-v2';
+export const COMMODITIES:CommodityDefinition[] = BASE_COMMODITIES.map(c=>({...c,regions:expandCommodityRegions(c.id,c.sector,c.regions)}));
+export const COMMODITY_ENGINE_VERSION = 'commodity-pressure-v5';
 export const SECTORS = [...new Set(COMMODITIES.map(c => c.sector))];
-export interface DriverReading { label: string; signalId: string; value: number | null; normal: number | null; anomaly: number | null; unit: string; zScore: number | null; pressure: 'UP' | 'DOWN' | 'NEUTRAL' | 'UNKNOWN'; mechanism: string; caveat: string }
+export interface DriverReading { label: string; signalId: string; value: number | null; normal: number | null; anomaly: number | null; unit: string; zScore: number | null; sourceType: 'FORECAST' | 'REANALYSIS'; pressure: 'UP' | 'DOWN' | 'NEUTRAL' | 'UNKNOWN'; mechanism: string; caveat: string }
 export interface CommodityForecast {
   commodityId: string; regionId: string; generatedAtUtc: string; sourceGeneratedAtUtc: string;
   status: 'UPWARD_PRESSURE' | 'DOWNWARD_PRESSURE' | 'MIXED' | 'NO_MATERIAL_SIGNAL' | 'INSUFFICIENT_EVIDENCE';
@@ -83,7 +87,11 @@ export function buildCommodityForecast(commodity: CommodityDefinition, region: C
   const month = new Date(live.generatedAtUtc).getUTCMonth() + 1;
   const seasonActive = !region.activeMonths || region.activeMonths.includes(month);
   const get = (id: ClimateSignal['id']) => live.signals.find(s => s.id === id);
-  const drivers = commodity.rules.map(rule => {
+  // Crop-yield rules are inappropriate at an export terminal or processing hub.
+  const regionalRules = commodity.weatherRole==='LIMITED'&&commodity.rules.length===0?[]:region.role==='EXPORT'||region.role==='PROCESSING' ? [disruption]
+    :region.role==='DEMAND' ? commodity.id==='natural-gas'?[demand,wind]:commodity.id==='heating-oil'?[demand]:[]
+    :commodity.sector==='Energy'?[disruption]:commodity.rules;
+  const drivers = regionalRules.map(rule => {
     let sig: ClimateSignal | undefined;
     let pressure: DriverReading['pressure'] = 'NEUTRAL';
     let caveat = seasonActive ? 'Conditional mechanism; price response is not calibrated.' : 'Outside this region’s broad sensitivity window; directional inference withheld.';
@@ -91,6 +99,14 @@ export function buildCommodityForecast(commodity: CommodityDefinition, region: C
       sig = get('PRECIP_NEXT7');
       if (sig && sig.zScore <= -1) pressure = 'UP';
       if (sig && sig.zScore >= 2) { pressure = 'UP'; caveat += ' Excess rain needs crop-stage and soil-moisture confirmation.'; }
+    } else if (rule.kind === 'CROP_WATER_BALANCE') {
+      sig = get('WATER_BALANCE_30D');
+      if (sig && sig.zScore <= -1) pressure = 'UP';
+      caveat += ' This 30-day anomaly uses model analyses/forecasts and ERA5 climatology; ET₀ is an equal mean of available live models, not independently skill-weighted. Soil storage, runoff, irrigation and crop coefficients are not represented.';
+    } else if (rule.kind === 'CROP_SOIL_MOISTURE') {
+      sig = get('SOIL_MOISTURE_7D');
+      if (sig && sig.zScore <= -1.5) pressure = 'UP';
+      caveat += ' Antecedent state uses the latest complete ERA5 week (typically 6–12 days before issuance) against same-calendar ERA5 years; it is not a forecast. Reanalysis soil, texture and irrigation uncertainty remain.';
     } else if (rule.kind === 'CROP_HEAT') {
       sig = get('HEAT_NEXT7');
       if (sig && sig.zScore >= 1 && sig.value > 0) pressure = 'UP';
@@ -114,13 +130,13 @@ export function buildCommodityForecast(commodity: CommodityDefinition, region: C
     const usable = sig && [sig.value, sig.normal, sig.anomaly, sig.zScore].every(Number.isFinite);
     if (!usable) pressure = 'UNKNOWN';
     else if (!seasonActive) pressure = 'NEUTRAL';
-    return { label: rule.label, signalId: sig?.id ?? '', value: usable ? sig!.value : null, normal: usable ? sig!.normal : null, anomaly: usable ? sig!.anomaly : null, unit: sig?.unit ?? '', zScore: usable ? sig!.zScore : null, pressure, mechanism: rule.mechanism, caveat };
+    return { label: rule.label, signalId: sig?.id ?? '', value: usable ? sig!.value : null, normal: usable ? sig!.normal : null, anomaly: usable ? sig!.anomaly : null, unit: sig?.unit ?? '', zScore: usable ? sig!.zScore : null, sourceType: sig?.sourceType ?? 'FORECAST', pressure, mechanism: rule.mechanism, caveat };
   });
   const up = drivers.some(d => d.pressure === 'UP'), down = drivers.some(d => d.pressure === 'DOWN');
   const status: CommodityForecast['status'] = !drivers.length || drivers.every(d => d.pressure === 'UNKNOWN') ? 'INSUFFICIENT_EVIDENCE' : up && down ? 'MIXED' : up ? 'UPWARD_PRESSURE' : down ? 'DOWNWARD_PRESSURE' : 'NO_MATERIAL_SIGNAL';
   const headline = status === 'INSUFFICIENT_EVIDENCE' ? 'Weather alone does not support a directional outlook.' : status === 'MIXED' ? 'Physical drivers point in different directions.' : status === 'NO_MATERIAL_SIGNAL' ? 'No material seasonal weather pressure detected.' : `${status === 'UPWARD_PRESSURE' ? 'Upward' : 'Downward'} conditional price pressure; confirm with fundamentals.`;
   return { commodityId: commodity.id, regionId: region.id, generatedAtUtc: live.generatedAtUtc, sourceGeneratedAtUtc: live.generatedAtUtc, status, drivers, seasonActive, headline,
-    limitations: ['Regional sample point, not a production-weighted global forecast.', 'Seven-day weather window; market transmission may take longer.', 'No validated out-of-sample price model: no price target, return estimate or calibrated probability.', ...(commodity.weatherRole !== 'DIRECT' ? ['Weather is an indirect or limited driver for this commodity; fundamentals may dominate.'] : []), ...(!live.verification ? ['Held-out weather verification unavailable.'] : []), commodity.invalidation],
+    limitations: ['Regional sample point, not a production-weighted global forecast.', `Exposure role: ${region.role??'PRODUCTION'}. Local conditions are not a global commodity supply shock.`,...(region.instrumentNote?[region.instrumentNote]:[]), ...(!region.activeMonths&&commodity.sector!=='Energy'?["Crop-stage / sensitivity calendar not configured for this sample; no phenological timing is inferred."]:[]), 'Seven-day weather window; market transmission may take longer.', 'No validated out-of-sample price model: no price target, return estimate or calibrated probability.', ...(commodity.weatherRole !== 'DIRECT' ? ['Weather is an indirect or limited driver for this commodity; fundamentals may dominate.'] : []), ...(!live.verification ? ['Held-out weather verification unavailable.'] : []), commodity.invalidation],
     evidence: { engineVersion: COMMODITY_ENGINE_VERSION, modelCount: live.modelForecasts.filter(m => m.includedInEnsemble).length, climateYears: live.climatology.years, weatherVerification: !!live.verification, priceModelValidated: false, inputHash: live.reproducibility.inputsSha256, experimentId: `CF-${commodity.id}-${region.id}-${live.reproducibility.inputsSha256.slice(0,12)}` },
     market: live.consequences.find(c => c.exposure.symbol === commodity.symbol)?.observedMove ?? null,
     diagnostics: { models: live.modelForecasts, verification: live.verification, signals: live.signals, provenance: live.provenance ?? [] },

@@ -29,3 +29,9 @@ export function buildWindFlowPaths(frame: WeatherFrame): WindFlowPath[] {
   }
   return paths;
 }
+
+const windPathCache=new WeakMap<WeatherFrame,WindFlowPath[]>();
+export function cachedWindFlowPaths(frame:WeatherFrame):WindFlowPath[]{
+  const cached=windPathCache.get(frame);if(cached)return cached;
+  const paths=buildWindFlowPaths(frame);windPathCache.set(frame,paths);return paths;
+}

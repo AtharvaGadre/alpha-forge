@@ -10,3 +10,6 @@ coverage/
 .playwright-cli/
 worldpulse-*.png
 
+
+# Local issued-forecast ledger
+.astraeus-data/

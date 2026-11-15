@@ -1,3 +1,15 @@
+## Regional coverage and weather evidence workspace
+
+The catalogue now expands commodity production, processing, export and demand sample points using `commodityRegions.ts`. National/sector reference sources and representative-coordinate caveats are attached. These are curated regional anchors, not surveyed facilities, production weights or an exhaustive asset database. Export and processing samples use disruption screening rather than crop-yield rules; unsupported direct weather rules remain withheld. Foreign gas-demand points explicitly flag Henry Hub basis/proxy limitations.
+
+`#research` opens Weather & evidence for the shared commodity/region selection. It includes selectable production/distribution/demand pathways, a deterministic illustrative supply-and-demand equilibrium chart with shock/buffer/elasticity sliders, and 20 publication records mapped with commodity-specific explanations across all 28 instruments. Publication metadata and editorial summaries distinguish production, distribution, demand and price evidence. Missing direct commodity-price evidence remains explicit, particularly for metals and co-products. Summaries are based on publication records/abstracts, not claims of full-text replication.
+
+Each reviewed paper links to its DOI or author repository, a Google Scholar title search, its summary and limitations. A query box opens Google Scholar externally and searches Crossref in-app through `GET /api/v1/research/papers?q=...`. New search results are unreviewed publisher metadata; abstract excerpts (when supplied) are labelled, capped, and never invented. The backend validates query length, caches results for an hour, bounds cache size and reports provider failure/rate limits.
+
+The semantic palette uses teal for selection/information, amber for upward price pressure, blue for downward pressure, violet for conflicting evidence, slate for unknown data and red for errors. Weather fields use separate labelled sequential scales. Labels and line styles accompany colors. The palette is informed by context-dependent color research and accessibility guidance; it makes no universal emotional or trading-performance claim.
+
+Teaching-model values are user assumptions, not fitted elasticities, asset price targets or trading forecasts. The model solves Qs=(1-L)P^es and Qd=P^(-ed), with L equal to the hypothetical loss after buffering. It omits inventory dynamics, expectation updates and policy. Source studies are not used to fabricate live numeric forecasts.
+
 ## Real forecast weather layers
 
 The globe starts with precipitation shading and animated 10 m wind. Independent toggles, opacity, and a 72-hour / 3-hour-step timeline control the layers. Commodity markers remain on top and retain their separate interpretation.
@@ -32,6 +44,16 @@ Legacy quant-physics, execution/slippage and factor modules remain source histor
 The web workspace covers 28 commodities across six sectors. Select a commodity and region, run a live seven-day weather analysis, and inspect conditional physical price pressure, fundamental offsets, provenance and observed market context.
 
 This is a research screen, **not a calibrated price predictor**. Unsupported mechanisms and unavailable data remain visible. No price targets, probabilities, synthetic quotes or fictional backtest results are generated.
+
+## Shareable weekend demo
+
+Open [`public/weather-commodity-weekend-demo.html`](./public/weather-commodity-weekend-demo.html) for a standalone, responsive scenario walkthrough with a copy-ready LinkedIn post. The HTML has no build or runtime dependencies and can be uploaded directly to a static host. Its interactive weather patterns and inventory buffers are explicitly user-selected assumptions; it does not fetch live conditions or prices and does not forecast returns.
+
+## Agroclimatic stress context
+
+Crop-weather screening combines the next-seven-day multi-model outlook with (1) a 30-day precipitation-minus-FAO-56-reference-evapotranspiration (ET₀) anomaly against same-calendar ERA5 years and (2) a depth-weighted 0–100 cm volumetric soil-moisture anomaly for the latest complete ERA5 week against same-calendar historical ERA5 weeks. The first is atmospheric supply minus reference demand; the second is a lagged modelled land-surface state. Together they distinguish recent weather forcing from antecedent soil-water memory. Commodity readings show conditional physical risk, not a crop-yield estimate or future soil-moisture forecast.
+
+ET₀ represents atmospheric demand over a reference surface; it is not actual crop water use. ERA5 volumetric moisture is reanalysis, typically about 6–12 days behind issuance, not a field probe; depth layers are weighted by layer thickness. Soil texture, irrigation, crop coefficients/stage and production weighting are not modeled. The screen does not identify synoptic weather regimes from pressure/geopotential fields. Validate implications against local observations, crop reports, inventories and out-of-sample market tests.
 
 ## Run and verify
 

@@ -1,5 +1,6 @@
-import { buildWindFlowPaths } from '../../engine/windFlow';
-import { sampleWeather, rainColor, type WeatherFrame } from '../../engine/liveGlobeWeather';
+import { createRainRaster } from '../../engine/precipitationRaster';
+import { cachedWindFlowPaths } from '../../engine/windFlow';
+import { type WeatherFrame } from '../../engine/liveGlobeWeather';
 // ============================================================================
 // ALPHAFORGE ATMOSPHERE — GOD'S EYE VIEW CESIUM + ATMOSPHERIC GLOBE CANVAS
 // Adapted from https://github.com/bilawalsidhu/gods-eye-view (MIT)
@@ -75,7 +76,7 @@ const CONTINENT_POLYGONS: Array<Array<[number, number]>> = [
 
 export interface CommodityGlobePoint { key: string; label: string; lat: number; lng: number; color: string }
 export interface CommodityGlobeOverlay { points: CommodityGlobePoint[]; selectedKey: string; onSelect: (key: string) => void }
-export interface GlobeWeatherOverlay { frame: WeatherFrame; wind: boolean; precipitation: boolean; opacity: number; animateWind: boolean }
+export interface GlobeWeatherOverlay { frame: WeatherFrame; nextFrame?: WeatherFrame; blend?: number; wind: boolean; precipitation: boolean; opacity: number; animateWind: boolean }
 export const GlobeCanvas: React.FC<{ commodityOverlay?: CommodityGlobeOverlay; weatherOverlay?: GlobeWeatherOverlay }> = ({ commodityOverlay, weatherOverlay }) => {
   const state = useAtmosphereStore();
   const cesiumContainerRef = useRef<HTMLDivElement | null>(null);
@@ -88,6 +89,8 @@ export const GlobeCanvas: React.FC<{ commodityOverlay?: CommodityGlobeOverlay; w
   const targetCameraRef = useRef(state.cameraPose);
   const currentCameraRef = useRef({ ...state.cameraPose });
   const [cesiumReady, setCesiumReady] = useState(false);
+  const weatherOverlayRef=useRef(weatherOverlay);
+  weatherOverlayRef.current=weatherOverlay;
   const markerHits = useRef<Array<{ key: string; x: number; y: number }>>([]);
 
   // Sync external store camera updates into targetCameraRef
@@ -251,17 +254,14 @@ export const GlobeCanvas: React.FC<{ commodityOverlay?: CommodityGlobeOverlay; w
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const rainCells: Array<{lat:number;lng:number;mm:number}> = [];
-    if (weatherOverlay?.precipitation) {
-      for (let lat=-67.5;lat<70;lat+=5) for(let lng=-177.5;lng<180;lng+=5) {
-        const mm=sampleWeather(weatherOverlay.frame,lat,lng)?.precipitationMm;
-        if(mm!=null && mm>=.05) rainCells.push({lat,lng,mm});
-      }
-    }
-    const windPaths = weatherOverlay?.wind ? buildWindFlowPaths(weatherOverlay.frame) : [];
+    const rainRaster=weatherOverlay?.precipitation?createRainRaster(weatherOverlay.frame,weatherOverlay.nextFrame??weatherOverlay.frame):null;
+    const windPaths=weatherOverlay?.wind?cachedWindFlowPaths(weatherOverlay.frame):[];
+    const nextWindPaths=weatherOverlay?.wind?cachedWindFlowPaths(weatherOverlay.nextFrame??weatherOverlay.frame):[];
     let animFrameId = 0;
 
     const renderFrame = (timestampMs: number) => {
+      const weatherOverlay=weatherOverlayRef.current;
+      const blend=Math.max(0,Math.min(1,weatherOverlay?.blend??0));
       const dpr = window.devicePixelRatio || 1;
       const width = canvas.clientWidth || window.innerWidth;
       const height = canvas.clientHeight || window.innerHeight;
@@ -594,17 +594,19 @@ export const GlobeCanvas: React.FC<{ commodityOverlay?: CommodityGlobeOverlay; w
       if (weatherOverlay) {
         ctx.save();
         ctx.globalAlpha = weatherOverlay.opacity;
-        for(const cell of rainCells) {
-          const corners=[[-2.5,-2.5],[-2.5,2.5],[2.5,2.5],[2.5,-2.5]].map(([dy,dx])=>projectLatLon(cell.lat+dy,cell.lng+dx));
-          if(corners.some(p=>p.cosC<.025)) continue;
-          ctx.beginPath();corners.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();
-          ctx.fillStyle=rainColor(cell.mm);ctx.fill();
+        if(rainRaster) {
+          const raster=rainRaster(cur.lat,cur.lng,blend);
+          ctx.imageSmoothingEnabled=true;
+          ctx.drawImage(raster,cx-globeRadius,cy-globeRadius,globeRadius*2,globeRadius*2);
         }
         if(weatherOverlay.wind) {
           ctx.lineCap='round';ctx.lineJoin='round';
-          for(const path of windPaths) {
+          for(const [paths,weight] of [[windPaths,1-blend],[nextWindPaths,blend]] as const){
+          if(weight<=0)continue;
+          ctx.globalAlpha=weatherOverlay.opacity*weight;
+          for(const path of paths) {
             const phase=weatherOverlay.animateWind?(timestampMs*.000055*(.5+Math.min(path.speedMs,30)/18)+path.phase)%1:.64;
-            const color=path.speedMs>=15?'255,222,171':path.speedMs>=8?'160,218,206':'171,207,230';
+            const color=path.speedMs>=15?'204,251,241':path.speedMs>=8?'94,234,212':'148,163,184';
             const points=path.points.map(p=>projectLatLon(p.lat,p.lng));
             // A faint continuous curve provides the flow structure; tapered highlights move along it.
             ctx.beginPath();let pen=false;
@@ -622,6 +624,7 @@ export const GlobeCanvas: React.FC<{ commodityOverlay?: CommodityGlobeOverlay; w
               ctx.beginPath();ctx.moveTo(tail.x,tail.y);ctx.lineTo(head.x,head.y);ctx.stroke();
             }
           }
+          }
         }
         ctx.restore();
       }
@@ -632,10 +635,10 @@ export const GlobeCanvas: React.FC<{ commodityOverlay?: CommodityGlobeOverlay; w
         markerHits.current.push({ key: point.key, x: p.x, y: p.y });
         const selected = point.key === commodityOverlay?.selectedKey;
         ctx.beginPath(); ctx.arc(p.x, p.y, selected ? 12 : 7, 0, Math.PI * 2);
-        ctx.fillStyle = selected ? 'rgba(241,181,124,0.18)' : 'rgba(117,166,151,0.09)'; ctx.fill();
+        ctx.fillStyle = selected ? 'rgba(45,212,191,0.18)' : 'rgba(117,166,151,0.09)'; ctx.fill();
         ctx.beginPath(); ctx.arc(p.x, p.y, selected ? 5 : 3, 0, Math.PI * 2);
         ctx.fillStyle = point.color; ctx.fill();
-        ctx.strokeStyle = selected ? '#ffe3bf' : 'rgba(255,255,255,0.45)'; ctx.lineWidth = 1; ctx.stroke();
+        ctx.strokeStyle = selected ? '#99f6e4' : 'rgba(255,255,255,0.45)'; ctx.lineWidth = 1; ctx.stroke();
         if (selected) {
           ctx.font = '500 11px system-ui, sans-serif';
           const w = ctx.measureText(point.label).width;
@@ -704,7 +707,10 @@ export const GlobeCanvas: React.FC<{ commodityOverlay?: CommodityGlobeOverlay; w
     state.locationSummaryOpen,
     state.liveTelemetry,
     commodityOverlay,
-    weatherOverlay,
+    weatherOverlay?.frame,
+    weatherOverlay?.nextFrame,
+    weatherOverlay?.wind,
+    weatherOverlay?.precipitation,
   ]);
 
   useEffect(() => {

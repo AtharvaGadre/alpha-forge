@@ -4,7 +4,7 @@ import { COMMODITIES, SECTORS, buildCommodityForecast, commodityTarget } from '.
 import type { ClimateSignal, LiveAtmosphereInvestigation } from './liveAtmospherePipeline.ts';
 
 const commodity = (id: string) => COMMODITIES.find(c => c.id === id)!;
-const signal = (id: ClimateSignal['id'], zScore: number, value = 10, normal = 5): ClimateSignal => ({ id, zScore, value, normal, anomaly: value - normal, anomalyPct: null, label: id, unit: 'test', percentileVsLast10Years: 50, materiality: 'MATERIAL' });
+const signal = (id: ClimateSignal['id'], zScore: number, value = 10, normal = 5): ClimateSignal => ({ id, zScore, value, normal, anomaly: value - normal, anomalyPct: null, label: id, unit: 'test', percentileVsLast10Years: 50, materiality: 'MATERIAL', sourceType: id === 'SOIL_MOISTURE_7D' ? 'REANALYSIS' : 'FORECAST' });
 function live(signals: ClimateSignal[] = [], date = '2026-07-15T12:00:00Z'): LiveAtmosphereInvestigation {
   return { generatedAtUtc: date, signals, modelForecasts: [], climatology: { years: 10 }, verification: null, reproducibility: { inputsSha256: '0123456789abcdef' }, consequences: [], dataLog: [], windows: { forecastLabel: 'Next 7 days' }, target: commodityTarget(commodity('corn'), commodity('corn').regions[0]) } as unknown as LiveAtmosphereInvestigation;
 }
@@ -26,6 +26,21 @@ test('Drought and extreme rainfall flag crop pressure, ordinary rainfall does no
   assert.equal(run('corn', [signal('PRECIP_NEXT7', -2)]).status, 'UPWARD_PRESSURE');
   assert.equal(run('corn', [signal('PRECIP_NEXT7', 2.5)]).status, 'UPWARD_PRESSURE');
   assert.equal(run('corn', [signal('PRECIP_NEXT7', 0.2)]).status, 'NO_MATERIAL_SIGNAL');
+});
+test('A persistent 30-day precipitation minus ET₀ deficit adds a conditional crop-stress signal', () => {
+  const result = run('corn', [signal('PRECIP_NEXT7', 0.2), signal('WATER_BALANCE_30D', -2, -35, 10)]);
+  const driver = result.drivers.find(d => d.signalId === 'WATER_BALANCE_30D')!;
+  assert.equal(driver.pressure, 'UP');
+  assert.match(driver.caveat, /Soil storage, runoff, irrigation and crop coefficients are not represented/);
+  assert.equal(run('corn', [signal('WATER_BALANCE_30D', -2)], '2026-12-01T00:00:00Z').drivers.find(d => d.signalId === 'WATER_BALANCE_30D')!.pressure, 'NEUTRAL');
+});
+test('Antecedent root-zone dryness flags a crop watch only for a material in-season anomaly', () => {
+  const dry = run('corn', [signal('SOIL_MOISTURE_7D', -2, 0.18, 0.27)]);
+  assert.equal(dry.drivers.find(d => d.signalId === 'SOIL_MOISTURE_7D')!.pressure, 'UP');
+  assert.equal(dry.drivers.find(d => d.signalId === 'SOIL_MOISTURE_7D')!.sourceType, 'REANALYSIS');
+  assert.match(dry.drivers.find(d => d.signalId === 'SOIL_MOISTURE_7D')!.caveat, /not a forecast/);
+  assert.equal(run('corn', [signal('SOIL_MOISTURE_7D', -1, 0.24, 0.27)]).drivers.find(d => d.signalId === 'SOIL_MOISTURE_7D')!.pressure, 'NEUTRAL');
+  assert.equal(run('corn', [signal('SOIL_MOISTURE_7D', -3, 0.18, 0.27)], '2026-12-01T00:00:00Z').drivers.find(d => d.signalId === 'SOIL_MOISTURE_7D')!.pressure, 'NEUTRAL');
 });
 test('Season gate withholds directional crop signals outside the regional window', () => {
   const r = run('corn', [signal('PRECIP_NEXT7', -3)], '2026-12-01T00:00:00Z');

@@ -1,3 +1,4 @@
+import {ForecastBacktest} from './ForecastBacktest';
 import React, { useState } from 'react';
 import { ArrowRight, ExternalLink, FlaskConical, GitBranch, Loader2, Play, RefreshCw, ShieldCheck } from 'lucide-react';
 import { COMMODITIES, type CommodityDefinition, type CommodityForecast } from '../engine/commodityForecastEngine';
@@ -20,8 +21,9 @@ export function LinkedMarkets({ commodity, onSelect, onOpenLab }: { commodity: C
   return <div className="af-linked-markets"><div className="af-driver-heading"><h3>Connected markets</h3><button className="af-text-button" onClick={onOpenLab}>Open transmission lab <ArrowRight size={12} /></button></div><p className="af-note">Follow economic channels, not assumed correlations. Costs, demand and selling prices are different effects.</p><div className="af-label">UPSTREAM DRIVERS</div>{links.incoming.map(l => <LinkCard key={l.id} link={l} incoming onSelect={onSelect} />)}<div className="af-label">DOWNSTREAM EXPOSURES</div>{links.outgoing.map(l => <LinkCard key={l.id} link={l} incoming={false} onSelect={onSelect} />)}{!links.outgoing.length && <p className="af-note">No defensible outgoing route is configured. Upstream cost exposure is not evidence of onward price contagion.</p>}</div>;
 }
 
-type Tab = 'transmission' | 'scenario' | 'regions' | 'revisions' | 'models';
+type Tab = 'transmission' | 'scenario' | 'regions' | 'revisions' | 'models' | 'backtest';
 const tabs: { id: Tab; name: string; description: string }[] = [
+  { id: 'backtest', name: 'Price backtest', description: 'Test forecast direction against subsequent Yahoo Finance price moves.' },
   { id: 'transmission', name: 'Transmission map', description: 'How economic channels connect commodities.' },
   { id: 'scenario', name: 'Scenario lab', description: 'Trace a conditional up/down shock without inventing price targets.' },
   { id: 'regions', name: 'Regional comparison', description: 'Compare actual analyses across the selected commodity’s sample points.' },
@@ -36,7 +38,7 @@ interface Props {
   onRun: (c?: CommodityDefinition, region?: string) => Promise<void>;
 }
 export function ForecastLab({ commodity, regionId, results, history, pending, errors, onCommodity, onRegion, onRun }: Props) {
-  const [tab, setTab] = useState<Tab>('transmission');
+  const [tab, setTab] = useState<Tab>('backtest');
   const [direction, setDirection] = useState<Direction>('UP');
   const [hops, setHops] = useState(2);
   const [runningRegions, setRunningRegions] = useState(false);
@@ -62,6 +64,7 @@ export function ForecastLab({ commodity, regionId, results, history, pending, er
     {pending[key] && <p className="af-note" role="status">Fetching forecasts, seasonal climatology and market context. This may take a minute.</p>}
     <div className="af-lab-tabs" role="tablist" aria-label="Forecast tools">{tabs.map(t => <button id={`lab-tab-${t.id}`} key={t.id} role="tab" aria-selected={t.id === tab} aria-controls="af-lab-panel" className={t.id === tab ? 'active' : ''} onClick={() => setTab(t.id)}>{t.name}</button>)}</div>
     <div className="af-lab-panel" id="af-lab-panel" role="tabpanel" aria-labelledby={`lab-tab-${tab}`}><p className="af-lab-description">{tabs.find(t => t.id === tab)!.description}</p>
+      {tab === 'backtest' && <ForecastBacktest commodity={commodity} regionId={regionId}/>}
       {tab === 'transmission' && <>
         <div className="af-network"><div><div className="af-label">WHAT AFFECTS {commodity.name.toUpperCase()}</div>{links.incoming.map(l => <LinkCard key={l.id} link={l} incoming onSelect={onCommodity} />)}{!links.incoming.length && <p className="af-note">No upstream route mapped.</p>}</div><div className="af-network-center"><GitBranch size={29} /><h3>{commodity.name}</h3><p>{commodity.symbol}</p><span>Supply · demand · costs</span><p>→ direction of economic transmission</p></div><div><div className="af-label">WHAT {commodity.name.toUpperCase()} AFFECTS</div>{links.outgoing.map(l => <LinkCard key={l.id} link={l} incoming={false} onSelect={onCommodity} />)}{!links.outgoing.length && <p className="af-note">No justified downstream route mapped. Incoming cost pressure is not automatically a selling-price signal.</p>}</div></div>
         <div className="af-caution"><ShieldCheck size={18} /><p>These are directional economic hypotheses. They do not estimate correlation or causality from observed prices. Click a commodity to follow the chain; open a route to inspect conditions and sources.</p></div>

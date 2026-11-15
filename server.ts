@@ -1,3 +1,7 @@
+import {marketContext} from './src/engine/marketContext.ts';
+import {createForecastLedger,issuedSignal,runForecastBacktest} from './src/engine/forecastBacktest.ts';
+import {researchFor,papersFor} from './src/engine/commodityResearch.ts';
+import {normalizeCrossref} from './src/engine/paperDiscovery.ts';
 import { fetchGlobeWeather, type GlobeWeatherField } from './src/engine/liveGlobeWeather.ts';
 import { TRANSMISSION_VERSION, TRANSMISSION_NODES, TRANSMISSION_LINKS, traceTransmission } from './src/engine/commodityTransmissionEngine.ts';
 import { createHash } from 'node:crypto';
@@ -1513,6 +1517,25 @@ Strictly use ONLY the verified tool figures below (never fabricate numbers, and 
     } catch (err: any) { res.status(502).json({ error:err?.message || 'Weather grid unavailable.',dataMode:'LIVE_UNAVAILABLE' }); }
     finally { weatherGridPending=null; }
   });
+  app.get('/api/v1/commodities/:id/research',(req,res)=>{
+    const commodity=COMMODITIES.find(c=>c.id===req.params.id);
+    if(!commodity){res.status(404).json({error:'Unknown commodity.'});return;}
+    res.json({commodityId:commodity.id,profile:researchFor(commodity.id),papers:papersFor(commodity.id),reviewedAt:'2026-11-12',note:'Publication records and editorial summaries; physical mechanisms do not establish current price forecast skill.'});
+  });
+  const paperSearchCache=new Map<string,{expires:number;papers:ReturnType<typeof normalizeCrossref>}>();
+  app.get('/api/v1/research/papers', async(req,res)=>{
+    const q=typeof req.query.q==='string'?req.query.q.trim():'';
+    if(q.length<3||q.length>180){res.status(400).json({error:'Use a search query between 3 and 180 characters.'});return;}
+    const key=q.toLowerCase(),cached=paperSearchCache.get(key);
+    if(cached&&cached.expires>Date.now()){res.json({provider:'Crossref',papers:cached.papers,cached:true});return;}
+    try{
+      const response=await fetch('https://api.crossref.org/works?rows=8&query.bibliographic='+encodeURIComponent(q),{signal:AbortSignal.timeout(18000),headers:{'User-Agent':'AlphaForgeCommodityResearch/1.0'}});
+      if(!response.ok)throw new Error(response.status===429?'The paper provider is rate-limited. Try later or open Google Scholar.':`Paper provider returned HTTP ${response.status}.`);
+      const data=await response.json();const papers=normalizeCrossref(Array.isArray(data.message?.items)?data.message.items:[]);
+      if(paperSearchCache.size>=100)paperSearchCache.delete(paperSearchCache.keys().next().value!);
+      paperSearchCache.set(key,{papers,expires:Date.now()+3600_000});res.json({provider:'Crossref',papers,cached:false});
+    }catch(error:any){res.status(502).json({error:error?.message||'Paper discovery unavailable. The reviewed library remains available.'});}
+  });
   app.get('/api/v1/commodities/transmission', (_req, res) => {
     res.json({ version: TRANSMISSION_VERSION, nodes: TRANSMISSION_NODES, links: TRANSMISSION_LINKS, evidence: 'MECHANISM_ONLY' });
   });
@@ -1527,6 +1550,27 @@ Strictly use ONLY the verified tool figures below (never fabricate numbers, and 
       const paths = traceTransmission(source, direction as 'UP' | 'DOWN', hops);
       res.json({ version: TRANSMISSION_VERSION, origin: 'MANUAL_HYPOTHESIS', source, direction, hops, paths, note: 'Conditional mechanisms only; costs, demand and prices stay separate. No calibrated return forecast.' });
     } catch (err: any) { res.status(400).json({ error: err.message }); }
+  });
+  const forecastLedger=createForecastLedger(path.join(__dirname,'.astraeus-data'));
+  const backtestPending=new Map<string,Promise<Awaited<ReturnType<typeof runForecastBacktest>>>>();
+  const backtestCache=new Map<string,{data:Awaited<ReturnType<typeof runForecastBacktest>>;expires:number}>();
+  app.get('/api/v1/commodities/:id/context',async(req,res)=>{
+    const commodity=COMMODITIES.find(c=>c.id===req.params.id);if(!commodity){res.status(404).json({error:'Unknown commodity'});return;}
+    try{res.json(await marketContext(commodity.name,String(req.query.start??''),String(req.query.end??'')));}catch(e:any){res.status(502).json({error:e.message});}
+  });
+  app.get('/api/v1/commodities/:id/backtest',async(req,res)=>{
+    const options={commodityId:String(req.params.id),regionId:String(req.query.region??''),mode:String(req.query.mode??'REPLAY') as 'REPLAY'|'ISSUED',start:String(req.query.start??''),end:String(req.query.end??''),horizon:Number(req.query.horizon??5),costBps:Number(req.query.costBps??0),cadence:String(req.query.cadence??'DAILY') as 'DAILY'|'WEEKLY'};
+    const key=JSON.stringify(options),hit=backtestCache.get(key);
+    if(hit&&hit.expires>Date.now()){res.json({...hit.data,cached:true});return;}
+    if(backtestPending.size>=2&&!backtestPending.has(key)){res.status(429).json({error:'Two backtests are already running. Please retry shortly.'});return;}
+    try{
+      let job=backtestPending.get(key);
+      if(!job){job=runForecastBacktest(options,forecastLedger);backtestPending.set(key,job);}
+      const data=await job;
+      if(backtestCache.size>=30)backtestCache.delete(backtestCache.keys().next().value!);
+      backtestCache.set(key,{data,expires:Date.now()+5*60_000});res.json({...data,cached:false});
+    }catch(error:any){res.status(502).json({error:error.message||'Backtest providers unavailable. No sample results were substituted.'});}
+    finally{backtestPending.delete(key);}
   });
   const commodityCache = new Map<string, { result: CommodityForecast; expires: number }>();
   const commodityPending = new Map<string, Promise<CommodityForecast>>();
@@ -1547,6 +1591,8 @@ Strictly use ONLY the verified tool figures below (never fabricate numbers, and 
           const parametersSha256 = createHash('sha256').update(JSON.stringify({ version: COMMODITY_ENGINE_VERSION, commodity, region })).digest('hex');
           result.evidence.parametersSha256 = parametersSha256;
           result.evidence.experimentId = `CF-${commodity.id}-${parametersSha256.slice(0, 12)}-${result.evidence.inputHash.slice(0, 12)}`;
+          await forecastLedger.append(issuedSignal(result));
+          for(const [testKey,test] of backtestCache)if(test.data.mode==='ISSUED'&&test.data.commodityId===commodity.id&&test.data.regionId===region.id)backtestCache.delete(testKey);
           commodityCache.set(key, { result, expires: Date.now() + 15 * 60_000 });
           return result;
         })();

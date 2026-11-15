@@ -1,3 +1,5 @@
+import {forecastPosition,interpolateWeatherFrame} from '../engine/forecastPlayback';
+import {pressureColor as semanticPressureColor, SEMANTIC_COLORS} from '../engine/semanticPalette';
 import React, { useEffect, useMemo, useState } from 'react';
 import { ArrowRight, ChevronRight, Compass, CloudRain, Wind, Play, Pause, RefreshCw, Globe2, Layers3, Loader2, Maximize2, Minus, Plus, Radar, Search, ShieldCheck, SlidersHorizontal } from 'lucide-react';
 import { GlobeCanvas, type CommodityGlobeOverlay, type GlobeWeatherOverlay } from './globe/GlobeCanvas';
@@ -8,14 +10,14 @@ import { linksForCommodity } from '../engine/commodityTransmissionEngine';
 import type { GlobeWeatherField } from '../engine/liveGlobeWeather';
 
 const captions: Record<CommodityForecast['status'], string> = { UPWARD_PRESSURE: 'Upward conditional pressure', DOWNWARD_PRESSURE: 'Downward conditional pressure', MIXED: 'Mixed physical drivers', NO_MATERIAL_SIGNAL: 'No material seasonal signal', INSUFFICIENT_EVIDENCE: 'Insufficient directional evidence' };
-const pressureColor = (r?: CommodityForecast) => !r ? '#8495a0' : r.status === 'UPWARD_PRESSURE' ? '#83c1a2' : r.status === 'DOWNWARD_PRESSURE' ? '#e5a08d' : r.status === 'MIXED' ? '#dfbf7e' : '#9aaab5';
+const pressureColor=(r?:CommodityForecast)=>semanticPressureColor(r?.status);
 interface Props {
   commodity: CommodityDefinition; regionId: string; results: Record<string, CommodityForecast>;
   pending: Record<string, boolean>; errors: Record<string, string>;
   onSelect: (commodityId: string, regionId: string) => void;
-  onRun: () => Promise<void>; onMarkets: () => void; onLab: () => void;
+  onRun: () => Promise<void>; onMarkets: () => void; onLab: () => void; onResearch?:()=>void;
 }
-export function GlobeLanding({ commodity, regionId, results, pending, errors, onSelect, onRun, onMarkets, onLab }: Props) {
+export function GlobeLanding({ commodity, regionId, results, pending, errors, onSelect, onRun, onMarkets, onLab, onResearch }: Props) {
   const [search, setSearch] = useState('');
   const [sector, setSector] = useState('All sectors');
   const [layer, setLayer] = useState<'REGIONS' | 'FORECASTS'>('REGIONS');
@@ -51,14 +53,26 @@ export function GlobeLanding({ commodity, regionId, results, pending, errors, on
   },[weatherReload]);
   useEffect(()=>{
     if(!playing||!weather||reduceMotion)return;
-    const timer=window.setInterval(()=>setFrameIndex(i=>Math.min(i+1,weather.frames.length-1)),1400);
-    return()=>clearInterval(timer);
+    let animation=0,last:number|null=null;
+    const tick=(now:number)=>{
+      if(document.hidden){last=null;}else if(last==null){last=now;}else if(now-last>=1000/30){
+        const elapsed=Math.min(100,now-last);last=now;
+        setFrameIndex(i=>forecastPosition(i,elapsed,weather.frames.length));
+      }
+      animation=window.requestAnimationFrame(tick);
+    };
+    animation=window.requestAnimationFrame(tick);
+    return()=>window.cancelAnimationFrame(animation);
   },[playing,weather,reduceMotion]);
   useEffect(()=>{if(weather&&frameIndex>=weather.frames.length-1)setPlaying(false);},[frameIndex,weather]);
-  const weatherFrame=weather?.frames[frameIndex];
+  const lowerIndex=Math.min(Math.floor(frameIndex),(weather?.frames.length??1)-1);
+  const lowerFrame=weather?.frames[lowerIndex];
+  const upperFrame=weather?.frames[Math.min(lowerIndex+1,weather.frames.length-1)];
+  const frameBlend=frameIndex-lowerIndex;
+  const weatherFrame=useMemo(()=>lowerFrame&&upperFrame?interpolateWeatherFrame(lowerFrame,upperFrame,frameBlend):undefined,[lowerFrame,upperFrame,frameBlend]);
   const rainCount=weatherFrame?.samples.filter(s=>s.precipitationMm!=null).length??0;
   const windCount=weatherFrame?.samples.filter(s=>s.windMs!=null&&s.windFromDeg!=null).length??0;
-  const weatherOverlay: GlobeWeatherOverlay|undefined=useMemo(()=>weatherFrame?{frame:weatherFrame,wind:showWind,precipitation:showRain,opacity,animateWind:!reduceMotion}:undefined,[weatherFrame,showWind,showRain,opacity,reduceMotion]);
+  const weatherOverlay: GlobeWeatherOverlay|undefined=useMemo(()=>lowerFrame?{frame:lowerFrame,nextFrame:upperFrame,blend:frameBlend,wind:showWind,precipitation:showRain,opacity,animateWind:!reduceMotion}:undefined,[lowerFrame,upperFrame,frameBlend,showWind,showRain,opacity,reduceMotion]);
   const region = commodity.regions.find(r => r.id === regionId) ?? commodity.regions[0];
   const key = `${commodity.id}:${region.id}`;
   const result = results[key];
@@ -70,7 +84,7 @@ export function GlobeLanding({ commodity, regionId, results, pending, errors, on
   };
   useEffect(() => { focus(); }, [commodity.id, region.id]);
   const overlay: CommodityGlobeOverlay = useMemo(() => ({
-    points: visible.map(e => ({ key: e.key, label: `${e.commodity.name} · ${e.region.name.split(' · ')[0]}`, lat: e.region.lat, lng: e.region.lng, color: layer === 'FORECASTS' ? pressureColor(results[e.key]) : e.key === key ? '#f4c08c' : '#84b6b1' })),
+    points: visible.map(e => ({ key: e.key, label: `${e.commodity.name} · ${e.region.name.split(' · ')[0]}`, lat: e.region.lat, lng: e.region.lng, color: layer === 'FORECASTS' ? pressureColor(results[e.key]) : e.key === key ? SEMANTIC_COLORS.selection : SEMANTIC_COLORS.information })),
     selectedKey: key,
     onSelect: selectedKey => { const e = exposures.find(e => e.key === selectedKey); if (e) onSelect(e.commodity.id, e.region.id); },
   }), [visible, key, layer, results, onSelect, exposures]);
@@ -90,6 +104,7 @@ export function GlobeLanding({ commodity, regionId, results, pending, errors, on
   const analyzed = Object.keys(results).length;
   return <section className="af-globe-landing" aria-label="Global forecast explorer">
     <div className="af-earth-heading"><div><span className="af-eyebrow">GLOBAL FORECAST INTELLIGENCE</span><h1>The world behind the market.</h1><p>Explore the regions, follow the forecast and uncover the connections.</p></div><button className="af-button af-outline" onClick={onMarkets}>Explore commodities <ArrowRight size={15} /></button></div>
+    <div className="as-map-guide"><span><strong>Start with a place.</strong> Select a marker → run its regional forecast → explore the economic mechanism. The global weather layer is smoothed 20° context; local analysis uses separate regional model inputs.</span><a href="#research" onClick={e=>{e.preventDefault();onResearch?.();}}>How weather reaches markets ↗</a></div>
     <div className="af-earth-toolbar"><label className="af-earth-search"><Search size={16} /><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Find a commodity or production region…" aria-label="Search globe regions" /></label><div className="af-earth-filters" aria-label="Globe sector filters">{['All sectors', ...SECTORS].map(s => <button key={s} className={s === sector ? 'active' : ''} aria-pressed={s === sector} onClick={() => setSector(s)}>{s}</button>)}</div></div>
     <div className="af-earth-workspace"><div className="af-earth-stage" tabIndex={0} onKeyDown={keyboard} role="region" aria-label="Interactive globe. Drag to rotate, scroll to zoom, or use arrow keys and plus or minus. Choose labelled regions from the list below.">
       <GlobeCanvas commodityOverlay={overlay} weatherOverlay={weatherOverlay} />
@@ -98,10 +113,10 @@ export function GlobeLanding({ commodity, regionId, results, pending, errors, on
       <div className="af-weather-layer-controls" aria-label="Weather layers"><button className={showWind?'active':''} aria-pressed={showWind} onClick={()=>setShowWind(v=>!v)}><Wind size={14}/>Wind</button><button className={showRain?'active':''} aria-pressed={showRain} onClick={()=>setShowRain(v=>!v)}><CloudRain size={14}/>Precipitation</button><button aria-label="Refresh weather grid" title="Refresh weather grid" disabled={weatherLoading} onClick={()=>setWeatherReload(v=>v+1)}><RefreshCw size={13} className={weatherLoading?'af-spin':''}/></button></div>
       <div className="af-weather-status" role="status">{weatherLoading?<><Loader2 size={12} className="af-spin"/>Loading real weather forecasts…</>:weatherError?<><span>Weather unavailable</span><button onClick={()=>setWeatherReload(v=>v+1)}>Retry</button></>:weather?<><span className="af-live-dot"/>NOAA GFS · via Open-Meteo <small>{rainCount}/{weather.totalPoints} rain · {windCount}/{weather.totalPoints} wind samples · 20° grid</small></>:null}</div>
       <div className="af-earth-controls"><button aria-label="Zoom globe in" title="Zoom in" onClick={() => zoom(.8)}><Plus size={17} /></button><button aria-label="Zoom globe out" title="Zoom out" onClick={() => zoom(1.25)}><Minus size={17} /></button><button aria-label="Focus selected region" title="Focus selected region" onClick={() => focus()}><Compass size={17} /></button><button aria-label="Reset global globe view" title="Global view" onClick={() => focus(12,-25)}><Maximize2 size={16} /></button></div>
-      <div className="af-earth-legend">{layer === 'REGIONS' ? <><i style={{ background: '#84b6b1' }} /> Mapped sample region <i style={{ background: '#f4c08c' }} /> Selected</> : <><i style={{ background: '#83c1a2' }} /> Upward <i style={{ background: '#e5a08d' }} /> Downward <i style={{ background: '#dfbf7e' }} /> Mixed <i style={{ background: '#8495a0' }} /> No direction / not analysed</>}</div>
+      <div className="af-earth-legend">{layer === 'REGIONS' ? <><i style={{ background: SEMANTIC_COLORS.information }} /> Mapped sample region <i style={{ background: SEMANTIC_COLORS.selection }} /> Selected</> : <><i style={{ background: SEMANTIC_COLORS.up }} /> Upward <i style={{ background: SEMANTIC_COLORS.down }} /> Downward <i style={{ background: SEMANTIC_COLORS.mixed }} /> Mixed <i style={{ background: SEMANTIC_COLORS.neutral }} /> No direction / not analysed</>}</div>
       <div className="af-weather-timeline">
-        <div className="af-weather-time-heading"><button aria-label={playing?'Pause forecast timeline':'Play forecast timeline'} disabled={!weather||reduceMotion} onClick={()=>{if(!playing&&frameIndex===(weather?.frames.length??0)-1)setFrameIndex(0);setPlaying(v=>!v);}}>{playing?<Pause size={14}/>:<Play size={14}/>}</button><strong>{weatherFrame?`${weatherFrame.validAtUtc.slice(0,16).replace('T',' ')} UTC`:'Forecast time unavailable'}</strong><span>{frameIndex===0?'Current forecast hour':`+${frameIndex*3}h`}</span></div>
-        <input aria-label="Weather forecast hour" type="range" min={0} max={(weather?.frames.length??25)-1} value={frameIndex} disabled={!weather} onChange={e=>{setPlaying(false);setFrameIndex(Number(e.target.value));}}/>
+        <div className="af-weather-time-heading"><button aria-label={playing?'Pause forecast timeline':'Play forecast timeline'} disabled={!weather||reduceMotion} onClick={()=>{if(!playing&&frameIndex>=(weather?.frames.length??0)-1)setFrameIndex(0);setPlaying(v=>!v);}}>{playing?<Pause size={14}/>:<Play size={14}/>}</button><strong>{weatherFrame?`${weatherFrame.validAtUtc.slice(0,16).replace('T',' ')} UTC`:'Forecast time unavailable'}</strong><span>{frameIndex===0?'Current forecast hour':`+${(frameIndex*3).toFixed(1)}h · interpolated`}</span></div>
+        <input aria-label="Weather forecast hour" type="range" step="0.001" min={0} max={(weather?.frames.length??25)-1} value={frameIndex} disabled={!weather} onChange={e=>{setPlaying(false);setFrameIndex(Number(e.target.value));}}/>
         <div className="af-weather-time-ticks"><span>Now</span><span>+24h</span><span>+48h</span><span>+72h</span></div>
         <div className="af-weather-scales">{showRain&&<div><span>Precipitation · mm / preceding hour</span><i className="af-rain-scale"/><small>0.05 · 0.5 · 2 · 5 · 10+</small></div>}{showWind&&<div><span>10 m wind · m/s · flowing streamlines</span><i className="af-wind-scale"/><small>0.25 · 8 · 15+</small></div>}<label>Opacity<input aria-label="Weather layer opacity" type="range" min={.1} max={.9} step={.05} value={opacity} onChange={e=>setOpacity(Number(e.target.value))}/></label></div>
       </div>
@@ -114,13 +129,13 @@ export function GlobeLanding({ commodity, regionId, results, pending, errors, on
       <button className="af-button af-earth-run" disabled={pending[key]} onClick={() => void onRun()}>{pending[key] ? <Loader2 size={15} className="af-spin" /> : <Radar size={15} />}{pending[key] ? 'Analysing region…' : result ? 'Refresh forecast' : 'Run regional forecast'}<ArrowRight size={14} /></button>
       {pending[key] && <p className="af-note" role="status">Comparing models and climatology. This can take a minute.</p>}
       {errors[key] && <div className="af-error" role="alert">{errors[key]}{result && <p>Previous snapshot remains shown.</p>}</div>}
-      <div className="af-earth-driver-list">{result ? result.drivers.map(d => <div key={d.label}><span>{d.label}</span><strong>{d.zScore == null ? 'Unavailable' : `${d.zScore > 0 ? '+' : ''}${d.zScore.toFixed(1)}σ`}</strong></div>) : commodity.rules.map(r => <div key={r.kind}><span>{r.label}</span><small>Awaiting data</small></div>)}</div>
-      <div className="af-earth-actions"><button onClick={onMarkets}>Commodity details <ChevronRight size={14} /></button><button onClick={onLab}>Connected markets & forecast lab <ChevronRight size={14} /></button></div>
-      <details className="af-weather-provenance"><summary>Weather layer source & coverage</summary>{weather?<><p>{weather.provider} · {weather.model}</p><p>Retrieved: {new Date(weather.fetchedAtUtc).toUTCString()}</p><p>Model run: {weather.modelInitializedAtUtc?new Date(weather.modelInitializedAtUtc).toUTCString():'Initialization unavailable'}</p>{weather.warnings.map(w=><p key={w}>{w}</p>)}<p>Streamlines follow the interpolated forecast wind field. Their animated speed is illustrative, not a travel-time contour or real-time particle trajectory.</p><code>SHA-256 {weather.inputSha256.slice(0,20)}…</code><a href="https://open-meteo.com/en/docs/gfs-api" target="_blank" rel="noreferrer">Open-Meteo / NOAA GFS documentation</a></>:<p>{weatherError||'Loading forecast source metadata…'}</p>}</details>
+      <div className="af-earth-driver-list">{result ? result.drivers.map(d => <div key={d.label}><span>{d.label}</span><strong>{d.zScore == null ? 'Unavailable' : `${d.zScore > 0 ? '+' : ''}${d.zScore.toFixed(1)}σ`}</strong></div>) : (region.role==='EXPORT'||region.role==='PROCESSING'?[{kind:'DISRUPTION',label:'Local disruption / throughput'}]:commodity.rules).map(r => <div key={r.kind}><span>{r.label}</span><small>Awaiting data</small></div>)}</div>
+      <div className="af-earth-actions">{onResearch&&<button onClick={onResearch}>Why weather moves this commodity <ChevronRight size={14}/></button>}<button onClick={onMarkets}>Commodity details <ChevronRight size={14} /></button><button onClick={onLab}>Connected markets & forecast lab <ChevronRight size={14} /></button></div>
+      <details className="af-weather-provenance"><summary>Weather layer source & coverage</summary>{weather?<><p>{weather.provider} · {weather.model}</p><p>Retrieved: {new Date(weather.fetchedAtUtc).toUTCString()}</p><p>Model run: {weather.modelInitializedAtUtc?new Date(weather.modelInitializedAtUtc).toUTCString():'Initialization unavailable'}</p>{weather.warnings.map(w=><p key={w}>{w}</p>)}<p>Continuous playback blends between three-hour source snapshots; intermediate views are interpolated visualizations, not extra model forecasts.</p><p>Streamlines follow the interpolated forecast wind field. Their animated speed is illustrative, not a travel-time contour or real-time particle trajectory.</p><code>SHA-256 {weather.inputSha256.slice(0,20)}…</code><a href="https://open-meteo.com/en/docs/gfs-api" target="_blank" rel="noreferrer">Open-Meteo / NOAA GFS documentation</a></>:<p>{weatherError||'Loading forecast source metadata…'}</p>}</details>
       <div className="af-earth-context"><SlidersHorizontal size={15} /><span>{links.incoming.length} upstream · {links.outgoing.length} downstream channels<small>Conditional mechanisms, not measured price elasticities.</small></span></div>
     </aside></div>
     <div className="af-earth-regions-heading"><div><span className="af-eyebrow">EXPLORE REGIONAL EXPOSURES</span><p>Select a card or a globe marker to focus the map.</p></div><span>{analyzed} analysed this session</span></div>
-    <div className="af-earth-region-cards" aria-label="Mapped commodity regions">{visible.map(e => <button key={e.key} className={e.key === key ? 'selected' : ''} aria-pressed={e.key === key} onClick={() => onSelect(e.commodity.id,e.region.id)}><span>{e.commodity.sector}</span><strong>{e.commodity.name}<ArrowRight size={12} /></strong><small>{e.region.name}</small><div><i style={{ background: pressureColor(results[e.key]) }} />{results[e.key] ? captions[results[e.key].status] : 'Not analysed'}</div></button>)}</div>
+    <div className="af-earth-region-cards" aria-label="Mapped commodity regions">{visible.map(e => <button key={e.key} className={e.key === key ? 'selected' : ''} aria-pressed={e.key === key} onClick={() => onSelect(e.commodity.id,e.region.id)}><span>{e.commodity.sector}</span><strong>{e.commodity.name}<ArrowRight size={12} /></strong><small>{e.region.name}</small><small>{e.region.role?.toLowerCase()} exposure</small><div><i style={{ background: pressureColor(results[e.key]) }} />{results[e.key] ? captions[results[e.key].status] : 'Not analysed'}</div></button>)}</div>
     <div className="af-earth-bottom"><ShieldCheck size={15} /><span>Weather layers show coarse GFS forecast samples, not observations. Commodity marker colours remain separate from precipitation and wind.</span><button onClick={onLab}>Open forecast lab <ArrowRight size={13} /></button></div>
   </section>;
 }

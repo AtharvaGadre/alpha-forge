@@ -79,6 +79,7 @@ export interface DataFetchLogEntry {
 
 export interface WindowStats {
   precipMm: number;
+  referenceEt0Mm: number | null;
   tempMeanC: number;
   heatDays: number; // days with Tmax ≥ 32 °C
   hdd: number; // Σ max(0, 18 − Tmean)
@@ -123,7 +124,7 @@ export interface VerificationExperiment {
 }
 
 export interface ClimateSignal {
-  id: 'PRECIP_NEXT7' | 'PRECIP_14D' | 'TEMP_NEXT7' | 'HDD_NEXT7' | 'CDD_NEXT7' | 'HEAT_NEXT7' | 'WIND_NEXT7';
+  id: 'PRECIP_NEXT7' | 'PRECIP_14D' | 'TEMP_NEXT7' | 'HDD_NEXT7' | 'CDD_NEXT7' | 'HEAT_NEXT7' | 'WIND_NEXT7' | 'WATER_BALANCE_30D' | 'SOIL_MOISTURE_7D';
   label: string;
   unit: string;
   value: number;
@@ -133,6 +134,7 @@ export interface ClimateSignal {
   zScore: number;
   percentileVsLast10Years: number;
   materiality: 'MATERIAL' | 'NOTABLE' | 'NEAR_NORMAL';
+  sourceType?: 'FORECAST' | 'REANALYSIS';
 }
 
 export interface ObservedMarketMove {
@@ -450,9 +452,12 @@ export function pearsonWithP(x: number[], y: number[]): { r: number; p: number; 
   return { r, p, n };
 }
 
-export function windowStats(precip: number[], tmean: number[], tmax: number[], wind: number[]): WindowStats {
+export function windowStats(precip: number[], tmean: number[], tmax: number[], wind: number[], referenceEt0: number[] | null = null): WindowStats {
   return {
     precipMm: precip.reduce((a, b) => a + b, 0),
+    referenceEt0Mm: referenceEt0?.length === precip.length && referenceEt0.every(Number.isFinite)
+      ? referenceEt0.reduce((a, b) => a + b, 0)
+      : null,
     tempMeanC: mean(tmean),
     heatDays: tmax.filter((t) => t >= HEAT_DAY_TMAX_C).length,
     hdd: tmean.reduce((a, t) => a + Math.max(0, DEGREE_DAY_BASE_C - t), 0),
@@ -464,12 +469,25 @@ export function windowStats(precip: number[], tmean: number[], tmax: number[], w
 export function averageStats(list: WindowStats[]): WindowStats {
   return {
     precipMm: mean(list.map((s) => s.precipMm)),
+    referenceEt0Mm: meanAvailable(list.map((s) => s.referenceEt0Mm)),
     tempMeanC: mean(list.map((s) => s.tempMeanC)),
     heatDays: mean(list.map((s) => s.heatDays)),
     hdd: mean(list.map((s) => s.hdd)),
     cdd: mean(list.map((s) => s.cdd)),
     windMeanMs: mean(list.map((s) => s.windMeanMs)),
   };
+}
+
+function meanAvailable(values: Array<number | null>): number | null {
+  const available = values.filter((value): value is number => value !== null && Number.isFinite(value));
+  return available.length ? mean(available) : null;
+}
+
+function medianAvailable(values: Array<number | null>): number | null {
+  const available = values.filter((value): value is number => value !== null && Number.isFinite(value)).sort((a, b) => a - b);
+  if (!available.length) return null;
+  const middle = Math.floor(available.length / 2);
+  return available.length % 2 ? available[middle] : (available[middle - 1] + available[middle]) / 2;
 }
 
 /** Inverse-MSE weights shrunk 50 % toward equal weights (guards against over-fitting a short window). */
@@ -499,7 +517,8 @@ export function buildSignal(
   value: number,
   history: number[],
   pct: boolean,
-  sdFloor = pct ? 0.5 : 0.3
+  sdFloor = pct ? 0.5 : 0.3,
+  sourceType: NonNullable<ClimateSignal['sourceType']> = 'FORECAST'
 ): ClimateSignal {
   const normal = mean(history);
   // The floor stops near-zero climatologies (e.g. heating degree-days in the tropics) from producing huge z-scores
@@ -517,6 +536,7 @@ export function buildSignal(
     zScore: round(z, 2),
     percentileVsLast10Years: round((below / Math.max(1, history.length)) * 100, 0),
     materiality: classifyMateriality(z),
+    sourceType,
   };
 }
 
@@ -765,13 +785,38 @@ function dailySeries(loc: any, variable: string, suffix: string, dates: string[]
   return out;
 }
 
+/** Depth-weighted 0–100 cm ERA5 volumetric soil-water content for complete UTC days. */
+export function rootZoneSoilMoisture(loc: any, dates: string[]): number | null {
+  const times: string[] = loc?.hourly?.time ?? [];
+  const shallow: Array<number | null> = loc?.hourly?.soil_moisture_0_to_7cm ?? [];
+  const middle: Array<number | null> = loc?.hourly?.soil_moisture_7_to_28cm ?? [];
+  const deep: Array<number | null> = loc?.hourly?.soil_moisture_28_to_100cm ?? [];
+  if (!dates.length || !times.length || !shallow.length || !middle.length || !deep.length) return null;
+
+  const daily: number[] = [];
+  for (const date of dates) {
+    const hourly: number[] = [];
+    for (let i = 0; i < times.length; i++) {
+      if (!times[i].startsWith(`${date}T`)) continue;
+      const layers = [shallow[i], middle[i], deep[i]];
+      if (layers.every((value) => typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 1)) {
+        hourly.push((Number(layers[0]) * 7 + Number(layers[1]) * 21 + Number(layers[2]) * 72) / 100);
+      }
+    }
+    if (hourly.length < 20) return null;
+    daily.push(mean(hourly));
+  }
+  return mean(daily);
+}
+
 function statsForDates(loc: any, suffix: string, dates: string[]): WindowStats | null {
   const p = dailySeries(loc, 'precipitation_sum', suffix, dates);
   const t = dailySeries(loc, 'temperature_2m_mean', suffix, dates);
   const tx = dailySeries(loc, 'temperature_2m_max', suffix, dates);
   const w = dailySeries(loc, 'wind_speed_10m_mean', suffix, dates);
+  const et0 = dailySeries(loc, 'et0_fao_evapotranspiration', suffix, dates);
   if (!p || !t || !tx || !w) return null;
-  return windowStats(p, t, tx, w);
+  return windowStats(p, t, tx, w, et0);
 }
 
 /** Aggregates hourly previous-run series into UTC daily sums (precip) or means (temp). */
@@ -1197,29 +1242,32 @@ export async function runLiveAtmospherePipeline(opts: RunLivePipelineOptions): P
   const pts = target.points;
   const pastDates = dateRange(addDays(today, -7), 7);
   const nextDates = dateRange(today, 7); // today + next 6 days: the horizon ICON and UKMO also cover
+  const waterBalancePastDates = dateRange(addDays(today, -23), 23);
+  const waterBalanceDates = [...waterBalancePastDates, ...nextDates];
   const verifyDates = dateRange(addDays(today, -46), 40);
   const climYears = 10;
   const eraTruthStart = verifyDates[0];
   const eraTruthEnd = addDays(today, -6); // ERA5 is published with a ~5-day lag
+  const soilMoistureDates = dateRange(addDays(eraTruthEnd, -6), 7);
   const locKey = `${latList(pts)}|${lngList(pts)}`;
   const hourKey = nowIso.slice(0, 13);
 
   const modelIds = LIVE_MODEL_SPECS.map((m) => m.apiId).join(',');
-  const fcUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latList(pts)}&longitude=${lngList(pts)}&daily=precipitation_sum,temperature_2m_mean,temperature_2m_max,wind_speed_10m_mean&models=${modelIds}&past_days=7&forecast_days=7&wind_speed_unit=ms&timezone=UTC`;
+  const fcUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latList(pts)}&longitude=${lngList(pts)}&daily=precipitation_sum,temperature_2m_mean,temperature_2m_max,wind_speed_10m_mean,et0_fao_evapotranspiration&models=${modelIds}&past_days=30&forecast_days=7&wind_speed_unit=ms&timezone=UTC`;
   const ensUrl = `https://ensemble-api.open-meteo.com/v1/ensemble?latitude=${latList(pts)}&longitude=${lngList(pts)}&daily=precipitation_sum&models=ecmwf_ifs025,gfs025&forecast_days=8&timezone=UTC`;
-  const eraDaily = 'daily=precipitation_sum,temperature_2m_mean,temperature_2m_max,wind_speed_10m_mean&wind_speed_unit=ms&timezone=UTC';
+  const eraDaily = 'daily=precipitation_sum,temperature_2m_mean,temperature_2m_max,wind_speed_10m_mean,et0_fao_evapotranspiration&hourly=soil_moisture_0_to_7cm,soil_moisture_7_to_28cm,soil_moisture_28_to_100cm&wind_speed_unit=ms&timezone=UTC';
   const eraUrl = (start: string, end: string) =>
     `https://archive-api.open-meteo.com/v1/archive?latitude=${latList(pts)}&longitude=${lngList(pts)}&start_date=${start}&end_date=${end}&${eraDaily}`;
-  // Climatology: one small request per past year covering only the 14 days we need (keeps API load low)
-  const climRanges = Array.from({ length: climYears }, (_, k) => [shiftYears(pastDates[0], -(k + 1)), shiftYears(nextDates[6], -(k + 1))]);
+  // Same-calendar 30-day precipitation minus reference ET₀ windows for water-balance context.
+  const climRanges = Array.from({ length: climYears }, (_, k) => [shiftYears(waterBalanceDates[0], -(k + 1)), shiftYears(waterBalanceDates[waterBalanceDates.length - 1], -(k + 1))]);
   const lastFullYear = now.getUTCFullYear() - 1;
   const prevVars = [1, 3, 5].flatMap((l) => [`precipitation_previous_day${l}`, `temperature_2m_previous_day${l}`]).join(',');
   const prevUrl = `https://previous-runs-api.open-meteo.com/v1/forecast?latitude=${latList(pts)}&longitude=${lngList(pts)}&hourly=${prevVars}&models=${modelIds}&start_date=${verifyDates[0]}&end_date=${verifyDates[verifyDates.length - 1]}&timezone=UTC`;
 
   const [fcRaw, ensRaw, eraRaw, prevRaw, metas, climRaw] = await Promise.all([
-    cached(`fc|${locKey}|${hourKey}`, 30 * 60_000, () => logged<any>(log, 'Open-Meteo Forecast (8 models)', fcUrl, 15000, fetchJson, () => 'daily precip, temperature, wind'),),
+    cached(`fc-agro-v1|${locKey}|${hourKey}`, 30 * 60_000, () => logged<any>(log, 'Open-Meteo Forecast (8 models)', fcUrl, 15000, fetchJson, () => 'daily precip, temperature, wind, reference ET₀'),),
     cached(`ens|${locKey}|${hourKey}`, 30 * 60_000, () => logged<any>(log, 'Open-Meteo Ensemble (ECMWF ENS + GEFS)', ensUrl, 15000, fetchJson, () => 'member precipitation')),
-    cached(`era|${locKey}|${today}`, 12 * 3_600_000, () => logged<any>(log, 'Open-Meteo Historical (ERA5, verification truth)', eraUrl(eraTruthStart, eraTruthEnd), 20000, fetchJson, () => `${eraTruthStart}…${eraTruthEnd}`)),
+    cached(`era-agro-v2|${locKey}|${today}`, 12 * 3_600_000, () => logged<any>(log, 'Open-Meteo Historical (ERA5, verification truth and soil moisture)', eraUrl(eraTruthStart, eraTruthEnd), 20000, fetchJson, () => `${eraTruthStart}…${eraTruthEnd}`)),
     cached(`prev|${locKey}|${today}`, 6 * 3_600_000, () => logged<any>(log, 'Open-Meteo Previous Runs (lead 1/3/5 d)', prevUrl, 25000, fetchJson, () => `${verifyDates[0]}…${verifyDates[verifyDates.length - 1]}`)),
     Promise.all(
       LIVE_MODEL_SPECS.map((m) =>
@@ -1230,7 +1278,7 @@ export async function runLiveAtmospherePipeline(opts: RunLivePipelineOptions): P
     ),
     Promise.all(
       climRanges.map(([a, b]) =>
-        cached(`clim|${locKey}|${a}`, 7 * 24 * 3_600_000, () => logged<any>(log, `Open-Meteo Historical (ERA5 climatology ${a.slice(0, 4)})`, eraUrl(a, b), 15000, fetchJson, () => `${a}…${b}`))
+        cached(`clim-agro-v2|${locKey}|${a}`, 7 * 24 * 3_600_000, () => logged<any>(log, `Open-Meteo Historical (ERA5 climatology ${a.slice(0, 4)})`, eraUrl(a, b), 15000, fetchJson, () => `${a}…${b}`))
       )
     ),
   ]);
@@ -1240,6 +1288,7 @@ export async function runLiveAtmospherePipeline(opts: RunLivePipelineOptions): P
   const ensLocs = asArray(ensRaw);
   const eraLocs = asArray(eraRaw);
   const climLocs = mergeDailyResponses(climRaw.filter((r) => r !== null).map(asArray));
+  const climLocsByYear = climRaw.map(asArray);
   const prevLocs = asArray(prevRaw);
 
   // --- Step 2–3: provenance gate + per-model forecasts ------------------------------
@@ -1299,6 +1348,7 @@ export async function runLiveAtmospherePipeline(opts: RunLivePipelineOptions): P
   };
   const recentPast: WindowStats = {
     precipMm: median(recentPerModel.map((s) => s.precipMm)),
+    referenceEt0Mm: medianAvailable(recentPerModel.map((s) => s.referenceEt0Mm)),
     tempMeanC: median(recentPerModel.map((s) => s.tempMeanC)),
     heatDays: median(recentPerModel.map((s) => s.heatDays)),
     hdd: median(recentPerModel.map((s) => s.hdd)),
@@ -1309,13 +1359,23 @@ export async function runLiveAtmospherePipeline(opts: RunLivePipelineOptions): P
   // --- Step 4: climatology ------------------------------------------------------
   const climNext: WindowStats[] = [];
   const climPast: WindowStats[] = [];
+  const climWaterBalance: number[] = [];
+  const climRootZoneSoilMoisture: number[] = [];
   for (let y = 1; y <= climYears; y++) {
     const nd = nextDates.map((d) => shiftYears(d, -y));
     const pd = pastDates.map((d) => shiftYears(d, -y));
+    const bd = waterBalanceDates.map((d) => shiftYears(d, -y));
     const n = climLocs.map((loc) => statsForDates(loc, '', nd)).filter((s): s is WindowStats => s !== null);
     const p = climLocs.map((loc) => statsForDates(loc, '', pd)).filter((s): s is WindowStats => s !== null);
+    const b = climLocs.map((loc) => statsForDates(loc, '', bd)).filter((s): s is WindowStats => s !== null && s.referenceEt0Mm !== null);
     if (n.length === pts.length) climNext.push(averageStats(n));
     if (p.length === pts.length) climPast.push(averageStats(p));
+    if (b.length === pts.length) climWaterBalance.push(mean(b.map((s) => s.precipMm - s.referenceEt0Mm!)));
+    const soilDates = soilMoistureDates.map((date) => shiftYears(date, -y));
+    const soilByPoint = (climLocsByYear[y - 1] ?? []).map((loc) => rootZoneSoilMoisture(loc, soilDates));
+    if (soilByPoint.length === pts.length && soilByPoint.every((value): value is number => value !== null && Number.isFinite(value))) {
+      climRootZoneSoilMoisture.push(mean(soilByPoint));
+    }
   }
   step(
     'Build 10-year climatology for the same calendar weeks',
@@ -1420,6 +1480,7 @@ export async function runLiveAtmospherePipeline(opts: RunLivePipelineOptions): P
   // --- Step 7: anomalies / climate signals ---------------------------------------------
   const ensStats: WindowStats = {
     precipMm: ensemble.ensemblePrecipitationMm,
+    referenceEt0Mm: meanAvailable(liveIdx.map((i) => modelForecasts[i].stats!.referenceEt0Mm)),
     tempMeanC: ensemble.ensembleTemperatureC,
     heatDays: weightedMeanAndStd(liveIdx.map((i) => modelForecasts[i].stats!.heatDays), weights).mean,
     hdd: weightedMeanAndStd(liveIdx.map((i) => modelForecasts[i].stats!.hdd), weights).mean,
@@ -1438,6 +1499,27 @@ export async function runLiveAtmospherePipeline(opts: RunLivePipelineOptions): P
     signals.push(buildSignal('CDD_NEXT7', 'Cooling degree-days (base 18 °C)', 'CDD', ensStats.cdd, climNext.map((s) => s.cdd), true, 3.5));
     signals.push(buildSignal('HEAT_NEXT7', `Days with Tmax ≥ ${HEAT_DAY_TMAX_C} °C`, 'days', ensStats.heatDays, climNext.map((s) => s.heatDays), false, 1));
     signals.push(buildSignal('WIND_NEXT7', 'Next-7-day mean 10 m wind', 'm/s', ensStats.windMeanMs, climNext.map((s) => s.windMeanMs), true));
+  }
+  const pastWaterBalanceByPoint = fcLocs.map((loc) => medianAvailable(liveIdx.map((i) => {
+    const model = LIVE_MODEL_SPECS[i];
+    const stats = statsForDates(loc, `_${model.apiId}`, waterBalancePastDates);
+    return stats?.referenceEt0Mm === null || !stats ? null : stats.precipMm - stats.referenceEt0Mm;
+  })));
+  const pastWaterBalance = pastWaterBalanceByPoint.every((value): value is number => value !== null && Number.isFinite(value))
+    ? mean(pastWaterBalanceByPoint)
+    : null;
+  const forecastWaterBalance = ensStats.referenceEt0Mm === null ? null : ensStats.precipMm - ensStats.referenceEt0Mm;
+  const waterBalance30d = pastWaterBalance === null || forecastWaterBalance === null ? null : pastWaterBalance + forecastWaterBalance;
+  if (waterBalance30d !== null && climWaterBalance.length >= 5) {
+    signals.push(buildSignal('WATER_BALANCE_30D', '30-day precipitation − reference ET₀', 'mm', waterBalance30d, climWaterBalance, false, 5));
+  }
+  const recentRootZoneByPoint = eraLocs.map((loc) => rootZoneSoilMoisture(loc, soilMoistureDates));
+  const recentRootZoneSoilMoisture = recentRootZoneByPoint.length === pts.length
+    && recentRootZoneByPoint.every((value): value is number => value !== null && Number.isFinite(value))
+    ? mean(recentRootZoneByPoint)
+    : null;
+  if (recentRootZoneSoilMoisture !== null && climRootZoneSoilMoisture.length >= 8) {
+    signals.push(buildSignal('SOIL_MOISTURE_7D', 'Recent 0–100 cm root-zone soil moisture', 'm³/m³', recentRootZoneSoilMoisture, climRootZoneSoilMoisture, false, 0.02, 'REANALYSIS'));
   }
   const ranked = [...signals].sort((a, b) => Math.abs(b.zScore) - Math.abs(a.zScore));
   step(
@@ -1514,6 +1596,7 @@ export async function runLiveAtmospherePipeline(opts: RunLivePipelineOptions): P
   const sigById = (id: ClimateSignal['id']) => signals.find((s) => s.id === id);
   const pn = sigById('PRECIP_NEXT7');
   const tn = sigById('TEMP_NEXT7');
+  const wb = sigById('WATER_BALANCE_30D');
   const pastPrecipNormal = climPast.length ? mean(climPast.map((s) => s.precipMm)) : NaN;
   const pastTempNormal = climPast.length ? mean(climPast.map((s) => s.tempMeanC)) : NaN;
   const sortedModels = [...modelInputs].sort((a, b) => b.predictedPrecipitationMm - a.predictedPrecipitationMm);
@@ -1523,11 +1606,15 @@ export async function runLiveAtmospherePipeline(opts: RunLivePipelineOptions): P
   const A = [
     `Past 7 days (${pastDates[0]} → ${pastDates[6]}), ${target.label}: ${round(recentPast.precipMm, 1)} mm rain${Number.isFinite(pastPrecipNormal) ? ` vs ${round(pastPrecipNormal, 1)} mm normal` : ''}; mean temperature ${round(recentPast.tempMeanC, 1)} °C${Number.isFinite(pastTempNormal) ? ` vs ${round(pastTempNormal, 1)} °C normal` : ''}.`,
     'Source: median of model analyses for the last 7 days (Open-Meteo); station observations are not yet ingested.',
+    signals.find((signal) => signal.id === 'SOIL_MOISTURE_7D')
+      ? `Latest complete ERA5 week (${soilMoistureDates[0]} → ${soilMoistureDates[6]}): mean 0–100 cm depth-weighted volumetric soil moisture ${signals.find((signal) => signal.id === 'SOIL_MOISTURE_7D')!.value} m³/m³ vs same-calendar 10-year ERA5 normal ${signals.find((signal) => signal.id === 'SOIL_MOISTURE_7D')!.normal} m³/m³ (z = ${signals.find((signal) => signal.id === 'SOIL_MOISTURE_7D')!.zScore}). Reanalysis state, not a future soil-moisture forecast.`
+      : '',
   ];
   const B = [
     `Next 7 days (${nextDates[0]} → ${nextDates[6]}): ${modelInputs.length} models give ${driest.predictedPrecipitationMm}–${wettest.predictedPrecipitationMm} mm; skill-weighted ensemble ${ensemble.ensemblePrecipitationMm} mm, 90% interval ${ensemble.calibrated90PctIntervalMm[0]}–${ensemble.calibrated90PctIntervalMm[1]} mm.`,
     pn ? `That is ${pn.anomaly >= 0 ? '+' : ''}${pn.anomaly} mm vs the 10-year normal of ${pn.normal} mm (z = ${pn.zScore}; wetter than ${pn.percentileVsLast10Years}% of the last 10 years).` : 'Climatology unavailable.',
     tn ? `Mean temperature ${tn.value} °C vs ${tn.normal} °C normal (${tn.anomaly >= 0 ? '+' : ''}${tn.anomaly} °C).` : '',
+    wb ? `30-day precipitation minus FAO-56 reference evapotranspiration (ET₀) is ${wb.value} mm vs a ${wb.normal} mm 10-year ERA5 normal (z = ${wb.zScore}); this is an atmospheric balance, not measured root-zone soil moisture.` : '',
     `Wettest model: ${wettest.modelName} (${wettest.predictedPrecipitationMm} mm); driest: ${driest.modelName} (${driest.predictedPrecipitationMm} mm).`,
   ].filter(Boolean);
   const C = consequences.length ? consequences.map((c) => `${c.exposure.symbol}: ${c.steps.join(' → ')}`) : ['No mapped market exposure for this location.'];
@@ -1539,7 +1626,10 @@ export async function runLiveAtmospherePipeline(opts: RunLivePipelineOptions): P
     stale.length ? `Excluded stale model runs: ${stale.map((s) => s.name).join(', ')}.` : '',
     verification ? `Verification uses ${verification.nTest} held-out point-days at ${pts.length} sample point(s); short windows give noisy skill estimates.` : 'Held-out verification could not be run for this location.',
     'Point sampling: values are averages of sample points, not area-weighted crop or demand maps.',
+    'ERA5 root-zone soil moisture is a modelled, depth-weighted 0–100 cm estimate; it does not resolve field soil texture, irrigation, roots by crop stage or within-region variability.',
     historical ? `Historical association is in-sample on ${historical.months} months and is not causal evidence.` : 'No historical market association was tested.',
+    'FAO-56 reference evapotranspiration is an equal mean of available live models and is not independently skill-weighted; it represents demand over a reference surface, not crop ET.',
+    'The water-balance screen omits soil storage, runoff, irrigation and crop coefficients.',
     'Market data from an unofficial Yahoo Finance endpoint; for research display only.',
   ].filter(Boolean);
 
@@ -1569,7 +1659,7 @@ export async function runLiveAtmospherePipeline(opts: RunLivePipelineOptions): P
   );
 
   return {
-    pipelineVersion: 'live-1.0.0',
+    pipelineVersion: 'live-1.2.0',
     generatedAtUtc: nowIso,
     query: opts.query,
     target,
@@ -1578,7 +1668,7 @@ export async function runLiveAtmospherePipeline(opts: RunLivePipelineOptions): P
     modelForecasts: modelForecasts.map((m, i) => ({
       modelId: m.spec.modelId,
       name: m.spec.name,
-      stats: m.stats ?? { precipMm: NaN, tempMeanC: NaN, heatDays: NaN, hdd: NaN, cdd: NaN, windMeanMs: NaN },
+      stats: m.stats ?? { precipMm: NaN, referenceEt0Mm: null, tempMeanC: NaN, heatDays: NaN, hdd: NaN, cdd: NaN, windMeanMs: NaN },
       includedInEnsemble: usable[i],
       exclusionReason: usable[i] ? null : !m.fresh ? `stale run (${provenance[i].gate.forecastAgeHours} h old)` : 'forecast horizon shorter than the 7-day window',
     })),

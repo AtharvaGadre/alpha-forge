@@ -67,5 +67,5 @@ export function sampleWeather(frame: WeatherFrame, lat: number, lng: number): { 
   const vectors=samples.map(s=>s?windVector(s.windMs,s.windFromDeg):null);
   return { precipitationMm:sum(samples.map(s=>s?.precipitationMm)),u:sum(vectors.map(v=>v?.u)),v:sum(vectors.map(v=>v?.v)) };
 }
-export const RAIN_COLORS = ['#467bc6','#43b7c6','#73c393','#dcc56f','#de8765'];
+export const RAIN_COLORS = ['#1e3a8a','#2563eb','#0ea5e9','#67e8f9','#e0f2fe'];
 export function rainColor(mm: number): string { return RAIN_COLORS[mm<.5?0:mm<2?1:mm<5?2:mm<10?3:4]; }

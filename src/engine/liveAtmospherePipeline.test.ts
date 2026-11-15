@@ -11,8 +11,10 @@ import {
   pearsonWithP,
   pickGeocodeResult,
   runLiveAtmospherePipeline,
+  rootZoneSoilMoisture,
   shiftYears,
   toArgonInvestigation,
+  windowStats,
   type FetchJson,
 } from './liveAtmospherePipeline.ts';
 import { generateArgonScientificReport } from './argonAtmosphereEngine.ts';
@@ -74,7 +76,7 @@ function mockFetch(opts: { failForecast?: boolean } = {}): FetchJson {
     }
     if (u.host === 'api.open-meteo.com') {
       if (opts.failForecast) throw new Error('HTTP 500');
-      const dates = days(addDays(today, -7), addDays(today, 6));
+      const dates = days(addDays(today, -30), addDays(today, 6));
       return wrap(lats.map((_, li) => {
         const daily: any = { time: dates };
         for (const m of q('models').split(',')) {
@@ -84,6 +86,7 @@ function mockFetch(opts: { failForecast?: boolean } = {}): FetchJson {
           daily[`temperature_2m_mean_${m}`] = dates.map((d) => (ok(d) ? modelTemp(m, d, li) : null));
           daily[`temperature_2m_max_${m}`] = dates.map((d) => (ok(d) ? modelTemp(m, d, li) + 6 : null));
           daily[`wind_speed_10m_mean_${m}`] = dates.map((d) => (ok(d) ? 3 + hash(`w${d}${li}`) : null));
+          daily[`et0_fao_evapotranspiration_${m}`] = dates.map((d) => (ok(d) ? 2 + hash(`et0${d}${li}`) : null));
         }
         return { daily };
       }));
@@ -99,6 +102,7 @@ function mockFetch(opts: { failForecast?: boolean } = {}): FetchJson {
     }
     if (u.host.startsWith('archive-api')) {
       const dates = days(q('start_date'), q('end_date'));
+      const hourlyTimes = dates.flatMap((d) => Array.from({ length: 24 }, (_, h) => `${d}T${String(h).padStart(2, '0')}:00`));
       return wrap(lats.map((_, li) => ({
         daily: {
           time: dates,
@@ -106,6 +110,13 @@ function mockFetch(opts: { failForecast?: boolean } = {}): FetchJson {
           temperature_2m_mean: dates.map((d) => truthTemp(d, li)),
           temperature_2m_max: dates.map((d) => truthTemp(d, li) + 6),
           wind_speed_10m_mean: dates.map((d) => 3 + hash(`w${d}${li}`)),
+          et0_fao_evapotranspiration: dates.map((d) => 2 + hash(`et0${d}${li}`)),
+        },
+        hourly: {
+          time: hourlyTimes,
+          soil_moisture_0_to_7cm: hourlyTimes.map((t) => 0.1 + 0.2 * hash(`sm0${t.slice(0, 10)}${li}`)),
+          soil_moisture_7_to_28cm: hourlyTimes.map((t) => 0.15 + 0.2 * hash(`sm7${t.slice(0, 10)}${li}`)),
+          soil_moisture_28_to_100cm: hourlyTimes.map((t) => 0.2 + 0.2 * hash(`sm28${t.slice(0, 10)}${li}`)),
         },
       })));
     }
@@ -179,6 +190,33 @@ test('Statistics helpers: correlation p-values, inverse-MSE weights, hourly→da
   assert.equal(shiftYears('2028-02-29', -1), '2027-02-28');
 });
 
+test('Window statistics preserve FAO-56 reference ET₀ availability without blocking other weather fields', () => {
+  const stats = windowStats([4, 6], [20, 22], [28, 30], [2, 4], [1.5, 2.5]);
+  assert.equal(stats.precipMm, 10);
+  assert.equal(stats.referenceEt0Mm, 4);
+  assert.equal(stats.precipMm - stats.referenceEt0Mm, 6);
+  assert.equal(windowStats([4, 6], [20, 22], [28, 30], [2, 4]).referenceEt0Mm, null);
+});
+
+test('Root-zone soil moisture is depth-weighted and withheld when a complete daily profile is unavailable', () => {
+  const dates = days('2026-10-01', '2026-10-07');
+  const times = dates.flatMap((date) => Array.from({ length: 24 }, (_, h) => `${date}T${String(h).padStart(2, '0')}:00`));
+  const loc = { hourly: {
+    time: times,
+    soil_moisture_0_to_7cm: times.map(() => 0.1),
+    soil_moisture_7_to_28cm: times.map(() => 0.2),
+    soil_moisture_28_to_100cm: times.map((): number | null => 0.3),
+  } };
+  assert.ok(Math.abs(rootZoneSoilMoisture(loc, dates)! - 0.265) < 1e-12);
+  loc.hourly.soil_moisture_28_to_100cm[0] = null;
+  loc.hourly.soil_moisture_28_to_100cm[1] = null;
+  loc.hourly.soil_moisture_28_to_100cm[2] = null;
+  loc.hourly.soil_moisture_28_to_100cm[3] = null;
+  assert.notEqual(rootZoneSoilMoisture(loc, dates), null);
+  loc.hourly.soil_moisture_28_to_100cm[4] = null;
+  assert.equal(rootZoneSoilMoisture(loc, dates), null);
+});
+
 test('Live pipeline (mocked APIs): predict → verify → consequences → explain for the coffee belt', async () => {
   clearLivePipelineCache();
   const r = await runLiveAtmospherePipeline({ query: 'What happens if Brazilian rainfall forecasts change for coffee?', fetchJson: mockFetch(), now: NOW });
@@ -217,6 +255,10 @@ test('Live pipeline (mocked APIs): predict → verify → consequences → expla
   // Climatology + signals
   assert.equal(r.climatology.years, 10);
   assert.ok(r.signals.find((s) => s.id === 'PRECIP_NEXT7'));
+  assert.ok(r.signals.find((s) => s.id === 'WATER_BALANCE_30D'));
+  const soilMoistureSignal = r.signals.find((s) => s.id === 'SOIL_MOISTURE_7D');
+  assert.equal(soilMoistureSignal?.sourceType, 'REANALYSIS');
+  assert.ok(r.epistemic.A_whatWeatherOccurred.some((item) => item.includes('Latest complete ERA5 week')));
 
   // Consequences: coffee futures chain with observed move and a historical test
   const kc = r.consequences.find((c) => c.exposure.symbol === 'KC=F')!;
