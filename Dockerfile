@@ -13,7 +13,10 @@ COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
 COPY --from=build /app/dist ./dist
 COPY server.ts tsconfig.json ./
+COPY server ./server
 COPY src ./src
 COPY public ./public
+# Committed track record (served at /api/v1/track-record; extended in place when TRACK_RECORD=1)
+COPY data/track-record ./data/track-record
 EXPOSE 3000
 CMD ["npm", "start"]

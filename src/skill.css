@@ -122,3 +122,16 @@
 .as-outlook footer button{display:inline-flex;align-items:center;gap:4px}
 
 .sk-fair{display:block;font-size:10px;color:var(--as-muted)}
+
+/* ───────── Live track record ───────── */
+.sk-track{gap:16px}
+.sk-track-head h2{font:500 clamp(26px,2.6vw,34px)/1.15 'Cormorant Garamond',Georgia,serif;margin:10px 0 8px;color:var(--as-ink)}
+.sk-track-head p{font-size:13px;line-height:1.8;color:var(--as-muted);margin:0;max-width:900px}
+.sk-track-kpis strong{font-size:32px}
+.sk-hash{display:flex;align-items:center;gap:8px;font:500 20px/1.2 'IBM Plex Mono',monospace!important;overflow-wrap:anywhere}
+.sk-hash svg{flex-shrink:0}
+.sk-track-empty{padding:18px 20px;border:1px dashed var(--as-line);border-radius:12px;background:var(--as-soft)}
+.sk-track-empty strong{font-size:13px;color:var(--as-ink)}
+.sk-track-empty p{font-size:12px;line-height:1.8;color:var(--as-muted);margin:6px 0 0}
+.sk-track-empty b{color:var(--as-gold);font-weight:600}
+.sk-track .sk-actions{margin:0}

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  TEMPLATE (not installed): runs the daily track record on a Mac that keeps the repository checked out.
+
+  1. Replace __REPO__ with the absolute path of the checkout (e.g. /Users/you/alpha-forge).
+  2. launchd uses local time: 06:45 here is 06:45 UTC only while the Mac is on UTC/GMT. In BST (UTC+1) use 07:45.
+  3. cp deploy/launchd/com.astraeus.track-record.plist ~/Library/LaunchAgents/
+     launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.astraeus.track-record.plist
+     (remove: launchctl bootout gui/$(id -u)/com.astraeus.track-record)
+
+  Use one writer per record: this job, the GitHub workflow or the server scheduler (TRACK_RECORD=1).
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.astraeus.track-record</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/zsh</string>
+    <string>-lc</string>
+    <string>cd "__REPO__" &amp;&amp; npx tsx research/track-record.ts snapshot; npx tsx research/track-record.ts score &amp;&amp; npx tsx research/track-record.ts verify &amp;&amp; git add data/track-record &amp;&amp; (git diff --cached --quiet || git commit -m "data(track-record): daily snapshot and scores $(date -u +%F)")</string>
+  </array>
+
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>
+    <integer>6</integer>
+    <key>Minute</key>
+    <integer>45</integer>
+  </dict>
+
+  <key>StandardOutPath</key>
+  <string>/tmp/astraeus-track-record.log</string>
+  <key>StandardErrorPath</key>
+  <string>/tmp/astraeus-track-record.log</string>
+
+  <key>RunAtLoad</key>
+  <false/>
+</dict>
+</plist>

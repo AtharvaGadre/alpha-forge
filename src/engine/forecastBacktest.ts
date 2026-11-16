@@ -73,10 +73,12 @@ export function createForecastLedger(dir:string){
  return {read:async()=>{await queue;return read();},append,readNumerical:async()=>{await queue;return readNumericalRaw();},appendNumerical};
 }
 const memo=new Map<string,{expires:number,data:any}>();
+let backtestFetch:(url:string,timeoutMs:number)=>Promise<any>=async(url,timeoutMs)=>{const r=await fetch(url,{headers:{'User-Agent':'Mozilla/5.0 (Astraeus research)'},signal:AbortSignal.timeout(timeoutMs)});if(!r.ok)throw new Error(`Data provider returned HTTP ${r.status}.`);return r.json();};
+/** Lets the server route backtest requests through its shared cache and Open-Meteo budget (server/outbound.ts). */
+export function configureBacktestFetch(fn:(url:string,timeoutMs:number)=>Promise<any>){backtestFetch=fn;}
 async function fetchJson(url:string){
  const hit=memo.get(url);if(hit&&hit.expires>Date.now())return hit.data;
- const r=await fetch(url,{headers:{'User-Agent':'Mozilla/5.0 (Astraeus research)'},signal:AbortSignal.timeout(25000)});
- if(!r.ok)throw new Error(`Data provider returned HTTP ${r.status}.`);const data=await r.json();if(data.error||data.chart?.error)throw new Error(data.reason||data.chart?.error?.description||'Provider rejected the request.');
+ const data=await backtestFetch(url,25000);if(data.error||data.chart?.error)throw new Error(data.reason||data.chart?.error?.description||'Provider rejected the request.');
  if(memo.size>=150)memo.delete(memo.keys().next().value!);memo.set(url,{expires:Date.now()+1800_000,data});return data;
 }
 export async function runForecastBacktest(options:{commodityId:string;regionId:string;mode:'REPLAY'|'ISSUED';start:string;end:string;horizon:number;costBps:number;cadence?:'DAILY'|'WEEKLY'},ledger:ReturnType<typeof createForecastLedger>){

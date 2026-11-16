@@ -76,6 +76,8 @@ export interface CommodityForecast {
   fundamentals: string[]; weatherWindow: string; target: ResolvedTarget;
   /** EMOS-calibrated daily outlook for the region (absent when calibration inputs were unavailable). */
   outlook?: LiveAtmosphereInvestigation['calibratedOutlook'];
+  /** Set when the result was issued by the daily server precompute rather than a live request. */
+  precomputed?: { issuedAtUtc: string; issueDate: string; job: string; carriedOver?: boolean };
 }
 
 export function commodityTarget(commodity: CommodityDefinition, region: CommodityRegion): ResolvedTarget {

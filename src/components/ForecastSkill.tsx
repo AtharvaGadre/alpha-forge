@@ -1,5 +1,6 @@
-import React, { useMemo, useState } from 'react';
-import { ArrowUpRight, Download, FileText, ShieldCheck } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { ArrowUpRight, Download, FileText, Fingerprint, ShieldCheck } from 'lucide-react';
+import type { CellSummary } from '../engine/trackRecord';
 import { useResearchData, type SkillRow, type WeatherSkill } from '../engine/researchData';
 import { BarList, FanChart, LineChart, PitHistogram, ReliabilityDiagram } from './charts/Charts';
 
@@ -117,6 +118,8 @@ export function ForecastSkill({ onReport }: { onReport?: () => void }) {
       })}</ol>
     </article>
 
+    <LiveTrackRecord />
+
     <section className="sk-protocol">
       <div>
         <h2>Protocol</h2>
@@ -140,4 +143,63 @@ export function ForecastSkill({ onReport }: { onReport?: () => void }) {
       </div>
     </section>
   </div>;
+}
+
+interface TrackRecordView {
+  enabled: boolean; startDate: string | null; latestSnapshot: string | null; snapshots: number; regionsLatest: number;
+  ledger: { head: string; length: number; ok: boolean }; cases: { total: number; scored: number; pending: number };
+  nextScoresExpected: string | null; methodVersions: Record<string, number>; cells: CellSummary[];
+}
+const dayLabel = (iso: string | null) => (iso ? new Date(`${iso}T12:00:00Z`).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }) : '—');
+const share = (x: number | null | undefined) => (x == null ? '—' : `${Math.round(x * 100)}%`);
+
+/** Prospective record: daily snapshots of the live outlook, hash-chained, scored against ERA5 as it arrives. */
+function LiveTrackRecord() {
+  const [tr, setTr] = useState<TrackRecordView | null>(null);
+  const [failed, setFailed] = useState(false);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch('/api/v1/track-record', { signal: controller.signal })
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then(setTr)
+      .catch((e) => { if (e?.name !== 'AbortError') setFailed(true); });
+    return () => controller.abort();
+  }, []);
+  const cells = tr?.cells ?? [];
+  const value = (c: CellSummary, who: 'outlook' | 'gaussian') => (c.metric === 'crps' ? c[who].crps : c[who].qs);
+  return <section className="sk-card sk-wide sk-track" aria-labelledby="sk-track-title" id="track-record">
+    <div className="sk-track-head">
+      <span className="af-eyebrow">LIVE TRACK RECORD · PROSPECTIVE</span>
+      <h2 id="sk-track-title">Forecasts logged before the weather happened.</h2>
+      <p>Every day after 06:30 UTC the outlook shown on Market overview is frozen for each default region: the calibrated bands, event probabilities, method version and the raw model values behind them. Once ERA5 covers a date (about six days later) it is scored against the raw ensemble and the no-training Gaussian of the same models.</p>
+    </div>
+    {failed && <p className="sk-note">The track record could not be loaded.</p>}
+    {!tr && !failed && <p className="sk-note" role="status">Loading the track record…</p>}
+    {tr && <>
+      <div className="sk-kpis sk-track-kpis">
+        <div><span>Started</span><strong>{dayLabel(tr.startDate)}</strong><small>{tr.latestSnapshot ? `latest snapshot ${dayLabel(tr.latestSnapshot)}` : 'no snapshot yet'}</small></div>
+        <div><span>Snapshots logged</span><strong>{tr.snapshots}</strong><small>{tr.regionsLatest} regions in the latest · {Object.keys(tr.methodVersions).join(', ') || '—'}</small></div>
+        <div><span>Cases scored</span><strong>{tr.cases.scored}</strong><small>{tr.cases.pending} of {tr.cases.total} awaiting ERA5</small></div>
+        <div><span>Ledger head</span><strong className="sk-hash" title={tr.ledger.head}><Fingerprint size={18} />{tr.ledger.head.slice(0, 10)}</strong><small>{tr.ledger.ok ? `${tr.ledger.length} link${tr.ledger.length === 1 ? '' : 's'} · chain verified` : 'chain check failed'}</small></div>
+      </div>
+      <p className="sk-note"><ShieldCheck size={12} /><span>Each snapshot file is hashed into an append-only chain, chain = sha256(previous chain + sha256(file)), committed with the repository; <code>npx tsx research/track-record.ts verify</code> recomputes every link, so an edited or back-filled forecast changes the head shown here.</span></p>
+      {!cells.length ? <div className="sk-track-empty">
+        <strong>No outcome has been scored yet.</strong>
+        <p>ERA5 reanalysis reaches Open-Meteo about six days after each valid date, so the first scores are expected around <b>{dayLabel(tr.nextScoresExpected ?? '2026-11-22')}</b>. Until then the record shows what was forecast and when; skill will appear here as it accrues, including any day or variable where calibration does not help.</p>
+      </div> : <>
+        <div className="sk-table-wrap"><table className="sk-table">
+          <thead><tr><th>Variable</th><th>Lead</th><th>Cases</th><th>Score</th><th>Astraeus</th><th>No-training Gaussian</th><th>Skill vs Gaussian</th><th>Skill vs raw</th><th>80% coverage (A / G / raw)</th><th>Brier (A / G)</th></tr></thead>
+          <tbody>{cells.map((c) => <tr key={`${c.variable}-${c.lead}`}>
+            <td>{VAR_LABEL[c.variable]}</td><td>Day {c.lead}</td><td>{c.n}</td><td>{c.metric === 'crps' ? 'CRPS' : 'QS 10/50/90'}</td>
+            <td>{value(c, 'outlook')?.toFixed(3) ?? '—'}</td><td>{value(c, 'gaussian')?.toFixed(3) ?? '—'}</td>
+            <td>{pct(c.skillVsGaussian)}</td><td>{pct(c.skillVsRaw)}</td>
+            <td>{share(c.outlook.inside80)} / {share(c.gaussian.inside80)} / {share(c.raw.inside80)}</td>
+            <td>{c.outlook.brier == null ? '—' : `${c.outlook.brier.toFixed(3)} / ${c.gaussian.brier?.toFixed(3) ?? '—'}`}</td>
+          </tr>)}</tbody>
+        </table></div>
+        <p className="sk-note">CRPS where the stored band fixes the forecast distribution (Gaussian temperature bands); otherwise QS — twice the mean pinball loss at the 10/50/90 % quantiles — for all three forecasts. Day 0 is the issue date. Small samples: a running log, not a verdict.</p>
+      </>}
+      <div className="sk-actions"><a className="af-button af-outline" href="/api/v1/track-record" target="_blank" rel="noreferrer"><Download size={14} /> Track record (JSON)</a><a className="af-button af-outline" href="/api/v1/track-record/ledger" target="_blank" rel="noreferrer"><Fingerprint size={14} /> Ledger</a></div>
+    </>}
+  </section>;
 }

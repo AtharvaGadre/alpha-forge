@@ -34,6 +34,8 @@ const STATUS = {
 };
 const keyFor = (id: string, region: string) => `${id}:${region}`;
 const signed = (n: number, digits = 1) => `${n > 0 ? '+' : ''}${n.toFixed(digits)}`;
+/** "07:02 UTC", with the date when it is not today (UTC). */
+const utcIssue = (iso: string) => { const d = new Date(iso); const today = new Date().toISOString().slice(0, 10) === iso.slice(0, 10); return `${today ? '' : `${d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', timeZone: 'UTC' })} `}${iso.slice(11, 16)} UTC`; };
 function readWatchlist(): string[] {
   try { const v = JSON.parse(localStorage.getItem('alphaforge-watchlist-v1') || 'null'); if (Array.isArray(v)) return v.filter(id => COMMODITIES.some(c => c.id === id)); } catch {}
   return ['corn', 'coffee', 'natural-gas', 'copper'];
@@ -77,6 +79,27 @@ export function App() {
   const [tab, setTab] = useState<'outlook' | 'evidence' | 'links'>('outlook');
   const requests = useRef(new Set<string>());
   const [scan, setScan] = useState<{ done: number; total: number } | null>(null);
+  const [issued, setIssued] = useState<{ issuedAtUtc: string; count: number } | null>(null);
+  // Daily precomputed outlooks (server job after 06:30 UTC) hydrate the terminal; live runs replace them per key.
+  // Loaded once the visitor leaves the landing page, which does not show them.
+  const outlooksRequested = useRef(false);
+  const inWorkspace = view !== 'home';
+  useEffect(() => {
+    if (!inWorkspace || outlooksRequested.current) return;
+    outlooksRequested.current = true;
+    const controller = new AbortController();
+    fetch('/api/v1/outlooks/latest', { signal: controller.signal })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((file: { issuedAtUtc: string; results: Record<string, CommodityForecast> } | null) => {
+        if (!file?.results) return;
+        const valid = Object.entries(file.results).filter(([k, f]) => f?.evidence?.inputHash && k === keyFor(f.commodityId, f.regionId));
+        setResults((prev) => ({ ...Object.fromEntries(valid), ...prev }));
+        setHistory((prev) => { const next = { ...prev }; for (const [k, f] of valid) if (!next[k]?.length) next[k] = appendForecastSnapshot([], f); return next; });
+        setIssued({ issuedAtUtc: file.issuedAtUtc, count: valid.length });
+      })
+      .catch(() => { outlooksRequested.current = false; });
+    return () => controller.abort();
+  }, [inWorkspace]);
   const selected = COMMODITIES.find(c => c.id === selectedId)!;
   const region = selected.regions.find(r => r.id === regionId) ?? selected.regions[0];
   const activeKey = keyFor(selectedId, region.id);
@@ -102,6 +125,7 @@ export function App() {
       if (!response.ok) throw new Error(data.error || 'The forecast service is unavailable.');
       if (data.commodityId !== c.id || data.regionId !== rid || !data.evidence?.inputHash) throw new Error('The forecast response could not be verified.');
       setResults(prev => ({ ...prev, [key]: data }));
+      if (data.notice) setErrors(e => ({ ...e, [key]: data.notice }));
       setHistory(prev => ({ ...prev, [key]: appendForecastSnapshot(prev[key] ?? [], data) }));
     } catch (error) {
       const message = error instanceof Error && error.name === 'AbortError' ? 'The data providers took too long. Please retry.' : error instanceof Error ? error.message : 'Unable to retrieve live data.';
@@ -146,7 +170,7 @@ export function App() {
       <div className="af-content" key={view}>
         {view !== 'globe' && view !== 'research' && view !== 'accuracy' && view !== 'report' && <div className="af-page-heading"><div><div className="af-eyebrow">THE FORECAST ADVANTAGE</div><h1>{view === 'watchlist' ? 'Your markets. In focus.' : view === 'methodology' ? 'A signal is only as good as its evidence.' : view === 'advanced' ? 'Connect the forecast to the wider market.' : 'See what moves markets.'}</h1><p>From physical forecasts to commodity outlooks. Follow the driver, understand the mechanism, check the evidence.</p></div><button className="af-button af-outline" disabled={!!scan || !watchlist.length || view === 'methodology'} onClick={() => void scanWatchlist()}>{scan ? <Loader2 className="af-spin" size={15} /> : <RefreshCw size={15} />}{scan ? `Analysing ${scan.done}/${scan.total}` : 'Analyse watchlist'}</button></div>}
         <Suspense fallback={<ViewLoading />}>{view === 'accuracy' ? <ForecastSkill onReport={() => navigate('report')} /> : view === 'report' ? <TechnicalReport onSkill={() => navigate('accuracy')} /> : view === 'globe' ? <GlobeLanding commodity={selected} regionId={region.id} results={results} pending={pending} errors={errors} onSelect={(id,rid) => { select(COMMODITIES.find(c => c.id === id)!); setRegionId(rid); }} onRun={() => run(selected,region.id)} onMarkets={() => navigate('markets')} onLab={() => navigate('advanced')} onResearch={()=>navigate('research')} /> : view === 'research' ? <CommodityResearchWorkbench commodity={selected} regionId={region.id} onCommodity={id=>select(COMMODITIES.find(c=>c.id===id)!)} onRegion={setRegionId} onGlobe={()=>navigate('globe')}/> : view === 'methodology' ? <Methodology /> : view === 'advanced' ? <ForecastLab commodity={selected} regionId={region.id} results={results} history={history} pending={pending} errors={errors} onCommodity={id => select(COMMODITIES.find(c => c.id === id)!)} onRegion={setRegionId} onRun={run} /> : <>
-          <section className="af-stats" aria-label="Coverage summary"><div><span>Commodity universe</span><strong>{COMMODITIES.length}<small>across {SECTORS.length} sectors</small></strong><Layers3 size={20} /></div><div><span>Analysed this session</span><strong>{analyzed}<small>of {COMMODITIES.length} commodities</small></strong><Radar size={20} /></div><div><span>Regional pressure signals</span><strong>{material}<small>conditional, not price targets</small></strong><Zap size={20} /></div><div><span>Forecast window</span><strong>7<small>days · weather outlook</small></strong><Globe2 size={20} /></div></section>
+          <section className="af-stats" aria-label="Coverage summary"><div><span>Commodity universe</span><strong>{COMMODITIES.length}<small>across {SECTORS.length} sectors</small></strong><Layers3 size={20} /></div><div><span>Analysed</span><strong>{analyzed}<small>of {COMMODITIES.length} commodities{issued ? ` · daily run ${utcIssue(issued.issuedAtUtc)}` : ''}</small></strong><Radar size={20} /></div><div><span>Regional pressure signals</span><strong>{material}<small>conditional, not price targets</small></strong><Zap size={20} /></div><div><span>Forecast window</span><strong>7<small>days · weather outlook</small></strong><Globe2 size={20} /></div></section>
           <div className="af-workspace">
             <section className="af-universe af-panel">
               <div className="af-panel-heading"><div><span className="af-eyebrow">EXPLORE THE UNIVERSE</span><h2>{view === 'watchlist' ? 'Your watchlist' : 'Commodity monitor'} <span>{filtered.length}</span></h2></div><SlidersHorizontal size={17} /></div>
@@ -162,7 +186,7 @@ export function App() {
                 </div>;
               })}</div>
               {!filtered.length && <div className="af-empty-list"><Search size={24} /><strong>No commodities found</strong><p>Try another search or add markets to your watchlist.</p><button className="af-text-button" onClick={() => { setSearch(''); setSector('All commodities'); navigate('markets'); }}>Show all commodities <ArrowRight size={14} /></button></div>}
-              <div className="af-list-footer"><ShieldCheck size={14} /> Coverage is mapped. Signals require a live analysis.</div>
+              <div className="af-list-footer"><ShieldCheck size={14} /> {issued ? `Daily outlooks issued ${utcIssue(issued.issuedAtUtc)} · run a live forecast for a fresh one.` : 'Coverage is mapped. Signals require a live analysis.'}</div>
             </section>
             <section className="af-detail af-panel" aria-label="Selected commodity research">
               <div className="af-detail-title"><span className="af-eyebrow">COMMODITY DEEP DIVE</span><button aria-label="Export research JSON" disabled={!result} onClick={exportResult}><Download size={17} /></button></div>
@@ -170,7 +194,7 @@ export function App() {
               <div className="af-region"><Globe2 size={15} /><select aria-label="Forecast region" value={region.id} onChange={e => setRegionId(e.target.value)}>{selected.regions.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}</select><ChevronDown size={14} /></div>
               <div className="af-detail-tabs" role="tablist" aria-label="Research detail"><button id="outlook-tab" role="tab" aria-selected={tab === 'outlook'} aria-controls="research-detail" onClick={() => setTab('outlook')} className={tab === 'outlook' ? 'active' : ''}>Forecast outlook</button><button id="links-tab" role="tab" aria-selected={tab === 'links'} aria-controls="research-detail" onClick={() => setTab('links')} className={tab === 'links' ? 'active' : ''}>Linked markets</button><button id="evidence-tab" role="tab" aria-selected={tab === 'evidence'} aria-controls="research-detail" onClick={() => setTab('evidence')} className={tab === 'evidence' ? 'active' : ''}>Evidence & sources</button></div>
               <div id="research-detail" role="tabpanel" aria-labelledby={`${tab}-tab`} className="af-detail-body">
-                <div className="af-analysis-controls"><span><i className={`af-live-dot ${result ? '' : 'muted'}`} />{result ? `Fetched ${new Date(result.sourceGeneratedAtUtc).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : 'Live analysis ready'}</span><button className="af-button af-primary" disabled={loading} onClick={() => void run()}>{loading ? <Loader2 className="af-spin" size={14} /> : <Radar size={14} />}{loading ? 'Analysing…' : result ? 'Refresh analysis' : 'Run forecast'}</button></div>
+                <div className="af-analysis-controls"><span><i className={`af-live-dot ${result ? '' : 'muted'}`} />{result?.precomputed ? `Issued ${utcIssue(result.precomputed.issuedAtUtc)} · precomputed` : result ? `Fetched ${new Date(result.sourceGeneratedAtUtc).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}` : 'Live analysis ready'}</span><button className="af-button af-primary" disabled={loading} onClick={() => void run()}>{loading ? <Loader2 className="af-spin" size={14} /> : <Radar size={14} />}{loading ? 'Analysing…' : result?.precomputed ? 'Run live forecast' : result ? 'Refresh analysis' : 'Run forecast'}</button></div>
                 {loading && <div className="af-loading" role="status"><div className="af-loading-line" /><p>Comparing weather models, climatology and observed prices. This can take a minute.</p></div>}
                 {errors[activeKey] && <div className="af-error" role="alert"><strong>Live analysis unavailable</strong><p>{errors[activeKey]}</p><small>{result ? 'Previous result remains below; it was not refreshed.' : 'No demo result has been substituted.'}</small><button className="af-text-button" onClick={() => void run()} disabled={loading}>Retry <RefreshCw size={13} /></button></div>}
                 {tab === 'outlook' ? <>
