@@ -13,7 +13,7 @@ const METHOD_STYLE: Record<string, { label: string; color: string; dashed?: bool
   'raw-gauss': { label: 'No-training Gaussian', color: 'var(--viz-3)' },
   climatology: { label: 'Climatology', color: 'var(--viz-ref)', dashed: true },
 };
-const TABLE_LABEL: Record<string, string> = { ...Object.fromEntries(Object.entries(METHOD_STYLE).map(([k, v]) => [k, v.label])), 'astraeus-v1': 'Astraeus v1', emos: 'EMOS (classic, 40 d)' };
+const TABLE_LABEL: Record<string, string> = { ...Object.fromEntries(Object.entries(METHOD_STYLE).map(([k, v]) => [k, v.label])), 'astraeus-v1': 'Astraeus v1', 'astraeus-v3': 'Astraeus v3 (live since 16 Nov)', emos: 'EMOS (classic, 40 d)' };
 const pct = (x: number | null | undefined, d = 1) => (x == null || !Number.isFinite(x) ? '—' : `${x > 0 ? '+' : ''}${(x * 100).toFixed(d)}%`);
 const pval = (p: number) => (p < 0.001 ? '< 0.001' : p.toFixed(3));
 

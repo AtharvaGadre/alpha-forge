@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ArrowUpRight, Download, Gauge, Printer } from 'lucide-react';
 import { loadJson, useResearchData, type WeatherSkill } from '../engine/researchData';
-import { buildReport, citeLabel, type ReportBlock } from '../engine/technicalReport';
+import { buildReport, citeLabel, type ReportBlock, type ReportExtras, type TrackSummary } from '../engine/technicalReport';
 import { BarList, LineChart, ReliabilityDiagram } from './charts/Charts';
 import { PriceEvidence } from './landing/Landing';
 import type { ResearchReference } from '../engine/researchLibrary';
@@ -13,14 +13,18 @@ export function TechnicalReport({ onSkill }: { onSkill?: () => void }) {
   const [dev, setDev] = useState<WeatherSkill | null>(null);
   const [run1, setRun1] = useState<WeatherSkill | null>(null);
   const [lib, setLib] = useState<ResearchReference[]>([]);
+  const [extras, setExtras] = useState<ReportExtras>({});
+  const [track, setTrack] = useState<TrackSummary | null>(null);
   useEffect(() => {
     let live = true;
     void loadJson<WeatherSkill>('/research/archive/weather-dev-period.json').then((d) => live && setDev(d));
     void loadJson<WeatherSkill>('/research/archive/weather-run1-devonly.json').then((d) => live && setRun1(d));
     void import('../engine/researchLibrary').then((m) => live && setLib(m.RESEARCH_LIBRARY));
+    void loadJson<ReportExtras>('/research/report-extras.json').then((d) => live && d && setExtras(d));
+    void fetch('/api/v1/track-record').then((r) => (r.ok ? r.json() : null)).then((d) => live && d?.ledger && setTrack(d as TrackSummary)).catch(() => undefined);
     return () => { live = false; };
   }, []);
-  const doc = useMemo(() => (weather ? buildReport(weather, price, dev, run1) : null), [weather, price, dev, run1]);
+  const doc = useMemo(() => (weather ? buildReport(weather, price, dev, run1, { ...extras, track }) : null), [weather, price, dev, run1, extras, track]);
   const byId = useMemo(() => new Map(lib.map((r) => [r.id, r])), [lib]);
   if (!doc || !weather) return <div className="sk-loading" role="status">Assembling the report from the published results…</div>;
   const refs = doc.cited.map((id) => byId.get(id)).filter((r): r is ResearchReference => !!r).sort((a, b) => surname(a).localeCompare(surname(b)) || a.year - b.year);

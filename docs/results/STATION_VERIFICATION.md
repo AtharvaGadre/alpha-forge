@@ -1,6 +1,6 @@
 # Station verification
 
-Generated 2026-11-16T09:58:27.431Z · astraeus-station-verification-v1 · suite final · headline method astraeus-v2
+Generated 2026-11-16T10:09:36.399Z · astraeus-station-verification-v1 · suite final · headline method astraeus-v2
 
 This study answers the first weakness of the ERA5 benchmark: ERA5 is a ~31 km reanalysis, so it rewards smooth forecasts — including ECMWF AIFS, which is trained on it. The same frozen methods are verified against weather-station observations in two modes:
 
@@ -120,6 +120,14 @@ CRPS skill of Astraeus v2 (skill-weighted NGR for temperature; skill-weighted en
 | astraeus-v2 | precip | 3 | 1174 | 2.229 | 2.219 | 0.4% (-0.2%, 1.1%) | 0.201 | 74% / 74% |
 | astraeus-v2 | precip | 5 | 1192 | 2.374 | 2.374 | 0.0% (-0.9%, 0.9%) | 0.949 | 76% / 76% |
 | astraeus-v2 | precip | 7 | 1204 | 2.759 | 2.748 | 0.4% (-0.2%, 0.9%) | 0.260 | 74% / 75% |
+| astraeus-v3 | tmax | 1 | 1222 | 0.956 | 0.858 | 10.2% (5.4%, 14.8%) | 0.014 | 53% / 79% |
+| astraeus-v3 | tmax | 3 | 1333 | 1.11 | 1.033 | 6.9% (3.7%, 10.1%) | 0.003 | 62% / 80% |
+| astraeus-v3 | tmax | 5 | 1340 | 1.292 | 1.247 | 3.5% (0.7%, 6.1%) | 0.031 | 67% / 82% |
+| astraeus-v3 | tmax | 7 | 1389 | 1.693 | 1.648 | 2.6% (0.3%, 4.8%) | 0.087 | 73% / 81% |
+| astraeus-v3 | precip | 1 | 1165 | 2.052 | 2.04 | 0.5% (-0.3%, 1.4%) | 0.275 | 73% / 74% |
+| astraeus-v3 | precip | 3 | 1174 | 2.229 | 2.219 | 0.4% (-0.2%, 1.1%) | 0.201 | 73% / 73% |
+| astraeus-v3 | precip | 5 | 1192 | 2.374 | 2.374 | 0.0% (-0.9%, 0.9%) | 0.949 | 74% / 74% |
+| astraeus-v3 | precip | 7 | 1204 | 2.759 | 2.748 | 0.4% (-0.2%, 0.9%) | 0.260 | 77% / 77% |
 
 ### What changes against stations (confirmation period)
 
@@ -251,6 +259,14 @@ CRPS skill of Astraeus v2 (skill-weighted NGR for temperature; skill-weighted en
 | astraeus-v2 | precip | 3 | 1044 | 1.123 | 1.112 | 1.0% (-0.1%, 2.0%) | 0.149 | 76% / 77% |
 | astraeus-v2 | precip | 5 | 1032 | 1.256 | 1.24 | 1.3% (0.0%, 2.6%) | 0.115 | 79% / 79% |
 | astraeus-v2 | precip | 7 | 1020 | 1.492 | 1.481 | 0.7% (-0.3%, 2.0%) | 0.208 | 78% / 77% |
+| astraeus-v3 | tmax | 1 | 1215 | 1.209 | 1.035 | 14.4% (11.3%, 17.3%) | <0.001 | 53% / 77% |
+| astraeus-v3 | tmax | 3 | 1201 | 1.393 | 1.261 | 9.4% (7.0%, 11.8%) | <0.001 | 58% / 77% |
+| astraeus-v3 | tmax | 5 | 1187 | 1.653 | 1.568 | 5.1% (2.6%, 7.4%) | 0.001 | 63% / 76% |
+| astraeus-v3 | tmax | 7 | 1173 | 2.118 | 2.076 | 2.0% (-0.5%, 4.3%) | 0.204 | 69% / 74% |
+| astraeus-v3 | precip | 1 | 1056 | 1.021 | 1.015 | 0.7% (-0.4%, 2.0%) | 0.370 | 73% / 74% |
+| astraeus-v3 | precip | 3 | 1044 | 1.123 | 1.112 | 1.0% (-0.1%, 2.0%) | 0.149 | 76% / 76% |
+| astraeus-v3 | precip | 5 | 1032 | 1.256 | 1.24 | 1.3% (0.0%, 2.6%) | 0.115 | 78% / 78% |
+| astraeus-v3 | precip | 7 | 1020 | 1.492 | 1.481 | 0.7% (-0.3%, 2.0%) | 0.208 | 75% / 76% |
 
 ## All methods on station truth (confirmation period)
 
@@ -264,48 +280,56 @@ CRPS skill of Astraeus v2 (skill-weighted NGR for temperature; skill-weighted en
 | tmax | 1 | Astraeus v1 (inverse-MSE weights + spread inflation) | 1222 | 0.968 | 59.1% | 3.9% (3.2%, 4.8%) | 1.3% (0.5%, 2.1%) | 1.311 | -0.287 | 59.2% | 12% / 28% |
 | tmax | 1 | EMOS (Gneiting et al. 2005; censored Gaussian for rain) | 1222 | 1.001 | 57.7% | 0.7% (-3.1%, 4.0%) | -2.0% (-6.2%, 1.5%) | 1.306 | -0.11 | 49.6% | 18% / 32% |
 | tmax | 1 | Astraeus v2 (skill-weighted NGR for temperature; skill-weighted ensemble for rain; 90-day window) | 1222 | 0.97 | 59.0% | 3.7% (0.7%, 6.6%) | 1.1% (-2.4%, 4.3%) | 1.269 | -0.088 | 50.4% | 18% / 32% |
+| tmax | 1 | Astraeus v3 (logistic skill-weighted NGR, recency-weighted, CV-recalibrated scale, for temperature; skill-weighted ensemble for rain; 90-day window) | 1222 | 0.956 | 59.6% | 5.1% (1.9%, 8.1%) | 2.5% (-1.1%, 5.8%) | 1.262 | -0.112 | 52.9% | 17% / 30% |
 | tmax | 3 | Climatology (station record; ERA5 where too short) | 1333 | 2.396 | 0.0% | -99.9% (-113.7%, -86.7%) | -107.3% (-121.3%, -93.8%) | 3.403 | -0.399 | 79.1% | 8% / 13% |
 | tmax | 3 | Raw multi-model ensemble | 1333 | 1.199 | 50.0% | 0.0% (0.0%, 0.0%) | -3.7% (-4.4%, -3.0%) | 1.576 | -0.303 | 74.6% | 8% / 18% |
 | tmax | 3 | Raw-ensemble Gaussian (no training) | 1333 | 1.155 | 51.8% | 3.6% (2.9%, 4.2%) | 0.0%  | 1.576 | -0.303 | 65.6% | 10% / 24% |
 | tmax | 3 | Astraeus v1 (inverse-MSE weights + spread inflation) | 1333 | 1.137 | 52.5% | 5.1% (4.2%, 6.0%) | 1.6% (0.7%, 2.5%) | 1.54 | -0.321 | 61.8% | 11% / 27% |
 | tmax | 3 | EMOS (Gneiting et al. 2005; censored Gaussian for rain) | 1333 | 1.158 | 51.7% | 3.4% (0.1%, 6.7%) | -0.2% (-3.8%, 3.2%) | 1.541 | -0.067 | 56.9% | 16% / 27% |
 | tmax | 3 | Astraeus v2 (skill-weighted NGR for temperature; skill-weighted ensemble for rain; 90-day window) | 1333 | 1.114 | 53.5% | 7.0% (3.8%, 10.5%) | 3.6% (0.0%, 7.4%) | 1.494 | -0.001 | 59.4% | 17% / 24% |
+| tmax | 3 | Astraeus v3 (logistic skill-weighted NGR, recency-weighted, CV-recalibrated scale, for temperature; skill-weighted ensemble for rain; 90-day window) | 1333 | 1.11 | 53.7% | 7.4% (4.3%, 10.7%) | 3.9% (0.5%, 7.6%) | 1.493 | -0.041 | 61.6% | 16% / 23% |
 | tmax | 5 | Climatology (station record; ERA5 where too short) | 1340 | 2.375 | 0.0% | -68.7% (-81.3%, -57.7%) | -75.3% (-88.2%, -63.8%) | 3.373 | -0.413 | 78.3% | 9% / 13% |
 | tmax | 5 | Raw multi-model ensemble | 1340 | 1.407 | 40.7% | 0.0% (0.0%, 0.0%) | -3.9% (-4.5%, -3.3%) | 1.854 | -0.272 | 75.8% | 7% / 17% |
 | tmax | 5 | Raw-ensemble Gaussian (no training) | 1340 | 1.355 | 42.9% | 3.7% (3.2%, 4.3%) | 0.0%  | 1.854 | -0.272 | 65.6% | 11% / 24% |
 | tmax | 5 | Astraeus v1 (inverse-MSE weights + spread inflation) | 1340 | 1.337 | 43.7% | 5.0% (4.4%, 5.7%) | 1.3% (0.6%, 2.1%) | 1.82 | -0.312 | 62.2% | 12% / 26% |
 | tmax | 5 | EMOS (Gneiting et al. 2005; censored Gaussian for rain) | 1340 | 1.362 | 42.6% | 3.2% (-0.2%, 6.0%) | -0.5% (-4.1%, 2.6%) | 1.861 | -0.074 | 63.1% | 15% / 22% |
 | tmax | 5 | Astraeus v2 (skill-weighted NGR for temperature; skill-weighted ensemble for rain; 90-day window) | 1340 | 1.292 | 45.6% | 8.2% (5.2%, 11.2%) | 4.7% (1.4%, 7.7%) | 1.766 | 0.071 | 64.2% | 16% / 20% |
+| tmax | 5 | Astraeus v3 (logistic skill-weighted NGR, recency-weighted, CV-recalibrated scale, for temperature; skill-weighted ensemble for rain; 90-day window) | 1340 | 1.292 | 45.6% | 8.2% (5.3%, 11.0%) | 4.7% (1.5%, 7.7%) | 1.772 | -0.004 | 67.4% | 14% / 19% |
 | tmax | 7 | Climatology (station record; ERA5 where too short) | 1389 | 2.414 | 0.0% | -31.3% (-42.5%, -23.9%) | -37.3% (-48.7%, -29.3%) | 3.427 | -0.508 | 78.8% | 8% / 13% |
 | tmax | 7 | Raw multi-model ensemble | 1389 | 1.838 | 23.9% | 0.0% (0.0%, 0.0%) | -4.5% (-5.1%, -3.8%) | 2.402 | -0.332 | 76.5% | 9% / 15% |
 | tmax | 7 | Raw-ensemble Gaussian (no training) | 1389 | 1.758 | 27.1% | 4.3% (3.7%, 4.9%) | 0.0%  | 2.402 | -0.332 | 62.8% | 13% / 24% |
 | tmax | 7 | Astraeus v1 (inverse-MSE weights + spread inflation) | 1389 | 1.735 | 28.1% | 5.6% (4.8%, 6.2%) | 1.3% (0.6%, 1.8%) | 2.374 | -0.384 | 65.1% | 12% / 23% |
 | tmax | 7 | EMOS (Gneiting et al. 2005; censored Gaussian for rain) | 1389 | 1.764 | 26.9% | 4.0% (-0.2%, 8.0%) | -0.3% (-4.8%, 3.8%) | 2.408 | 0.113 | 67.0% | 17% / 16% |
 | tmax | 7 | Astraeus v2 (skill-weighted NGR for temperature; skill-weighted ensemble for rain; 90-day window) | 1389 | 1.715 | 28.9% | 6.7% (3.4%, 10.4%) | 2.5% (-0.8%, 6.3%) | 2.359 | 0.24 | 69.9% | 16% / 14% |
+| tmax | 7 | Astraeus v3 (logistic skill-weighted NGR, recency-weighted, CV-recalibrated scale, for temperature; skill-weighted ensemble for rain; 90-day window) | 1389 | 1.693 | 29.8% | 7.9% (4.4%, 11.7%) | 3.7% (0.2%, 7.7%) | 2.325 | 0.163 | 73.3% | 14% / 12% |
 | precip | 1 | Climatology (station record; ERA5 where too short) | 1165 | 2.607 | 0.0% | -27.5% (-38.3%, -14.8%) | -22.2% (-34.1%, -8.7%) | 4.393 | -0.146 | 79.1% | 11% / 10% |
 | precip | 1 | Raw multi-model ensemble | 1165 | 2.045 | 21.5% | 0.0% (0.0%, 0.0%) | 4.1% (1.9%, 6.9%) | 2.872 | 0.088 | 73.1% | 16% / 11% |
 | precip | 1 | Raw-ensemble Gaussian (no training) | 1165 | 2.133 | 18.2% | -4.3% (-7.4%, -1.9%) | 0.0%  | 3.025 | 0.309 | 63.9% | 25% / 11% |
 | precip | 1 | Astraeus v1 (inverse-MSE weights + spread inflation) | 1165 | 2.137 | 18.0% | -4.5% (-7.6%, -2.0%) | -0.2% (-2.0%, 1.5%) | 3.03 | 0.326 | 63.3% | 27% / 10% |
 | precip | 1 | EMOS (Gneiting et al. 2005; censored Gaussian for rain) | 1165 | 2.244 | 13.9% | -9.7% (-20.1%, -2.4%) | -5.2% (-14.7%, 2.0%) | 2.885 | -0.245 | 69.0% | 17% / 14% |
 | precip | 1 | Astraeus v2 (skill-weighted NGR for temperature; skill-weighted ensemble for rain; 90-day window) | 1165 | 2.052 | 21.3% | -0.3% (-1.9%, 1.1%) | 3.8% (0.9%, 7.0%) | 2.8 | 0.058 | 73.1% | 16% / 11% |
+| precip | 1 | Astraeus v3 (logistic skill-weighted NGR, recency-weighted, CV-recalibrated scale, for temperature; skill-weighted ensemble for rain; 90-day window) | 1165 | 2.052 | 21.3% | -0.3% (-1.9%, 1.1%) | 3.8% (0.9%, 7.0%) | 2.8 | 0.058 | 72.7% | 16% / 12% |
 | precip | 3 | Climatology (station record; ERA5 where too short) | 1174 | 2.692 | 0.0% | -21.2% (-32.7%, -10.1%) | -20.0% (-32.4%, -8.2%) | 4.469 | -0.249 | 79.2% | 10% / 11% |
 | precip | 3 | Raw multi-model ensemble | 1174 | 2.221 | 17.5% | 0.0% (0.0%, 0.0%) | 1.0% (-0.3%, 2.7%) | 2.923 | -0.243 | 73.7% | 16% / 11% |
 | precip | 3 | Raw-ensemble Gaussian (no training) | 1174 | 2.244 | 16.6% | -1.0% (-2.8%, 0.3%) | 0.0%  | 3.029 | -0.05 | 64.7% | 25% / 11% |
 | precip | 3 | Astraeus v1 (inverse-MSE weights + spread inflation) | 1174 | 2.241 | 16.8% | -0.9% (-3.4%, 0.8%) | 0.1% (-1.1%, 1.1%) | 3.1 | 0.061 | 66.3% | 25% / 9% |
 | precip | 3 | EMOS (Gneiting et al. 2005; censored Gaussian for rain) | 1174 | 2.413 | 10.3% | -8.7% (-23.5%, 2.0%) | -7.5% (-21.7%, 2.8%) | 3.122 | -0.238 | 71.1% | 15% / 14% |
 | precip | 3 | Astraeus v2 (skill-weighted NGR for temperature; skill-weighted ensemble for rain; 90-day window) | 1174 | 2.229 | 17.2% | -0.4% (-1.1%, 0.3%) | 0.7% (-0.8%, 2.4%) | 2.911 | -0.246 | 73.5% | 17% / 9% |
+| precip | 3 | Astraeus v3 (logistic skill-weighted NGR, recency-weighted, CV-recalibrated scale, for temperature; skill-weighted ensemble for rain; 90-day window) | 1174 | 2.229 | 17.2% | -0.4% (-1.1%, 0.3%) | 0.7% (-0.8%, 2.4%) | 2.911 | -0.246 | 73.1% | 16% / 11% |
 | precip | 5 | Climatology (station record; ERA5 where too short) | 1192 | 2.73 | 0.0% | -14.5% (-26.5%, -4.6%) | -10.5% (-22.4%, -0.6%) | 4.499 | -0.294 | 80.5% | 9% / 11% |
 | precip | 5 | Raw multi-model ensemble | 1192 | 2.385 | 12.6% | 0.0% (0.0%, 0.0%) | 3.5% (2.4%, 4.8%) | 3.322 | -0.296 | 75.7% | 15% / 10% |
 | precip | 5 | Raw-ensemble Gaussian (no training) | 1192 | 2.472 | 9.5% | -3.6% (-5.0%, -2.4%) | 0.0%  | 3.489 | -0.007 | 63.9% | 24% / 12% |
 | precip | 5 | Astraeus v1 (inverse-MSE weights + spread inflation) | 1192 | 2.455 | 10.1% | -2.9% (-5.0%, -1.6%) | 0.7% (-0.7%, 1.4%) | 3.558 | 0.151 | 67.5% | 23% / 10% |
 | precip | 5 | EMOS (Gneiting et al. 2005; censored Gaussian for rain) | 1192 | 2.791 | -2.2% | -17.0% (-42.7%, -2.6%) | -12.9% (-37.6%, 1.2%) | 3.757 | 0.123 | 74.2% | 13% / 13% |
 | precip | 5 | Astraeus v2 (skill-weighted NGR for temperature; skill-weighted ensemble for rain; 90-day window) | 1192 | 2.374 | 13.0% | 0.4% (-0.5%, 1.4%) | 3.9% (2.5%, 5.5%) | 3.286 | -0.29 | 75.6% | 14% / 10% |
+| precip | 5 | Astraeus v3 (logistic skill-weighted NGR, recency-weighted, CV-recalibrated scale, for temperature; skill-weighted ensemble for rain; 90-day window) | 1192 | 2.374 | 13.0% | 0.4% (-0.5%, 1.4%) | 3.9% (2.5%, 5.5%) | 3.286 | -0.29 | 73.7% | 15% / 11% |
 | precip | 7 | Climatology (station record; ERA5 where too short) | 1204 | 2.709 | 0.0% | 2.4% (-3.6%, 8.6%) | 5.7% (-1.1%, 12.5%) | 4.473 | -0.274 | 80.5% | 9% / 11% |
 | precip | 7 | Raw multi-model ensemble | 1204 | 2.776 | -2.5% | 0.0% (0.0%, 0.0%) | 3.4% (1.8%, 5.2%) | 3.777 | -0.28 | 76.2% | 15% / 9% |
 | precip | 7 | Raw-ensemble Gaussian (no training) | 1204 | 2.873 | -6.1% | -3.5% (-5.5%, -1.8%) | 0.0%  | 3.995 | 0.088 | 58.6% | 29% / 12% |
 | precip | 7 | Astraeus v1 (inverse-MSE weights + spread inflation) | 1204 | 2.877 | -6.2% | -3.6% (-6.8%, -0.9%) | -0.1% (-2.1%, 1.7%) | 4.188 | 0.389 | 66.0% | 24% / 10% |
 | precip | 7 | EMOS (Gneiting et al. 2005; censored Gaussian for rain) | 1204 | 2.712 | -0.1% | 2.3% (-2.1%, 8.2%) | 5.6% (1.0%, 11.7%) | 3.876 | -0.482 | 75.9% | 12% / 12% |
 | precip | 7 | Astraeus v2 (skill-weighted NGR for temperature; skill-weighted ensemble for rain; 90-day window) | 1204 | 2.759 | -1.8% | 0.6% (-0.1%, 1.5%) | 4.0% (2.3%, 6.0%) | 3.729 | -0.344 | 74.3% | 16% / 9% |
+| precip | 7 | Astraeus v3 (logistic skill-weighted NGR, recency-weighted, CV-recalibrated scale, for temperature; skill-weighted ensemble for rain; 90-day window) | 1204 | 2.759 | -1.8% | 0.6% (-0.1%, 1.5%) | 4.0% (2.3%, 6.0%) | 3.729 | -0.344 | 77.3% | 14% / 9% |
 
 ### Stations · trained on stations
 
@@ -317,48 +341,56 @@ CRPS skill of Astraeus v2 (skill-weighted NGR for temperature; skill-weighted en
 | tmax | 1 | Astraeus v1 (inverse-MSE weights + spread inflation) | 1222 | 0.941 | 60.2% | 6.6% (5.3%, 7.8%) | 4.1% (2.9%, 5.0%) | 1.301 | -0.248 | 73.1% | 10% / 17% |
 | tmax | 1 | EMOS (Gneiting et al. 2005; censored Gaussian for rain) | 1222 | 0.877 | 62.9% | 13.0% (9.2%, 16.6%) | 10.6% (6.7%, 14.3%) | 1.204 | 0.127 | 75.9% | 13% / 12% |
 | tmax | 1 | Astraeus v2 (skill-weighted NGR for temperature; skill-weighted ensemble for rain; 90-day window) | 1222 | 0.872 | 63.2% | 13.5% (9.9%, 17.0%) | 11.1% (7.4%, 14.7%) | 1.195 | 0.218 | 78.2% | 13% / 9% |
+| tmax | 1 | Astraeus v3 (logistic skill-weighted NGR, recency-weighted, CV-recalibrated scale, for temperature; skill-weighted ensemble for rain; 90-day window) | 1222 | 0.858 | 63.7% | 14.8% (11.1%, 18.4%) | 12.5% (8.6%, 16.0%) | 1.176 | 0.194 | 79.4% | 12% / 8% |
 | tmax | 3 | Climatology (station record; ERA5 where too short) | 1333 | 2.396 | 0.0% | -99.9% (-113.7%, -86.7%) | -107.3% (-121.3%, -93.8%) | 3.403 | -0.399 | 79.1% | 8% / 13% |
 | tmax | 3 | Raw multi-model ensemble | 1333 | 1.199 | 50.0% | 0.0% (0.0%, 0.0%) | -3.7% (-4.4%, -3.0%) | 1.576 | -0.303 | 74.6% | 8% / 18% |
 | tmax | 3 | Raw-ensemble Gaussian (no training) | 1333 | 1.155 | 51.8% | 3.6% (2.9%, 4.2%) | 0.0%  | 1.576 | -0.303 | 65.6% | 10% / 24% |
 | tmax | 3 | Astraeus v1 (inverse-MSE weights + spread inflation) | 1333 | 1.126 | 53.0% | 6.0% (5.1%, 6.9%) | 2.5% (1.6%, 3.4%) | 1.543 | -0.288 | 73.4% | 8% / 18% |
 | tmax | 3 | EMOS (Gneiting et al. 2005; censored Gaussian for rain) | 1333 | 1.06 | 55.8% | 11.6% (7.9%, 14.9%) | 8.3% (4.5%, 11.9%) | 1.445 | 0.178 | 77.0% | 14% / 9% |
 | tmax | 3 | Astraeus v2 (skill-weighted NGR for temperature; skill-weighted ensemble for rain; 90-day window) | 1333 | 1.035 | 56.8% | 13.6% (10.5%, 16.7%) | 10.4% (7.1%, 13.7%) | 1.41 | 0.274 | 79.5% | 13% / 7% |
+| tmax | 3 | Astraeus v3 (logistic skill-weighted NGR, recency-weighted, CV-recalibrated scale, for temperature; skill-weighted ensemble for rain; 90-day window) | 1333 | 1.033 | 56.9% | 13.8% (10.3%, 17.0%) | 10.6% (7.0%, 14.0%) | 1.411 | 0.23 | 80.2% | 13% / 7% |
 | tmax | 5 | Climatology (station record; ERA5 where too short) | 1340 | 2.375 | 0.0% | -68.7% (-81.3%, -57.7%) | -75.3% (-88.2%, -63.8%) | 3.373 | -0.413 | 78.3% | 9% / 13% |
 | tmax | 5 | Raw multi-model ensemble | 1340 | 1.407 | 40.7% | 0.0% (0.0%, 0.0%) | -3.9% (-4.5%, -3.3%) | 1.854 | -0.272 | 75.8% | 7% / 17% |
 | tmax | 5 | Raw-ensemble Gaussian (no training) | 1340 | 1.355 | 42.9% | 3.7% (3.2%, 4.3%) | 0.0%  | 1.854 | -0.272 | 65.6% | 11% / 24% |
 | tmax | 5 | Astraeus v1 (inverse-MSE weights + spread inflation) | 1340 | 1.325 | 44.2% | 5.8% (5.2%, 6.7%) | 2.2% (1.5%, 3.1%) | 1.823 | -0.283 | 71.3% | 10% / 19% |
 | tmax | 5 | EMOS (Gneiting et al. 2005; censored Gaussian for rain) | 1340 | 1.292 | 45.6% | 8.2% (4.0%, 11.6%) | 4.6% (0.1%, 8.3%) | 1.785 | 0.187 | 77.2% | 13% / 10% |
 | tmax | 5 | Astraeus v2 (skill-weighted NGR for temperature; skill-weighted ensemble for rain; 90-day window) | 1340 | 1.245 | 47.6% | 11.6% (8.4%, 14.4%) | 8.2% (4.6%, 11.3%) | 1.711 | 0.32 | 80.0% | 12% / 8% |
+| tmax | 5 | Astraeus v3 (logistic skill-weighted NGR, recency-weighted, CV-recalibrated scale, for temperature; skill-weighted ensemble for rain; 90-day window) | 1340 | 1.247 | 47.5% | 11.4% (7.9%, 14.4%) | 8.0% (4.2%, 11.1%) | 1.72 | 0.251 | 81.6% | 11% / 7% |
 | tmax | 7 | Climatology (station record; ERA5 where too short) | 1389 | 2.414 | 0.0% | -31.3% (-42.5%, -23.9%) | -37.3% (-48.7%, -29.3%) | 3.427 | -0.508 | 78.8% | 8% / 13% |
 | tmax | 7 | Raw multi-model ensemble | 1389 | 1.838 | 23.9% | 0.0% (0.0%, 0.0%) | -4.5% (-5.1%, -3.8%) | 2.402 | -0.332 | 76.5% | 9% / 15% |
 | tmax | 7 | Raw-ensemble Gaussian (no training) | 1389 | 1.758 | 27.1% | 4.3% (3.7%, 4.9%) | 0.0%  | 2.402 | -0.332 | 62.8% | 13% / 24% |
 | tmax | 7 | Astraeus v1 (inverse-MSE weights + spread inflation) | 1389 | 1.724 | 28.6% | 6.2% (5.1%, 6.8%) | 1.9% (0.8%, 2.7%) | 2.377 | -0.372 | 72.0% | 10% / 18% |
 | tmax | 7 | EMOS (Gneiting et al. 2005; censored Gaussian for rain) | 1389 | 1.699 | 29.6% | 7.6% (2.4%, 12.1%) | 3.4% (-1.9%, 8.2%) | 2.322 | 0.341 | 76.2% | 15% / 9% |
 | tmax | 7 | Astraeus v2 (skill-weighted NGR for temperature; skill-weighted ensemble for rain; 90-day window) | 1389 | 1.663 | 31.1% | 9.5% (5.7%, 13.7%) | 5.4% (1.5%, 9.8%) | 2.281 | 0.49 | 78.3% | 14% / 8% |
+| tmax | 7 | Astraeus v3 (logistic skill-weighted NGR, recency-weighted, CV-recalibrated scale, for temperature; skill-weighted ensemble for rain; 90-day window) | 1389 | 1.648 | 31.7% | 10.3% (5.9%, 14.5%) | 6.3% (1.7%, 10.7%) | 2.247 | 0.407 | 80.6% | 13% / 6% |
 | precip | 1 | Climatology (station record; ERA5 where too short) | 1165 | 2.607 | 0.0% | -27.5% (-38.3%, -14.8%) | -22.2% (-34.1%, -8.7%) | 4.393 | -0.146 | 79.1% | 11% / 10% |
 | precip | 1 | Raw multi-model ensemble | 1165 | 2.045 | 21.5% | 0.0% (0.0%, 0.0%) | 4.1% (1.9%, 6.9%) | 2.872 | 0.088 | 73.1% | 16% / 11% |
 | precip | 1 | Raw-ensemble Gaussian (no training) | 1165 | 2.133 | 18.2% | -4.3% (-7.4%, -1.9%) | 0.0%  | 3.025 | 0.309 | 63.9% | 25% / 11% |
 | precip | 1 | Astraeus v1 (inverse-MSE weights + spread inflation) | 1165 | 2.181 | 16.4% | -6.6% (-11.5%, -3.0%) | -2.2% (-5.0%, 0.2%) | 3.309 | 0.713 | 69.8% | 22% / 8% |
 | precip | 1 | EMOS (Gneiting et al. 2005; censored Gaussian for rain) | 1165 | 2.629 | -0.9% | -28.6% (-74.8%, -0.5%) | -23.3% (-66.8%, 3.1%) | 3.483 | 0.362 | 76.3% | 12% / 12% |
 | precip | 1 | Astraeus v2 (skill-weighted NGR for temperature; skill-weighted ensemble for rain; 90-day window) | 1165 | 2.04 | 21.7% | 0.2% (-1.2%, 1.5%) | 4.3% (1.5%, 7.5%) | 2.805 | 0.045 | 73.9% | 15% / 11% |
+| precip | 1 | Astraeus v3 (logistic skill-weighted NGR, recency-weighted, CV-recalibrated scale, for temperature; skill-weighted ensemble for rain; 90-day window) | 1165 | 2.04 | 21.7% | 0.2% (-1.2%, 1.5%) | 4.3% (1.5%, 7.5%) | 2.805 | 0.045 | 73.7% | 15% / 11% |
 | precip | 3 | Climatology (station record; ERA5 where too short) | 1174 | 2.692 | 0.0% | -21.2% (-32.7%, -10.1%) | -20.0% (-32.4%, -8.2%) | 4.469 | -0.249 | 79.2% | 10% / 11% |
 | precip | 3 | Raw multi-model ensemble | 1174 | 2.221 | 17.5% | 0.0% (0.0%, 0.0%) | 1.0% (-0.3%, 2.7%) | 2.923 | -0.243 | 73.7% | 16% / 11% |
 | precip | 3 | Raw-ensemble Gaussian (no training) | 1174 | 2.244 | 16.6% | -1.0% (-2.8%, 0.3%) | 0.0%  | 3.029 | -0.05 | 64.7% | 25% / 11% |
 | precip | 3 | Astraeus v1 (inverse-MSE weights + spread inflation) | 1174 | 2.265 | 15.9% | -2.0% (-6.0%, 0.9%) | -0.9% (-4.0%, 1.3%) | 3.35 | 0.442 | 70.7% | 21% / 8% |
 | precip | 3 | EMOS (Gneiting et al. 2005; censored Gaussian for rain) | 1174 | 2.328 | 13.5% | -4.8% (-10.8%, 4.7%) | -3.8% (-9.3%, 5.8%) | 3.249 | -0.225 | 75.2% | 11% / 14% |
 | precip | 3 | Astraeus v2 (skill-weighted NGR for temperature; skill-weighted ensemble for rain; 90-day window) | 1174 | 2.219 | 17.6% | 0.1% (-0.5%, 0.6%) | 1.1% (-0.3%, 2.8%) | 2.914 | -0.24 | 74.3% | 16% / 9% |
+| precip | 3 | Astraeus v3 (logistic skill-weighted NGR, recency-weighted, CV-recalibrated scale, for temperature; skill-weighted ensemble for rain; 90-day window) | 1174 | 2.219 | 17.6% | 0.1% (-0.5%, 0.6%) | 1.1% (-0.3%, 2.8%) | 2.914 | -0.24 | 73.0% | 16% / 11% |
 | precip | 5 | Climatology (station record; ERA5 where too short) | 1192 | 2.73 | 0.0% | -14.5% (-26.5%, -4.6%) | -10.5% (-22.4%, -0.6%) | 4.499 | -0.294 | 80.5% | 9% / 11% |
 | precip | 5 | Raw multi-model ensemble | 1192 | 2.385 | 12.6% | 0.0% (0.0%, 0.0%) | 3.5% (2.4%, 4.8%) | 3.322 | -0.296 | 75.7% | 15% / 10% |
 | precip | 5 | Raw-ensemble Gaussian (no training) | 1192 | 2.472 | 9.5% | -3.6% (-5.0%, -2.4%) | 0.0%  | 3.489 | -0.007 | 63.9% | 24% / 12% |
 | precip | 5 | Astraeus v1 (inverse-MSE weights + spread inflation) | 1192 | 2.492 | 8.7% | -4.5% (-7.8%, -2.4%) | -0.8% (-3.4%, 0.7%) | 3.813 | 0.563 | 71.0% | 20% / 9% |
 | precip | 5 | EMOS (Gneiting et al. 2005; censored Gaussian for rain) | 1192 | 2.729 | 0.0% | -14.4% (-40.8%, -1.5%) | -10.4% (-35.7%, 2.2%) | 3.864 | 0.164 | 77.6% | 11% / 12% |
 | precip | 5 | Astraeus v2 (skill-weighted NGR for temperature; skill-weighted ensemble for rain; 90-day window) | 1192 | 2.374 | 13.1% | 0.5% (-0.4%, 1.3%) | 4.0% (2.5%, 5.5%) | 3.287 | -0.302 | 75.9% | 14% / 10% |
+| precip | 5 | Astraeus v3 (logistic skill-weighted NGR, recency-weighted, CV-recalibrated scale, for temperature; skill-weighted ensemble for rain; 90-day window) | 1192 | 2.374 | 13.1% | 0.5% (-0.4%, 1.3%) | 4.0% (2.5%, 5.5%) | 3.287 | -0.302 | 73.8% | 15% / 11% |
 | precip | 7 | Climatology (station record; ERA5 where too short) | 1204 | 2.709 | 0.0% | 2.4% (-3.6%, 8.6%) | 5.7% (-1.1%, 12.5%) | 4.473 | -0.274 | 80.5% | 9% / 11% |
 | precip | 7 | Raw multi-model ensemble | 1204 | 2.776 | -2.5% | 0.0% (0.0%, 0.0%) | 3.4% (1.8%, 5.2%) | 3.777 | -0.28 | 76.2% | 15% / 9% |
 | precip | 7 | Raw-ensemble Gaussian (no training) | 1204 | 2.873 | -6.1% | -3.5% (-5.5%, -1.8%) | 0.0%  | 3.995 | 0.088 | 58.6% | 29% / 12% |
 | precip | 7 | Astraeus v1 (inverse-MSE weights + spread inflation) | 1204 | 2.891 | -6.7% | -4.1% (-7.1%, -1.2%) | -0.6% (-2.4%, 1.5%) | 4.365 | 0.665 | 69.3% | 22% / 9% |
 | precip | 7 | EMOS (Gneiting et al. 2005; censored Gaussian for rain) | 1204 | 2.844 | -5.0% | -2.4% (-8.4%, 5.5%) | 1.0% (-4.5%, 9.1%) | 4.227 | 0.039 | 76.7% | 11% / 12% |
 | precip | 7 | Astraeus v2 (skill-weighted NGR for temperature; skill-weighted ensemble for rain; 90-day window) | 1204 | 2.748 | -1.5% | 1.0% (0.3%, 2.0%) | 4.3% (2.5%, 6.5%) | 3.72 | -0.37 | 74.9% | 16% / 9% |
+| precip | 7 | Astraeus v3 (logistic skill-weighted NGR, recency-weighted, CV-recalibrated scale, for temperature; skill-weighted ensemble for rain; 90-day window) | 1204 | 2.748 | -1.5% | 1.0% (0.3%, 2.0%) | 4.3% (2.5%, 6.5%) | 3.72 | -0.37 | 77.4% | 14% / 8% |
 
 ## Caveats
 

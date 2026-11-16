@@ -8,6 +8,7 @@ import path from 'node:path';
 import { buildReport, citeLabel } from '../src/engine/technicalReport';
 import { RESEARCH_LIBRARY } from '../src/engine/researchLibrary';
 import type { PriceSkill, WeatherSkill } from '../src/engine/researchData';
+import type { AreaArchive, ReportExtras, StationArchive, TrackSummary, V3Tests } from '../src/engine/technicalReport';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const read = <T>(p: string): T | null => (existsSync(path.join(ROOT, p)) ? JSON.parse(readFileSync(path.join(ROOT, p), 'utf8')) : null);
@@ -19,7 +20,33 @@ if (fullPrice) {
   writeFileSync(path.join(ROOT, 'public', 'research', 'price-summary.json'), JSON.stringify({ ...rest, source: '/research/price-skill.json', rows: rows.map(({ cumulativeSseGain, predictions, paths, ...r }: any) => r) }));
 }
 if (!weather) throw new Error('public/research/weather-skill.json missing — run the benchmark first.');
-const doc = buildReport(weather, read<PriceSkill>('public/research/price-skill.json'), read<WeatherSkill>('public/research/archive/weather-dev-period.json'), read<WeatherSkill>('public/research/archive/weather-run1-devonly.json'));
+
+// Slim extras for the report page (the archive files they come from stay the source of record).
+const v3devFull = read<WeatherSkill>('public/research/archive/weather-v3-dev.json');
+const stationsFull = read<any>('public/research/archive/weather-stations-confirm.json');
+const areasFull = read<any>('public/research/archive/weather-areas-confirm.json');
+const extras: ReportExtras = {
+  v3dev: v3devFull ? ({ ...v3devFull, summary: v3devFull.summary.filter((x) => x.variable !== 'precip'), significance: [], bySite: [], singleModels: [], examples: undefined } as unknown as WeatherSkill) : null,
+  v3tests: read<V3Tests>('public/research/archive/weather-v3-vs-v2-dm.json'),
+  stations: stationsFull ? ({
+    stations: {
+      sites: stationsFull.stations.sites.map((x: any) => ({ site: x.site, name: x.name, tmax: x.tmax && { source: x.tmax.source, name: x.tmax.name, distanceKm: x.tmax.distanceKm }, precip: x.precip && { source: x.precip.source, name: x.precip.name, distanceKm: x.precip.distanceKm } })),
+      excluded: stationsFull.stations.excluded,
+    },
+    chain: stationsFull.chain,
+    singleModelRanking: stationsFull.singleModelRanking,
+    caveats: stationsFull.caveats,
+  } as StationArchive) : null,
+  areas: areasFull ? ({
+    areas: { areas: areasFull.areas.areas.map((x: any) => ({ id: x.id, name: x.name, commodity: x.commodity, measure: x.measure, year: x.year, sources: x.sources.map((y: any) => ({ title: y.title, url: y.url })) })) },
+    comparisons: areasFull.comparisons.filter((x: any) => x.scope === 'pooled'),
+    caveats: areasFull.caveats,
+  } as AreaArchive) : null,
+  storage: read<any>('public/research/storage-summary.json'),
+};
+writeFileSync(path.join(ROOT, 'public', 'research', 'report-extras.json'), JSON.stringify(extras));
+const track = read<TrackSummary>('data/track-record/summary.json');
+const doc = buildReport(weather, read<PriceSkill>('public/research/price-skill.json'), read<WeatherSkill>('public/research/archive/weather-dev-period.json'), read<WeatherSkill>('public/research/archive/weather-run1-devonly.json'), { ...extras, track });
 const byId = new Map(RESEARCH_LIBRARY.map((r) => [r.id, r]));
 const cite = (t: string) => t.replace(/\[(@[a-z0-9-]+(?:;\s*@[a-z0-9-]+)*)\]/g, (_m, ids: string) => `(${ids.split(/;\s*/).map((i) => { const r = byId.get(i.slice(1)); return r ? citeLabel(r) : i; }).join('; ')})`);
 const esc = (t: string) => t.replace(/\|/g, '\\|');
