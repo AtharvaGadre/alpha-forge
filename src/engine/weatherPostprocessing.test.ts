@@ -455,13 +455,17 @@ test('live outlook uses the method chosen by the adoption rule, reports it in `v
     fcDaily[`precipitation_sum_${m.apiId}`] = nextDates.map(() => 2 + i);
   });
   const input = { models, usable: [true, true, true], fcLocs: [{ daily: fcDaily }], prevLocs: [{ hourly }], eraLocs: [eraLoc], nextDates, verifyDates };
-  assert.equal(OUTLOOK_METHOD_VERSION, 'astraeus-v3');
-  const v3 = buildCalibratedOutlook(input)!;
+  assert.equal(OUTLOOK_METHOD_VERSION, 'astraeus-v3.1');
+  const v31 = buildCalibratedOutlook(input)!;
+  const v3 = buildCalibratedOutlook({ ...input, method: 'astraeus-v3' })!;
   const v2 = buildCalibratedOutlook({ ...input, method: 'astraeus-v2' })!;
+  assert.equal(v31.version, 'astraeus-v3.1');
   assert.equal(v3.version, 'astraeus-v3');
   assert.equal(v2.version, 'astraeus-v2');
-  assert.ok(v3.method.startsWith('Astraeus v3') && v2.method.startsWith('Astraeus v2'));
-  for (const o of [v3, v2]) for (const d of o.days) for (const b of [d.tmean, d.tmax, d.precip]) {
+  assert.ok(v31.method.startsWith('Astraeus v3.1') && v3.method.startsWith('Astraeus v3:') && v2.method.startsWith('Astraeus v2'));
+  assert.deepEqual(v31.days.map((d) => d.precip), v3.days.map((d) => d.precip));
+  assert.notDeepEqual(v31.days.map((d) => d.tmean), v3.days.map((d) => d.tmean));
+  for (const o of [v31, v3, v2]) for (const d of o.days) for (const b of [d.tmean, d.tmax, d.precip]) {
     assert.ok(b && b.calibrated, `${o.version} ${d.date} calibrated`);
     assert.ok(b!.p10 <= b!.p50 && b!.p50 <= b!.p90, `${o.version} ${d.date} quantiles ${b!.p10} ${b!.p50} ${b!.p90}`);
   }

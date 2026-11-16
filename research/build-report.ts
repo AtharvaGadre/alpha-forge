@@ -8,7 +8,7 @@ import path from 'node:path';
 import { buildReport, citeLabel } from '../src/engine/technicalReport';
 import { RESEARCH_LIBRARY } from '../src/engine/researchLibrary';
 import type { PriceSkill, WeatherSkill } from '../src/engine/researchData';
-import type { AreaArchive, ReportExtras, StationArchive, TrackSummary, V3Tests } from '../src/engine/technicalReport';
+import type { AreaArchive, ReportExtras, StationArchive, TrackSummary, V3Tests, V31Tests } from '../src/engine/technicalReport';
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const read = <T>(p: string): T | null => (existsSync(path.join(ROOT, p)) ? JSON.parse(readFileSync(path.join(ROOT, p), 'utf8')) : null);
@@ -23,11 +23,25 @@ if (!weather) throw new Error('public/research/weather-skill.json missing — ru
 
 // Slim extras for the report page (the archive files they come from stay the source of record).
 const v3devFull = read<WeatherSkill>('public/research/archive/weather-v3-dev.json');
+const v31devFull = read<WeatherSkill>('public/research/archive/weather-v31-dev.json');
 const stationsFull = read<any>('public/research/archive/weather-stations-confirm.json');
 const areasFull = read<any>('public/research/archive/weather-areas-confirm.json');
 const extras: ReportExtras = {
   v3dev: v3devFull ? ({ ...v3devFull, summary: v3devFull.summary.filter((x) => x.variable !== 'precip'), significance: [], bySite: v3devFull.bySite.filter((x) => x.variable !== 'precip'), singleModels: [], examples: undefined } as unknown as WeatherSkill) : null,
   v3tests: read<V3Tests>('public/research/archive/weather-v3-vs-v2-dm.json'),
+  v31dev: v31devFull ? ({ ...v31devFull, summary: v31devFull.summary.filter((x) => x.variable !== 'precip'), significance: [], bySite: v31devFull.bySite.filter((x) => x.variable !== 'precip'), singleModels: [], examples: undefined } as unknown as WeatherSkill) : null,
+  v31tests: read<V31Tests>('public/research/archive/weather-v31-vs-v3-dm.json'),
+  v31live: (() => {
+    const x = read<any>('public/research/archive/weather-v31-live-check.json');
+    if (!x) return null;
+    const cells = Object.values<any>(x.regions).flatMap((r) => r.v3);
+    const names: Record<string, string> = { 'mato-grosso': 'Mato Grosso', kansas: 'Kansas', iowa: 'Iowa', texas: 'Texas', lubbock: 'Lubbock', arkansas: 'Arkansas', florida: 'Florida', minas: 'Minas Gerais', saskatchewan: 'Saskatchewan' };
+    return {
+      pooled: x.pooled, negativeCells: x.negativeCells, cells: x.cells, regions: Object.keys(x.regions).length, testDays: x.testDays,
+      trainRows: [Math.min(...cells.map((c: any) => c.minTrain)), Math.max(...cells.map((c: any) => c.maxTrain))],
+      worseRegions: Object.entries<any>(x.byRegion).filter(([, r]) => r['v3.1'] < r.v3).map(([k]) => names[k] ?? k),
+    };
+  })(),
   stations: stationsFull ? ({
     stations: {
       sites: stationsFull.stations.sites.map((x: any) => ({ site: x.site, name: x.name, tmax: x.tmax && { source: x.tmax.source, name: x.tmax.name, distanceKm: x.tmax.distanceKm }, precip: x.precip && { source: x.precip.source, name: x.precip.name, distanceKm: x.precip.distanceKm } })),

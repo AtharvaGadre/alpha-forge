@@ -108,10 +108,10 @@ If D2 is adopted, the live pipeline fetches ERA5 2019–2024 daily Tmean and Tma
 
 **What the dev numbers say, and do not say.**
 
-- **The gain is at the longer leads.** Day 1 is unchanged (Tmean +0.3%, Tmax −0.9%). Days 5–7 improve by 3–4%: Tmean d7 1.058 → 1.016, Tmax d7 1.415 → 1.364. The pull toward the window mean grows with lead because the fitted b falls with lead.
+- **The gain is at the longer leads.** Day 1 is unchanged (Tmean +0.3%, Tmax −0.9%). Days 5–7 improve by 3–4%: Tmean d7 1.058 → 1.016, Tmax d7 1.415 → 1.364. Why the gain grows with lead was not examined on dev.
 - **The bias that grew with lead is gone.** v3's dev bias rose from +0.04 °C at Tmax day 1 to +0.13 °C at day 7. Under D1 it is between −0.03 and 0.00 °C at every lead.
 - **Removing the pull beat redirecting it.** We expected D2 to win at long leads, where shrinking a noisy forecast toward normal usually helps. It won only at Tmax d1 and d7, and lost pooled. One reading is that a slope estimated from 90 recency-weighted days is itself too noisy to be useful. We did not test this.
-- **This is the largest single dev improvement in the project's post-processing work.** v3 gained 0.55% over v2 on dev; v3.1 gains 2.8% over v3. That is still a dev-period number, chosen on dev.
+- **For scale:** v3 gained 0.55% over v2 on dev and v3.1 gains 2.8% over v3. Both are dev-period numbers, and the candidates were chosen on dev.
 
 - **Benchmark check.** On dev, `astraeus-v3.1` reproduces D1 exactly in every temperature cell. Its precipitation CRPS, bias, MAE and RMSE equal v3's in every cell, with 0 differences in `bySite`. The only differences are precipitation PIT coverage at leads 1/3/5/7: 82.3 / 81.4 / 81.2 / 79.0% for v3.1 against 81.4 / 80.6 / 81.1 / 80.0% for v3. This is randomisation noise: v3.1 draws its own randomised-PIT numbers for dry days. Run: `--suite raw-ensemble,astraeus-v3,v31d1-unit-slope,astraeus-v3.1 --period dev`.
 
@@ -121,3 +121,95 @@ If D2 is adopted, the live pipeline fetches ERA5 2019–2024 daily Tmean and Tma
 
 - **Freeze commit:** `73d0d441953a5da30515838522c4a007665c9b88` ("freeze astraeus-v3.1: …"), committed **2026-11-16T12:43:41Z**.
 - Recorded before the confirmation period was scored. That is also before any prospective outcome exists: the first prospective target day is 2026-11-17, and ERA5 for it is published around 2026-11-22.
+
+## 8. Confirmation period: scored once, after the freeze
+
+**Run.** `npx tsx research/weather-benchmark.ts --suite final --period confirm --offline`, from commit d60467a (the freeze plus the freeze record). The cache was complete: no fetch, API cost 0. Output: `public/research/weather-skill.json` and `docs/results/WEATHER_BENCHMARK.md`.
+
+**Integrity check.** We removed the `astraeus-v3.1` rows (12 summary rows, 48 significance rows, its `bySite` column and its `methods` entry) and `generatedAt`. The new file is then identical to the previously committed `weather-skill.json`, with 0 differences in any key.
+
+**Pooled temperature, confirmation period (25,326 cases):**
+
+| Method | Pooled CRPS (°C) | 80% coverage | below p10 | above p90 | bias (°C) |
+|---|---|---|---|---|---|
+| v2 | 0.75005 | 75.5% | 14.0% | 10.4% | +0.137 |
+| v3 | 0.74099 | 78.1% | 12.7% | 9.1% | +0.116 |
+| **v3.1** | **0.73638 (−0.62% vs v3)** | **78.4%** | 11.7% | 9.9% | **+0.042** |
+
+**Per cell.** Columns: CRPS v3 → v3.1 (°C); CRPSS against the zero-training Gaussian, v3 / v3.1 (95% interval for v3.1); coverage; share below p10 and above p90; bias (°C); v3.1 − v3 daily CRPS difference with Diebold–Mariano p (14-day bandwidth / largest over bandwidths).
+
+| Cell | CRPS v3 → v3.1 | CRPSS v3 / v3.1 | Coverage | < p10 | > p90 | Bias | v3.1 − v3 |
+|---|---|---|---|---|---|---|---|
+| Tmax d1 | 0.539 → 0.546 | +15.6 / +14.5% (+12.2, +16.8) | 78.0 → 78.1% | 12.7 → 11.0% | 9.3 → 11.0% | +0.089 → +0.013 | +0.007; 0.25 / 0.25 |
+| Tmax d3 | 0.707 → 0.711 | +12.1 / +11.6% (+9.1, +14.1) | 78.8 → 78.6% | 12.4 → 11.3% | 8.8 → 10.1% | +0.113 → +0.025 | +0.004; 0.61 / 0.65 |
+| Tmax d5 | 0.940 → 0.944 | +8.0 / +7.6% (+4.9, +10.4) | 78.7 → 78.0% | 12.9 → 11.9% | 8.4 → 10.2% | +0.162 → +0.051 | +0.004; 0.72 / 0.75 |
+| Tmax d7 | 1.259 → 1.257 | +5.9 / +6.0% (+3.6, +8.5) | 77.9 → 78.0% | 13.3 → 12.4% | 8.8 → 9.6% | +0.228 → +0.099 | −0.002; 0.89 / 0.89 |
+| Tmean d1 | 0.334 → 0.329 | +16.8 / +17.9% (+15.6, +19.7) | 77.7 → 78.3% | 13.0 → 12.0% | 9.4 → 9.7% | +0.056 → +0.026 | −0.005; 0.27 / 0.33 |
+| Tmean d3 | 0.473 → 0.465 | +13.7 / +15.1% (+12.4, +17.8) | 78.8 → 79.1% | 11.8 → 11.3% | 9.4 → 9.5% | +0.053 → +0.016 | −0.008; 0.13 / 0.14 |
+| Tmean d5 | 0.663 → 0.649 | +6.7 / +8.6% (+6.2, +11.6) | 77.6 → 78.6% | 12.8 → 11.7% | 9.6 → 9.7% | +0.077 → +0.041 | −0.014; 0.08 / 0.13 |
+| Tmean d7 | 0.930 → 0.909 | +4.1 / +6.3% (+4.6, +8.3) | 77.6 → 78.5% | 13.0 → 12.1% | 9.4 → 9.4% | +0.136 → +0.060 | −0.022; 0.024 / 0.037 |
+
+- **Against v3 directly** (`public/research/archive/weather-v31-vs-v3-dm.json`; not pre-specified; reproduce with `--versus-extra astraeus-v3`).
+  - On confirmation, v3.1 is better at p < 0.05 only at Tmean day 7 (largest p 0.037). That cell does not survive a Holm correction for 8 tests, whose first threshold is p < 0.00625.
+  - On dev, it is better at p < 0.05 in 5 of 8 cells: Tmean d5/d7 and Tmax d3/d5/d7. Three of those survive Holm: Tmean d7, Tmax d5 and Tmax d7.
+  - The re-run's confirmation summary was byte-identical to the published one.
+- **Against the zero-training Gaussian**, v3.1 is significant at p < 0.001 in all eight temperature cells.
+- **Precipitation** is identical to v3 in CRPS, bias and CRPSS in every cell.
+
+## 9. Live adoption
+
+The Section 5 rule was applied to the confirmation numbers above:
+
+- pooled temperature CRPS 0.73638 ≤ 0.74099 °C ✓;
+- |78.4% − 80%| = 1.6 pp ≤ |78.1% − 80%| + 0.5 pp = 2.4 pp ✓.
+
+The rule asks only for no loss, and v3's confirmation warm bias was already known. Passing it was therefore likely, which makes it a consistency check, not a test.
+
+**The live outlook therefore switches to v3.1** (`OUTLOOK_METHOD_VERSION = 'astraeus-v3.1'` in `src/engine/calibratedOutlook.ts`; v3 and v2 stay selectable). No new data fetch is needed, because D1 uses no climatology.
+
+**The live data that motivated the change** (`public/research/archive/weather-v31-live-check.json`). The check is regenerated by `npx tsx research/v31-live-check.ts` from the archived training rows in `research/data/v31-live-rows.json`.
+
+- It is the outlook's rolling check (`rollingHeldOut`), replaying v3 and v3.1 on the inputs stored on 16 Nov.
+- It covers nine regions and temperature only. Test days run 26 Sep – 9 Nov 2026, 45 per cell, so all but 9 Nov fall inside the confirmation period.
+- Weekly refits train on 34–81 rows, not the deployed 90.
+- These data were seen before the candidates were written down, so they illustrate the change and do not test it.
+
+| Region | v3 Tmean (leads 1–6) | v3.1 Tmean | v3 Tmax | v3.1 Tmax |
+|---|---|---|---|---|
+| Texas | −33 to −6% | +2 to +24% | −14 to +7% | +2 to +12% |
+| Lubbock | −38 to −2% | −3 to +6% | −16 to −1% | +6 to +15% |
+| Arkansas | −38 to +12% | +19 to +36% | −35 to −12% | −17 to +9% |
+| Mato Grosso | −7 to +8% | −9 to +7% | +6 to +21% | −7 to +11% |
+| Kansas | −8 to +13% | −5 to +11% | +11 to +19% | +8 to +12% |
+| Iowa | −6 to +4% | 0 to +7% | −5 to +8% | −4 to +2% |
+
+- Over all nine regions, the temperature cells where the outlook is worse than the raw ensemble fall from 50 to 21 of 108.
+- Pooled skill against the raw ensemble rises from −1.0% to +10.3% for mean temperature and from +3.2% to +6.1% for maximum temperature.
+- **v3.1 is worse than v3 in three of the nine regions, mostly for maximum temperature:**
+  - Mato Grosso: pooled +10.8% → +0.9%; Tmax worse at all 6 leads, Tmean at 5.
+  - Kansas: +10.1% → +7.2%; Tmax worse at all 6 leads.
+  - Iowa: +1.4% → +0.5%; Tmax worse at 5 of 6 leads.
+- In Mato Grosso, v3's lower slope (mean b 0.65–0.84) happened to offset a warm error of the raw models. We did not investigate why.
+
+## 10. Discussion
+
+- **The confirmation period motivated this fix**, as it motivated v3, so its result is a consistency check, not independent evidence. Selection used dev data only. The first clean test is the prospective benchmark on target days after 2026-11-16, with the live track record as a check of the deployed product.
+- **The largest change on confirmation is in bias, which was not tested formally.** Pooled bias falls from +0.116 to +0.042 °C, and Tmax day-7 bias from +0.228 to +0.099 °C. The CRPS gain is −0.62% pooled; only Tmean day 7 is at p < 0.05 against v3, and no cell survives a correction for 8 tests.
+- **Maximum temperature at days 1–5 is slightly worse on confirmation** (+0.4 to +1.3% CRPS; p ≥ 0.25). The lower tail is now better covered (11.0% vs 12.7% below p10 at day 1), but the upper tail is now slightly too narrow (11.0% vs 9.3% above p90; 10% if calibrated).
+- **Dev and confirmation disagree in size**, −2.8% against −0.6%. We do not know why. One untested guess is that the longer steady summer stretch in April–November gives the pull less to cost.
+- **Not done:** no station or area re-verification of v3.1. The station and area archives still report v2 and v3.
+
+## 11. Corrections after the independent review (16 Nov 2026)
+
+An independent review found no leakage, look-ahead or error in applying the selection and adoption rules. Following it, these corrections were made. Sections 1–5 are left as committed, so their errors are listed here.
+
+- **Section 1, test days.** They are 26 Sep – 9 Nov 2026, not 2 Oct – 15 Nov. The 16 Nov window is 12 Aug – 9 Nov, and ERA5 ends six days before issue. The motivating data therefore lie inside the confirmation period except 9 Nov, not "in and just after it".
+- **Section 1, what was observed.** The warm errors come from replaying v3's method on inputs stored on 16 Nov, not from forecasts that were published. v3 was live only from 16 Nov, and the one published track-record snapshot is v2. The replay's weekly refits train on 34–81 rows, not the deployed 90, so the size of the effect may not carry over exactly.
+- **Section 1 numbers are now reproducible.** The table and the mean slopes come from `research/v31-live-check.ts` → `public/research/archive/weather-v31-live-check.json`, built from `research/data/v31-live-rows.json`. That rerun matches the original computation in 215 of 216 cells. The exception is Kansas Tmean day 5, −8.5% vs −8%, from storing inputs to 4 decimals. With the archived rows, negative cells fall from 50 to 21, not 19, and pooled mean-temperature skill starts at −1.0%, not −1.1%.
+- **Section 3 and significance.** The Arkansas rain losses were dismissed with a multiplicity correction. The same standard applied to the v3.1-versus-v3 tests leaves no confirmation cell significant, and Sections 8 and 10 now say so.
+- **Regions where v3.1 is worse.** There are three (Mato Grosso, Kansas, Iowa), not one.
+- **Selection threshold and rounding.** The 0.0001 °C threshold is finer than the 3-decimal rounding of the `bySite` cells it is computed from. Pooling the summary rows instead gives v3 0.78954 rather than 0.78946. This did not affect the choice: D1 led D2 by 0.0037 °C and v3 by 0.022 °C.
+
+## References (added after the pre-specification)
+
+None.

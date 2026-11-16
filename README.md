@@ -32,7 +32,16 @@ CRPS reduction of **Astraeus v2** (higher is better):
 
 Significance: Diebold–Mariano on case-weighted daily losses, largest p across Newey–West bandwidths; 95% block-bootstrap intervals in `public/research/weather-skill.json`. The gains come from bias correction and skill weighting; v2 is mildly under-dispersive (80% intervals cover ~74–78% of temperature outcomes), while the raw ensemble is over-dispersive at short leads. The development comparison and the first run replayed on development days are archived in `docs/results/archive/`.
 
-**Astraeus v3** (live since 16 Nov 2026) corrects part of that over-confidence: a logistic, recency-weighted, cross-validation-recalibrated NGR, chosen among six pre-specified candidates on development days only and frozen (commit `9b99959`) before it was scored. On the confirmation period it beats v2 in every temperature cell (max temperature 15.6% → 5.9% vs the no-training Gaussian at days 1 → 7; 80% coverage 78–79%). That period is where the over-confidence was spotted, so this is a consistency check; the real test is the benchmark on target days after 16 Nov (`--period prospective`), while the live track record logs the deployed product (its first snapshot, 16 Nov, is still v2) (`docs/results/WEATHER_V3.md`).
+**Astraeus v3** corrects part of that over-confidence: a logistic, recency-weighted, cross-validation-recalibrated NGR, chosen among six pre-specified candidates on development days only and frozen (commit `9b99959`) before it was scored. On the confirmation period it beats v2 in every temperature cell (max temperature 15.6% → 5.9% vs the no-training Gaussian at days 1 → 7; 80% coverage 78–79%). That period is where the over-confidence was spotted, so this is a consistency check; the real test is the benchmark on target days after 16 Nov (`--period prospective`), while the live track record logs the deployed product (its first snapshot, 16 Nov, is still v2) (`docs/results/WEATHER_V3.md`).
+
+**Astraeus v3.1** (live since 16 Nov 2026) fixes a problem found by replaying v3 on stored inputs. v3's regression slope below 1 pulled every forecast toward the training window's average temperature. When the season turned, the replay ran up to about 1 °C too warm in Texas, Lubbock and Arkansas and did worse than the raw models. v3.1 fixes the slope at 1. It was chosen between two pre-specified fixes on development days only (−2.8% CRPS vs v3) and frozen (commit `73d0d44`) before being scored once.
+
+On the confirmation period, which motivated the fix, so this is a consistency check rather than a clean test:
+- pooled temperature CRPS falls 0.6% and the warm bias falls from +0.12 to +0.04 °C;
+- mean temperature is better at every lead, while maximum temperature is slightly (not significantly) worse at days 1–5;
+- only 1 of 8 cells beats v3 at p < 0.05, and none after a correction for multiple tests.
+
+On the motivating replay, the regional cells worse than the raw ensemble fall from 50 to 21 of 108, while v3.1 is worse than v3 in three of nine regions (`docs/results/WEATHER_V31.md`, `research/v31-live-check.ts`).
 
 **Against weather stations the picture is weaker.** At the 7 regions with a usable GHCN-Daily or Meteostat station, the ERA5-trained forecasts gain only 1–5% over the no-training Gaussian for max temperature and their 80% intervals hold just 50–70% of station values; training the same method on the station's own record restores ~11% at day 1 and ~80% coverage. Production-weighted area means keep the day-1 gain but lose about 4 points at days 3–7. Skill figures above are for ~30 km grid boxes, not points (`docs/results/STATION_VERIFICATION.md`, `AREA_VERIFICATION.md`).
 
@@ -48,7 +57,7 @@ A companion walk-forward study (`docs/results/PRICE_STUDY.md`, 6 commodities, 20
 - Post-processing: EMOS/NGR (Gneiting et al., 2005), skill-weighted NGR, skill-weighted ensembles, censored and power-censored precipitation models.
 - Inference: Diebold–Mariano with Newey–West variance and Harvey–Leybourne–Newbold correction; moving-block bootstrap.
 
-**Astraeus v2** = bias-corrected, inverse-MSE-weighted NGR for temperature and a skill-weighted ensemble for precipitation, trained on trailing 90-day windows of previous-run forecasts verified against ERA5. **Astraeus v3** keeps the precipitation model and replaces the temperature model with a logistic NGR trained with recency weights and a cross-validated scale. v3 runs live in `src/engine/calibratedOutlook.ts` for every regional analysis, trained on the same ERA5 truth (models=era5, 24-hour UTC days) as the benchmark.
+**Astraeus v2** = bias-corrected, inverse-MSE-weighted NGR for temperature and a skill-weighted ensemble for precipitation, trained on trailing 90-day windows of previous-run forecasts verified against ERA5. **Astraeus v3** keeps the precipitation model and replaces the temperature model with a logistic NGR trained with recency weights and a cross-validated scale. **Astraeus v3.1** fixes v3's regression slope at 1 so forecasts are not pulled toward the training window's mean. v3.1 runs live in `src/engine/calibratedOutlook.ts` for every regional analysis, trained on the same ERA5 truth (models=era5, 24-hour UTC days) as the benchmark.
 
 ## Run it
 
@@ -75,8 +84,10 @@ Reproduce the research (Open-Meteo free tier; raw responses cached in `research/
 ```bash
 npx tsx research/weather-benchmark.ts --suite run1  --period all       # pre-registered run
 npx tsx research/weather-benchmark.ts --suite dev   --period dev       # method development
-npx tsx research/weather-benchmark.ts --suite final --period confirm   # headline result (v2 + v3)
+npx tsx research/weather-benchmark.ts --suite final --period confirm   # headline result (v2, v3, v3.1)
 npx tsx research/weather-benchmark.ts --suite v3dev --period dev --offline          # v3 candidates
+npx tsx research/weather-benchmark.ts --suite v31dev --period dev --offline         # v3.1 candidates
+npx tsx research/v31-live-check.ts                                              # the live replay that motivated v3.1
 npx tsx research/weather-benchmark.ts --suite final --period prospective            # after forecasts issued from 16 Nov verify
 npx tsx research/weather-benchmark.ts --suite final --period confirm --offline --truth stations --train era5   # station truth
 npx tsx research/verification-report.ts                                 # station + area summaries
@@ -85,9 +96,13 @@ npx tsx research/storage-study.ts && npx tsx research/price-revisions.ts # gas s
 npx tsx research/build-report.ts                                        # docs/TECHNICAL_REPORT.md
 ```
 
+## Licence
+
+Code: [MIT](LICENSE). Research results, the track record and the reports: [CC BY-SA 4.0](LICENSE-RESULTS.md), as required by the Met Office share-alike terms. The MIT licence grants no rights to the upstream data.
+
 ## Data and licences
 
-Forecasts and reanalysis via [Open-Meteo](https://open-meteo.com) (ECMWF, NOAA, DWD, Met Office, JMA, ECCC; ERA5 © Copernicus Climate Change Service). Station observations from NOAA GHCN-Daily and Meteostat. Coastlines © Natural Earth (public domain). Market prices from the Yahoo Finance chart endpoint (unofficial). Free Open-Meteo and Yahoo endpoints are for non-commercial research; commercial deployment needs the corresponding licences, and Met Office data are share-alike. See [`docs/DATA_LICENSING.md`](docs/DATA_LICENSING.md) for every source, its terms and a pre-launch checklist. The repository itself has no licence yet.
+Forecasts and reanalysis via [Open-Meteo](https://open-meteo.com) (ECMWF, NOAA, DWD, Met Office, JMA, ECCC; ERA5 © Copernicus Climate Change Service). Station observations from NOAA GHCN-Daily and Meteostat. Coastlines © Natural Earth (public domain). Market prices from the Yahoo Finance chart endpoint (unofficial). Free Open-Meteo and Yahoo endpoints are for non-commercial research; commercial deployment needs the corresponding licences, and Met Office data are share-alike. See [`docs/DATA_LICENSING.md`](docs/DATA_LICENSING.md) for every source, its terms and a pre-launch checklist.
 
 ## Honest limits
 
@@ -97,7 +112,7 @@ ERA5 is a ~31 km reanalysis and favours smooth models — including ECMWF's AIFS
 
 ```
 src/engine/weatherPostprocessing.ts   scoring + post-processing (tests alongside)
-src/engine/calibratedOutlook.ts       live Astraeus outlook (v3; v2 selectable)
+src/engine/calibratedOutlook.ts       live Astraeus outlook (v3.1; v3, v2 selectable)
 src/engine/liveAtmospherePipeline.ts  multi-model fetch, provenance gates, climatology, signals
 src/engine/priceSkill.ts              walk-forward return-forecast statistics
 src/engine/researchLibrary.ts         72 references (71 verified)

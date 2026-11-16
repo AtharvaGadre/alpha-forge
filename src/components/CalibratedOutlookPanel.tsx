@@ -5,7 +5,7 @@ import type { CalibratedOutlook, OutlookBand } from '../engine/calibratedOutlook
 const weekday = (d: string) => new Date(`${d}T12:00:00Z`).toLocaleDateString(undefined, { weekday: 'short', timeZone: 'UTC' });
 const n1 = (x: number) => (Number.isFinite(x) ? x.toFixed(1) : '—');
 
-/** Calibrated seven-day outlook: 80 % intervals, medians and event probabilities from the live Astraeus method (v3 since 16 Nov 2026). */
+/** Calibrated seven-day outlook: 80 % intervals, medians and event probabilities from the live Astraeus method (v3.1 since 16 Nov 2026). */
 export function CalibratedOutlookPanel({ outlook, onSkill }: { outlook: CalibratedOutlook; onSkill?: () => void }) {
   const [variable, setVariable] = useState<'tmax' | 'tmean' | 'precip'>('tmax');
   const bands = outlook.days.map((d) => d[variable]).filter((b): b is OutlookBand => !!b);
@@ -50,6 +50,6 @@ export function CalibratedOutlookPanel({ outlook, onSkill }: { outlook: Calibrat
         {checks.map((c) => <tr key={c.lead}><td>Day {c.lead}</td><td>{c.nTrain} / {c.nTest}</td><td>{c.crpsRaw}</td><td>{c.crpsCalibrated}</td><td className={c.skill >= 0 ? 'pos' : 'neg'}>{c.skill >= 0 ? '+' : ''}{Math.round(c.skill * 100)}%</td></tr>)}
       </tbody></table>
     </details>}
-    <footer><span>{outlook.version === 'astraeus-v3' ? 'Astraeus v3' : outlook.version === 'astraeus-v2' ? 'Astraeus v2' : outlook.version} · {outlook.models.length} models · trained {outlook.trainingDates.start} → {outlook.trainingDates.end} vs ERA5</span>{onSkill && <button className="af-text-button" onClick={onSkill}>How accurate is this? <ArrowUpRight size={12} /></button>}</footer>
+    <footer><span>{outlook.version === 'astraeus-v3.1' ? 'Astraeus v3.1' : outlook.version === 'astraeus-v3' ? 'Astraeus v3' : outlook.version === 'astraeus-v2' ? 'Astraeus v2' : outlook.version} · {outlook.models.length} models · trained {outlook.trainingDates.start} → {outlook.trainingDates.end} vs ERA5</span>{onSkill && <button className="af-text-button" onClick={onSkill}>How accurate is this? <ArrowUpRight size={12} /></button>}</footer>
   </section>;
 }

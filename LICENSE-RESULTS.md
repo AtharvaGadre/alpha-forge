@@ -8,6 +8,7 @@ The **research results and published forecasts** are licensed under the
 - `public/research/` (benchmark scores, study results, archives)
 - `data/track-record/` (the daily outlook snapshots, scores and ledger)
 - `docs/results/` and `docs/TECHNICAL_REPORT.md` (the write-ups and the technical report)
+- `research/data/v31-live-rows.json` (archived model forecasts and ERA5 truth behind the v3.1 live check)
 
 Share-alike is required, not chosen. These files are derived from multi-model weather forecasts that include UK Met Office data, which Open-Meteo redistributes under CC BY-SA 4.0. Anything adapted from them must carry the same licence.
 

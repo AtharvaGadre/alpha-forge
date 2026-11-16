@@ -1,0 +1,180 @@
+{
+ "description": "Diebold-Mariano tests of astraeus-v3.1 against astraeus-v3 on case-weighted daily CRPS differences (v3.1 - v3; negative favours v3.1); pValue at the 14-day bandwidth, robustMaxP = largest p over bandwidths of lead, 7, 14 and 21 days. Not pre-specified. Reproduce with --suite final --period confirm|dev --offline --versus-extra astraeus-v3.",
+ "freezeCommit": "73d0d441953a5da30515838522c4a007665c9b88",
+ "confirm": {
+  "rows": [
+   {
+    "variable": "tmean",
+    "lead": 1,
+    "meanDiff": -0.005,
+    "pValue": 0.2690764419642666,
+    "robustMaxP": 0.32607323885265727
+   },
+   {
+    "variable": "tmean",
+    "lead": 3,
+    "meanDiff": -0.008,
+    "pValue": 0.13079719270633383,
+    "robustMaxP": 0.1377072526579377
+   },
+   {
+    "variable": "tmean",
+    "lead": 5,
+    "meanDiff": -0.014,
+    "pValue": 0.08296331240820365,
+    "robustMaxP": 0.12680142884168033
+   },
+   {
+    "variable": "tmean",
+    "lead": 7,
+    "meanDiff": -0.022,
+    "pValue": 0.02445930902566973,
+    "robustMaxP": 0.03669599249801814
+   },
+   {
+    "variable": "tmax",
+    "lead": 1,
+    "meanDiff": 0.007,
+    "pValue": 0.2526260519829777,
+    "robustMaxP": 0.25352569961521043
+   },
+   {
+    "variable": "tmax",
+    "lead": 3,
+    "meanDiff": 0.004,
+    "pValue": 0.6045159590072156,
+    "robustMaxP": 0.6471306697298753
+   },
+   {
+    "variable": "tmax",
+    "lead": 5,
+    "meanDiff": 0.004,
+    "pValue": 0.7220050551167436,
+    "robustMaxP": 0.7540367094372358
+   },
+   {
+    "variable": "tmax",
+    "lead": 7,
+    "meanDiff": -0.002,
+    "pValue": 0.8909840672023157,
+    "robustMaxP": 0.8915097843592692
+   },
+   {
+    "variable": "precip",
+    "lead": 1,
+    "meanDiff": 0,
+    "pValue": 1,
+    "robustMaxP": 1
+   },
+   {
+    "variable": "precip",
+    "lead": 3,
+    "meanDiff": 0,
+    "pValue": 1,
+    "robustMaxP": 1
+   },
+   {
+    "variable": "precip",
+    "lead": 5,
+    "meanDiff": 0,
+    "pValue": 1,
+    "robustMaxP": 1
+   },
+   {
+    "variable": "precip",
+    "lead": 7,
+    "meanDiff": 0,
+    "pValue": 1,
+    "robustMaxP": 1
+   }
+  ]
+ },
+ "dev": {
+  "rows": [
+   {
+    "variable": "tmean",
+    "lead": 1,
+    "meanDiff": 0.001,
+    "pValue": 0.7928636209846185,
+    "robustMaxP": 0.8089987972906245
+   },
+   {
+    "variable": "tmean",
+    "lead": 3,
+    "meanDiff": -0.007,
+    "pValue": 0.16189192041982503,
+    "robustMaxP": 0.16345274952235056
+   },
+   {
+    "variable": "tmean",
+    "lead": 5,
+    "meanDiff": -0.021,
+    "pValue": 0.012588648607666064,
+    "robustMaxP": 0.013235271837084062
+   },
+   {
+    "variable": "tmean",
+    "lead": 7,
+    "meanDiff": -0.042,
+    "pValue": 0.0002441153119581152,
+    "robustMaxP": 0.0002441153119581152
+   },
+   {
+    "variable": "tmax",
+    "lead": 1,
+    "meanDiff": -0.005,
+    "pValue": 0.41451391719457553,
+    "robustMaxP": 0.433270495112674
+   },
+   {
+    "variable": "tmax",
+    "lead": 3,
+    "meanDiff": -0.018,
+    "pValue": 0.009583145965210482,
+    "robustMaxP": 0.017674319427911644
+   },
+   {
+    "variable": "tmax",
+    "lead": 5,
+    "meanDiff": -0.034,
+    "pValue": 1.4804856785399778e-05,
+    "robustMaxP": 1.8020172089627806e-05
+   },
+   {
+    "variable": "tmax",
+    "lead": 7,
+    "meanDiff": -0.051,
+    "pValue": 0.00016633183291525633,
+    "robustMaxP": 0.00016633183291525633
+   },
+   {
+    "variable": "precip",
+    "lead": 1,
+    "meanDiff": 0,
+    "pValue": 1,
+    "robustMaxP": 1
+   },
+   {
+    "variable": "precip",
+    "lead": 3,
+    "meanDiff": 0,
+    "pValue": 1,
+    "robustMaxP": 1
+   },
+   {
+    "variable": "precip",
+    "lead": 5,
+    "meanDiff": 0,
+    "pValue": 1,
+    "robustMaxP": 1
+   },
+   {
+    "variable": "precip",
+    "lead": 7,
+    "meanDiff": 0,
+    "pValue": 1,
+    "robustMaxP": 1
+   }
+  ]
+ }
+}
