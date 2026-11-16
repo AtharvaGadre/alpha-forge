@@ -1,0 +1,102 @@
+county,district,production_bu_2022,production_bu_2023
+Buena Vista,Northwest,31210000,32881000
+Cherokee,Northwest,26830000,29871000
+Clay,Northwest,26341000,28709000
+Dickinson,Northwest,18550000,18298000
+Emmet,Northwest,23219000,
+Lyon,Northwest,28334000,30390000
+O'Brien,Northwest,30288000,34819000
+Osceola,Northwest,21785000,22468000
+Palo Alto,Northwest,31740000,33427000
+Plymouth,Northwest,34446000,43608000
+Pocahontas,Northwest,34092000,38429000
+Sioux,Northwest,30335000,40462000
+Butler,North Central,33453000,28710000
+Cerro Gordo,North Central,34747000,
+Floyd,North Central,28092000,24416000
+Franklin,North Central,40961000,39679000
+Hancock,North Central,35617000,37312000
+Humboldt,North Central,24692000,26384000
+Kossuth,North Central,56569000,
+Mitchell,North Central,30441000,24670000
+Winnebago,North Central,24666000,24976000
+Worth,North Central,24267000,20655000
+Wright,North Central,35964000,34304000
+Allamakee,Northeast,16452000,14344000
+Black Hawk,Northeast,26700000,
+Bremer,Northeast,23378000,23448000
+Buchanan,Northeast,34978000,34707000
+Chickasaw,Northeast,29915000,27070000
+Clayton,Northeast,27657000,25117000
+Delaware,Northeast,37251000,34151000
+Dubuque,Northeast,29909000,24379000
+Fayette,Northeast,37093000,37103000
+Howard,Northeast,28065000,23153000
+Winneshiek,Northeast,29863000,27928000
+Audubon,West Central,21195000,20550000
+Calhoun,West Central,35059000,31853000
+Carroll,West Central,33895000,32475000
+Crawford,West Central,42912000,35682000
+Greene,West Central,31765000,33530000
+Guthrie,West Central,20115000,
+Harrison,West Central,29687000,32751000
+Ida,West Central,26190000,23126000
+Monona,West Central,27634000,27423000
+Sac,West Central,33623000,31657000
+Shelby,West Central,34318000,31928000
+Woodbury,West Central,35676000,32078000
+Boone,Central,30542000,33681000
+Dallas,Central,23999000,25582000
+Grundy,Central,31914000,33319000
+Hamilton,Central,37360000,38661000
+Hardin,Central,37126000,38053000
+Jasper,Central,34592000,36450000
+Marshall,Central,29953000,29136000
+Polk,Central,13391000,15005000
+Poweshiek,Central,26443000,28379000
+Story,Central,32328000,31837000
+Tama,Central,34073000,32018000
+Webster,Central,38769000,41007000
+Benton,East Central,39995000,36645000
+Cedar,East Central,32612000,30814000
+Clinton,East Central,40536000,36036000
+Iowa,East Central,24502000,24915000
+Jackson,East Central,24353000,20173000
+Johnson,East Central,20110000,21183000
+Jones,East Central,31552000,26431000
+Linn,East Central,29541000,25776000
+Muscatine,East Central,18582000,18499000
+Scott,East Central,22031000,21619000
+Adair,Southwest,17257000,
+Adams,Southwest,,
+Cass,Southwest,22042000,
+Fremont,Southwest,21287000,24771000
+Mills,Southwest,18155000,19306000
+Montgomery,Southwest,17015000,19259000
+Page,Southwest,19823000,22891000
+Pottawattamie,Southwest,45240000,47144000
+Taylor,Southwest,13665000,15799000
+Appanoose,South Central,4135000,6221000
+Clarke,South Central,,
+Decatur,South Central,4520000,8356000
+Lucas,South Central,4101000,6052000
+Madison,South Central,11349000,12928000
+Marion,South Central,12825000,15074000
+Monroe,South Central,3286000,5125000
+Ringgold,South Central,7894000,
+Union,South Central,7814000,12586000
+Warren,South Central,9342000,11713000
+Wayne,South Central,9236000,
+Davis,Southeast,6165000,8577000
+Des Moines,Southeast,13383000,15218000
+Henry,Southeast,12930000,14828000
+Jefferson,Southeast,11659000,13755000
+Keokuk,Southeast,19528000,25202000
+Lee,Southeast,12634000,15074000
+Louisa,Southeast,15115000,
+Mahaska,Southeast,23232000,26884000
+Van Buren,Southeast,7792000,9370000
+Wapello,Southeast,9257000,11586000
+Washington,Southeast,20854000,21353000
+Other counties (suppressed),,14192000,269338000
+State total,,2470000000,2522550000

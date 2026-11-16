@@ -23,6 +23,8 @@
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import path from 'node:path';
+import { loadStationTruth, readStationsFile } from './lib/stations';
+import { readAreasFile, weightedMeanNested } from './lib/areas';
 import {
   crpsOf, pointOf, pitOf, exceedanceOf, quantileOf, histogram, reliabilityBins, brierDecomposition,
   dieboldMariano, seededRandom, insideCentral, rawGaussian, crpsEnsemble,
@@ -100,10 +102,14 @@ const OFFLINE = process.argv.includes('--offline');
 
 let spent = 0;
 async function fetchJson(url: string): Promise<any> {
+  const w = requestWeight(url);
+  if (BUDGET && estimatedSpent + w > BUDGET) throw new Error(`Open-Meteo budget: ${estimatedSpent.toFixed(0)} + ${w.toFixed(1)} would exceed --budget ${BUDGET}`);
   for (let attempt = 0; attempt < 6; attempt++) {
     const res = await fetch(url, { headers: { 'User-Agent': USER_AGENT } });
     const cost = Number(res.headers.get('x-ratelimit-cost') ?? 0);
     const remaining = Number(res.headers.get('x-ratelimit-remaining') ?? 600);
+    if (res.status === 429 && EXTENDED) throw new Error('HTTP 429 from Open-Meteo — stopping (shared daily budget)');
+    if (res.ok) { estimatedSpent += w; console.log(`  fetched ${url.split('?')[0].split('/')[2]} · weight ≈ ${w.toFixed(1)} (header ${cost}) · run total ≈ ${estimatedSpent.toFixed(0)}`); }
     if (res.status === 429) {
       const wait = 15_000 * (attempt + 1);
       console.warn(`  429 — waiting ${wait / 1000}s`);
@@ -169,11 +175,14 @@ function chunks(start: string, end: string, months = 4): Array<[string, string]>
 /** forecasts[var][lead][model][date] */
 type ForecastStore = Record<Variable, Record<number, Record<string, Record<string, number>>>>;
 
-async function loadForecasts(site: (typeof SITES)[number]): Promise<ForecastStore> {
+/** Anything with coordinates: a benchmark site or one point of a production-weighted area. */
+type SiteLike = { id: string; lat: number; lng: number };
+
+async function loadForecasts(site: SiteLike, start = CONFIG.forecastStart): Promise<ForecastStore> {
   const store = { tmean: {}, tmax: {}, precip: {} } as ForecastStore;
   for (const v of VARIABLES) for (const l of CONFIG.leads) store[v.id][l] = Object.fromEntries(MODELS.map((m) => [m.api, {}]));
   const hourly = CONFIG.leads.flatMap((l) => [`temperature_2m_previous_day${l}`, `precipitation_previous_day${l}`]).join(',');
-  for (const [a, b] of chunks(CONFIG.forecastStart, CONFIG.forecastEnd)) {
+  for (const [a, b] of chunks(start, CONFIG.forecastEnd)) {
     const url = `https://previous-runs-api.open-meteo.com/v1/forecast?latitude=${site.lat}&longitude=${site.lng}&start_date=${a}&end_date=${b}&hourly=${hourly}&models=${MODELS.map((m) => m.api).join(',')}&timezone=GMT`;
     const daily = await cachedDaily(`fc|${site.id}|${a}|${b}|${MODELS.map((m) => m.api).join(',')}|${CONFIG.leads}`, async () => {
       const raw = await fetchJson(url);
@@ -194,9 +203,9 @@ async function loadForecasts(site: (typeof SITES)[number]): Promise<ForecastStor
   return store;
 }
 
-async function loadTruth(site: (typeof SITES)[number]): Promise<Record<Variable, Record<string, number>>> {
+async function loadTruth(site: SiteLike, start = CONFIG.forecastStart): Promise<Record<Variable, Record<string, number>>> {
   const truth = { tmean: {}, tmax: {}, precip: {} } as Record<Variable, Record<string, number>>;
-  for (const [a, b] of chunks(CONFIG.forecastStart, CONFIG.forecastEnd, 6)) {
+  for (const [a, b] of chunks(start, CONFIG.forecastEnd, 6)) {
     const url = `https://archive-api.open-meteo.com/v1/archive?latitude=${site.lat}&longitude=${site.lng}&start_date=${a}&end_date=${b}&hourly=temperature_2m,precipitation&models=era5&timezone=GMT`;
     const daily = await cachedDaily(`era5|${site.id}|${a}|${b}`, async () => {
       const raw = await fetchJson(url);
@@ -212,8 +221,8 @@ async function loadTruth(site: (typeof SITES)[number]): Promise<Record<Variable,
   return truth;
 }
 
-async function loadClimatology(site: (typeof SITES)[number]): Promise<Record<Variable, Record<string, number>>> {
-  const [y0, y1] = CONFIG.climatologyYears;
+async function loadClimatology(site: SiteLike, years: [number, number] = CONFIG.climatologyYears): Promise<Record<Variable, Record<string, number>>> {
+  const [y0, y1] = years;
   const url = `https://archive-api.open-meteo.com/v1/archive?latitude=${site.lat}&longitude=${site.lng}&start_date=${y0}-01-01&end_date=${y1}-12-31&daily=temperature_2m_mean,temperature_2m_max,precipitation_sum&models=era5&timezone=GMT`;
   return cachedDaily(`clim|${site.id}|${y0}|${y1}`, async () => {
     const raw = await fetchJson(url);
@@ -361,6 +370,144 @@ const SUITE = arg('suite', PERIOD === 'prospective' ? 'final' : 'run1'); // the 
 const DEV_END = '2026-03-31';
 const MAX_WINDOW = 90;
 
+// ---------------------------------------------------------------------------
+// Verification extensions: station truth and production-weighted areas.
+//   --truth era5|stations   verification truth (default era5)
+//   --train era5|stations   with --truth stations: methods trained on ERA5 as deployed (default) or on the station
+//   --sites benchmark|areas the 16 single grid points (default) or the areas in research/data/areas.json
+//   --only a,b              restrict to these site ids        --mask stations  ERA5 truth on station-observed days only
+//   --clim-years y0,y1      climatology years (subset of the cached 2019–2024 for benchmark sites)
+//   --budget N              stop before the estimated Open-Meteo weight of this run would exceed N
+// Every method of the selected suite is evaluated unchanged; only truth, training truth and sites differ.
+// ---------------------------------------------------------------------------
+const TRUTH = arg('truth', 'era5') as 'era5' | 'stations';
+const TRAIN_ON = arg('train', 'era5') as 'era5' | 'stations';
+const SITE_SET = arg('sites', 'benchmark') as 'benchmark' | 'areas';
+const ONLY = arg('only', '') ? arg('only', '').split(',') : null;
+const MASK = arg('mask', '') as '' | 'stations';
+const CLIM_YEARS = arg('clim-years', '') ? (arg('clim-years', '').split(',').map(Number) as [number, number]) : null;
+const BUDGET = Number(arg('budget', '0')) || 0;
+/** Area points are fetched from here: first confirmation test day minus the 90-day window, lag and lead, with margin. */
+const AREA_START = '2025-12-15';
+const EXTENDED = TRUTH !== 'era5' || SITE_SET !== 'benchmark' || !!ONLY || !!MASK || !!CLIM_YEARS;
+let estimatedSpent = 0;
+if (!['era5', 'stations'].includes(TRUTH) || !['era5', 'stations'].includes(TRAIN_ON) || !['benchmark', 'areas'].includes(SITE_SET)) throw new Error('bad --truth/--train/--sites');
+if (TRAIN_ON === 'stations' && TRUTH !== 'stations') throw new Error('--train stations needs --truth stations');
+if (MASK && (MASK !== 'stations' || TRUTH !== 'era5')) throw new Error('--mask stations applies to --truth era5 only');
+if (SITE_SET === 'areas' && TRUTH !== 'era5') throw new Error('areas are verified against area-mean ERA5 only');
+if (SITE_SET === 'areas' && !['confirm', 'prospective'].includes(PERIOD)) throw new Error(`area forecasts are fetched from ${AREA_START}; use --period confirm or prospective`);
+
+/** Open-Meteo weight of a request: locations × (variables × models / 10) × (days / 14), at least 1 per location. */
+function requestWeight(url: string): number {
+  const q = new URL(url).searchParams;
+  const vars = (q.get('hourly') ?? q.get('daily') ?? '').split(',').filter(Boolean).length;
+  const models = Math.max(1, (q.get('models') ?? '').split(',').filter(Boolean).length);
+  const start = q.get('start_date');
+  const end = q.get('end_date');
+  const days = start && end ? (Date.parse(end) - Date.parse(start)) / 864e5 + 1 : 14;
+  const locations = (q.get('latitude') ?? '').split(',').length;
+  return locations * Math.max(1, ((vars * models) / 10) * (days / 14));
+}
+
+const yearsOnly = (s: Record<Variable, Record<string, number>>, [y0, y1]: [number, number]) =>
+  Object.fromEntries(Object.entries(s).map(([v, xs]) => [v, Object.fromEntries(Object.entries(xs).filter(([d]) => +d.slice(0, 4) >= y0 && +d.slice(0, 4) <= y1))])) as Record<Variable, Record<string, number>>;
+
+type RunSite = { id: string; name: string; lat: number; lng: number; commodities: string[] };
+function runSites(): RunSite[] {
+  if (SITE_SET === 'areas') {
+    return readAreasFile(ROOT).areas.filter((a) => !ONLY || ONLY.includes(a.id) || ONLY.includes(a.benchmarkSite)).map((a) => {
+      const w = a.points.reduce((s, p) => s + p.weight, 0);
+      return { id: a.id, name: a.name, lat: +(a.points.reduce((s, p) => s + p.weight * p.lat, 0) / w).toFixed(3), lng: +(a.points.reduce((s, p) => s + p.weight * p.lng, 0) / w).toFixed(3), commodities: [a.commodity] };
+    });
+  }
+  let sites = SITES.filter((s) => !ONLY || ONLY.includes(s.id));
+  if (TRUTH === 'stations' || MASK) {
+    const st = readStationsFile(ROOT);
+    sites = sites.filter((s) => st.sites.some((e) => e.site === s.id && (e.tmax || e.precip)));
+  }
+  return sites;
+}
+
+/**
+ * Forecasts, verification truth, training truth and climatology for one run site.
+ * allDays (ERA5 days) fixes model membership exactly as in the ERA5 benchmark.
+ */
+async function loadSiteData(site: RunSite) {
+  type Series = Record<Variable, Record<string, number>>;
+  if (SITE_SET === 'areas') {
+    const area = readAreasFile(ROOT).areas.find((a) => a.id === site.id)!;
+    const fcs: ForecastStore[] = [];
+    const eras: Series[] = [];
+    const clims: Series[] = [];
+    for (const p of area.points) { // sequential: polite to the shared Open-Meteo budget
+      const pt = { id: `area:${area.id}:${p.id}`, lat: p.lat, lng: p.lng };
+      fcs.push(await loadForecasts(pt, AREA_START));
+      eras.push(await loadTruth(pt, AREA_START));
+      clims.push(await loadClimatology(pt, CLIM_YEARS ?? CONFIG.climatologyYears));
+    }
+    const w = area.points.map((p) => p.weight);
+    const era5 = weightedMeanNested(eras, w, 1);
+    return { fc: weightedMeanNested(fcs, w, 3), truth: era5, train: era5, clim: weightedMeanNested(clims, w, 1), allDays: Object.keys(era5.tmean).sort() };
+  }
+  const [fc, era5, climAll] = await Promise.all([loadForecasts(site), loadTruth(site), loadClimatology(site)]);
+  const clim = CLIM_YEARS ? yearsOnly(climAll, CLIM_YEARS) : climAll;
+  const allDays = Object.keys(era5.tmean).sort();
+  if (TRUTH === 'era5' && !MASK) return { fc, truth: era5, train: era5, clim, allDays };
+  const entry = readStationsFile(ROOT).sites.find((e) => e.site === site.id)!;
+  if (Math.abs(entry.lat - site.lat) > 1e-9 || Math.abs(entry.lng - site.lng) > 1e-9) throw new Error(`stations.json coordinates for ${site.id} differ from SITES`);
+  const st = await loadStationTruth(ROOT, entry, { start: CONFIG.forecastStart, end: CONFIG.forecastEnd }, CLIM_YEARS ?? CONFIG.climatologyYears);
+  if (MASK) {
+    // ERA5 truth, scored only on the site-days the station observed (identical cases to the station runs)
+    const masked = { tmean: {}, tmax: {}, precip: {} } as Series;
+    for (const v of ['tmax', 'precip'] as const) masked[v] = Object.fromEntries(Object.entries(era5[v]).filter(([d]) => st.truth[v][d] !== undefined));
+    return { fc, truth: masked, train: era5, clim, allDays };
+  }
+  // station climatology as the reference forecast where the record is long enough, else ERA5 at the grid point
+  const stClim = { tmean: clim.tmean, tmax: st.climUsable.tmax ? st.clim.tmax : clim.tmax, precip: st.climUsable.precip ? st.clim.precip : clim.precip } as Series;
+  return { fc, truth: st.truth as Series, train: TRAIN_ON === 'stations' ? (st.truth as Series) : era5, clim: stClim, allDays };
+}
+
+/** Per-case CRPS of every method on the cases all methods share, grouped by variable, lead and site (for paired cross-run tests). */
+function caseLosses(records: Record_[], methodsFor: (k: VariableKind) => string[]) {
+  const out: Array<{ variable: Variable; lead: number; site: string; dates: string[]; crps: Record<string, number[]>; inside80: Record<string, number[]> }> = [];
+  const groups = new Map<string, Map<string, Map<string, Record_>>>();
+  for (const r of records) {
+    const g = `${r.variable}|${r.lead}|${r.site}`;
+    if (!groups.has(g)) groups.set(g, new Map());
+    const byDate = groups.get(g)!;
+    if (!byDate.has(r.date)) byDate.set(r.date, new Map());
+    byDate.get(r.date)!.set(r.method, r);
+  }
+  for (const [g, byDate] of groups) {
+    const [variable, lead, site] = g.split('|');
+    const methods = methodsFor(VARIABLES.find((x) => x.id === variable)!.kind);
+    const dates = [...byDate.keys()].filter((d) => methods.every((m) => byDate.get(d)!.has(m))).sort();
+    out.push({
+      variable: variable as Variable, lead: Number(lead), site, dates,
+      crps: Object.fromEntries(methods.map((m) => [m, dates.map((d) => Math.round(byDate.get(d)!.get(m)!.crps * 1e5) / 1e5)])),
+      inside80: Object.fromEntries(methods.map((m) => [m, dates.map((d) => (byDate.get(d)!.get(m)!.inside80 ? 1 : 0))])),
+    });
+  }
+  return out;
+}
+
+function verificationMeta() {
+  const st = TRUTH === 'stations' || MASK ? readStationsFile(ROOT) : null;
+  const ar = SITE_SET === 'areas' ? readAreasFile(ROOT) : null;
+  return {
+    truth: TRUTH, train: TRUTH === 'stations' ? TRAIN_ON : 'era5', sites: SITE_SET, only: ONLY, mask: MASK || null,
+    climatologyYears: CLIM_YEARS ?? CONFIG.climatologyYears,
+    areaForecastStart: SITE_SET === 'areas' ? AREA_START : null,
+    stationsFile: st ? { version: st.version, generatedAt: st.generatedAt } : null,
+    areasFile: ar ? { version: ar.version, generatedAt: ar.generatedAt } : null,
+    openMeteoWeightEstimate: Math.round(estimatedSpent),
+    truthDescription: TRUTH === 'stations'
+      ? `Station observations (research/data/stations.json; GHCN-Daily, Meteostat observation-sourced values), re-dated by the frozen per-station shift; methods trained on ${TRAIN_ON === 'stations' ? 'the same station observations' : 'ERA5 (as deployed)'} with the ${CONFIG.era5LagDays}-day lag. Tmean is not verified. Climatology: station record where ≥ 60% complete, else ERA5 at the grid point.`
+      : SITE_SET === 'areas' ? 'Production-weighted area mean of ERA5 at the area points (research/data/areas.json); forecasts are area means of each model at the same points.'
+        : MASK ? 'ERA5 at the grid point, scored only on site-days with a station observation (same cases as the station runs).' : 'ERA5 at the grid point.',
+  };
+}
+
 interface Record_ {
   site: string; variable: Variable; lead: number; date: string; method: string; fallback: boolean;
   crps: number; crpsFair: number; members: number; err: number; pit: number; inside80: boolean; prob: number; event: boolean;
@@ -386,10 +533,9 @@ async function main() {
   const EXAMPLES = [{ site: 'iowa', variable: 'tmax', lead: 3 }, { site: 'northeast', variable: 'tmean', lead: 3 }, { site: 'minas', variable: 'precip', lead: 1 }];
   const examples: any[] = [];
 
-  for (const site of SITES) {
+  for (const site of runSites()) {
     console.log(`▸ ${site.name}`);
-    const [fc, truth, clim] = await Promise.all([loadForecasts(site), loadTruth(site), loadClimatology(site)]);
-    const allDays = Object.keys(truth.tmean).sort();
+    const { fc, truth, train, clim, allDays } = await loadSiteData(site);
     const modelsByLead: Record<number, string[]> = {};
     for (const lead of CONFIG.leads) {
       modelsByLead[lead] = MODELS.filter((m) => allDays.filter((d) => fc.tmean[lead][m.api][d] !== undefined).length >= CONFIG.minModelAvailability * allDays.length).map((m) => m.api);
@@ -407,16 +553,17 @@ async function main() {
 
     for (const v of VARIABLES) {
       const t = truth[v.id];
+      const tTrain = train[v.id];
       const methods = methodsFor(v.kind);
       const variants = suite.filter((x) => x.applies === 'both' || x.applies === v.kind);
       for (const lead of CONFIG.leads) {
         const models = modelsByLead[lead];
         if (models.length < 2) continue;
         const series = fc[v.id][lead];
-        const rowFor = (d: string): Row | null => {
-          if (t[d] === undefined) return null;
+        const rowFor = (d: string, tt = t): Row | null => {
+          if (tt[d] === undefined) return null;
           const f = models.map((m) => series[m][d]);
-          return f.every((x) => x !== undefined && Number.isFinite(x)) ? { f: f as number[], y: t[d], clim: climFor(v.id, d).mean } : null;
+          return f.every((x) => x !== undefined && Number.isFinite(x)) ? { f: f as number[], y: tt[d], clim: climFor(v.id, d).mean } : null;
         };
         const testDays = allDays.filter((d) => d >= firstTestDay(lead) && inPeriod(d));
         const fitted = new Map<string, { at: string; predict: Predictor | null }>();
@@ -430,7 +577,7 @@ async function main() {
             if (prev && d < addDays(prev.at, CONFIG.refitEveryDays)) continue;
             const train: Row[] = [];
             for (let k = 0; k < Math.max(1, variant.window); k++) {
-              const r = rowFor(addDays(lastTruth, -k));
+              const r = rowFor(addDays(lastTruth, -k), tTrain);
               if (r) train.push(r);
             }
             fitted.set(variant.id, { at: d, predict: variant.fit(train, v.kind) });
@@ -615,8 +762,17 @@ async function main() {
       `An exploratory first run scored early methods over the whole period, including the confirmation days; only forecasts after ${PROSPECTIVE_START} are strictly unseen (--period prospective).`,
     ],
   };
-  const tag = `${SUITE}-${PERIOD}`;
-  const outJson = arg('out', '') || (SUITE === 'final' && PERIOD === 'confirm' ? OUT_JSON : path.join(ROOT, 'research', 'out', `weather-${tag}.json`));
+  const tag = `${SUITE}-${PERIOD}${EXTENDED ? `-${SITE_SET === 'areas' ? 'areas' : TRUTH === 'stations' ? `stations-train-${TRAIN_ON}` : MASK ? 'era5-stationdays' : 'era5'}${ONLY ? `-${ONLY.join('+')}` : ''}${CLIM_YEARS ? `-clim${CLIM_YEARS.join('-')}` : ''}` : ''}`;
+  if (EXTENDED) {
+    // station / area runs never replace the published ERA5 benchmark
+    Object.assign(result, {
+      verification: verificationMeta(), caseLosses: caseLosses(records, methodsFor),
+      singleModelErrors: singleModel.map((r) => [r.site, r.variable, r.lead, r.model, r.date, Math.round(r.err * 1000) / 1000]),
+    });
+    if (TRUTH === 'stations' || SITE_SET === 'areas') result.provenance.truth = verificationMeta().truthDescription;
+  }
+  const outJson = arg('out', '') || (SUITE === 'final' && PERIOD === 'confirm' && !EXTENDED ? OUT_JSON : path.join(ROOT, 'research', 'out', `weather-${tag}.json`));
+  if (EXTENDED && path.resolve(outJson) === OUT_JSON) throw new Error('refusing to overwrite public/research/weather-skill.json with a station/area run');
   mkdirSync(path.dirname(outJson), { recursive: true });
   writeFileSync(outJson, JSON.stringify(result));
   const outMd = outJson === OUT_JSON ? OUT_MD : outJson.replace(/\.json$/, '.md');

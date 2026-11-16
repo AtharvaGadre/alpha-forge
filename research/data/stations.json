@@ -1,0 +1,1404 @@
+{
+  "version": "astraeus-stations-v1",
+  "generatedAt": "2026-11-16T09:35:38.220Z",
+  "window": {
+    "start": "2025-07-01",
+    "end": "2026-11-08",
+    "devEnd": "2026-03-31"
+  },
+  "rules": {
+    "distance": "≤ 40 km from the benchmark grid point",
+    "coverage": "≥ 80% of days 2025-07-01 → 2026-11-08 with an accepted value (GHCN: blank quality flag; Meteostat: observation-sourced only)",
+    "preference": "nearest GHCN-Daily station usable for both Tmax and precipitation; else per variable the nearest usable GHCN-Daily station, then Meteostat",
+    "alignment": "shift ∈ {0, −1} maximising Pearson r with ERA5 at the site over 2025-07-01 → 2026-03-31 (development period only), then frozen",
+    "tmean": "not verified on stations (station (Tmax+Tmin)/2 ≠ 24-hour mean; no daily minimum in the forecast cache)",
+    "climatology": "station record 2019–2024 when ≥ 60% of days are present, else the ERA5 grid-point climatology"
+  },
+  "sites": [
+    {
+      "site": "iowa",
+      "name": "Iowa · US Corn Belt",
+      "lat": 42.03,
+      "lng": -93.62,
+      "siteElevationM": 286,
+      "tmax": {
+        "source": "ghcnd",
+        "id": "USW00094989",
+        "name": "AMES MUNI AP",
+        "lat": 41.9906,
+        "lon": -93.6186,
+        "elevationM": 281.3,
+        "distanceKm": 4.4,
+        "elevationDiffM": -5,
+        "coverage": {
+          "tmax": 1,
+          "tmin": 1,
+          "prcp": 0.998
+        },
+        "shift": 0,
+        "alignment": {
+          "corrShift0": 0.9823,
+          "corrShiftMinus1": 0.8876,
+          "days": 274,
+          "basis": "Pearson r of station TMAX (re-dated by the shift) with ERA5 UTC-day Tmax at the site, 2025-07-01 → 2026-03-31"
+        },
+        "climatology": {
+          "years": [
+            2019,
+            2024
+          ],
+          "values": 2191,
+          "usable": true
+        },
+        "licence": "NOAA NCEI GHCN-Daily v3 — U.S. data public domain; some non-U.S. data are restricted to non-commercial use (WMO Resolution 40). Cite Menne et al. (2012), doi:10.1175/JTECH-D-11-00103.1.",
+        "dataUrl": "https://www.ncei.noaa.gov/pub/data/ghcn/daily/by_station/USW00094989.csv.gz",
+        "obsTime": "2400"
+      },
+      "precip": {
+        "source": "ghcnd",
+        "id": "USW00094989",
+        "name": "AMES MUNI AP",
+        "lat": 41.9906,
+        "lon": -93.6186,
+        "elevationM": 281.3,
+        "distanceKm": 4.4,
+        "elevationDiffM": -5,
+        "coverage": {
+          "tmax": 1,
+          "tmin": 1,
+          "prcp": 0.998
+        },
+        "shift": 0,
+        "alignment": {
+          "corrShift0": 0.7635,
+          "corrShiftMinus1": 0.0067,
+          "days": 274,
+          "basis": "Pearson r of station PRCP (re-dated by the shift) with ERA5 UTC-day precipitation at the site, 2025-07-01 → 2026-03-31"
+        },
+        "climatology": {
+          "years": [
+            2019,
+            2024
+          ],
+          "values": 2090,
+          "usable": true
+        },
+        "licence": "NOAA NCEI GHCN-Daily v3 — U.S. data public domain; some non-U.S. data are restricted to non-commercial use (WMO Resolution 40). Cite Menne et al. (2012), doi:10.1175/JTECH-D-11-00103.1.",
+        "dataUrl": "https://www.ncei.noaa.gov/pub/data/ghcn/daily/by_station/USW00094989.csv.gz",
+        "obsTime": "2400"
+      },
+      "notes": []
+    },
+    {
+      "site": "kansas",
+      "name": "Kansas · US Plains",
+      "lat": 38.84,
+      "lng": -97.61,
+      "siteElevationM": 376,
+      "tmax": {
+        "source": "ghcnd",
+        "id": "USW00003919",
+        "name": "SALINA MUNI AP",
+        "lat": 38.78,
+        "lon": -97.6444,
+        "elevationM": 385,
+        "distanceKm": 7.3,
+        "elevationDiffM": 9,
+        "coverage": {
+          "tmax": 1,
+          "tmin": 1,
+          "prcp": 1
+        },
+        "shift": 0,
+        "alignment": {
+          "corrShift0": 0.9767,
+          "corrShiftMinus1": 0.8493,
+          "days": 274,
+          "basis": "Pearson r of station TMAX (re-dated by the shift) with ERA5 UTC-day Tmax at the site, 2025-07-01 → 2026-03-31"
+        },
+        "climatology": {
+          "years": [
+            2019,
+            2024
+          ],
+          "values": 2191,
+          "usable": true
+        },
+        "licence": "NOAA NCEI GHCN-Daily v3 — U.S. data public domain; some non-U.S. data are restricted to non-commercial use (WMO Resolution 40). Cite Menne et al. (2012), doi:10.1175/JTECH-D-11-00103.1.",
+        "dataUrl": "https://www.ncei.noaa.gov/pub/data/ghcn/daily/by_station/USW00003919.csv.gz",
+        "obsTime": null
+      },
+      "precip": {
+        "source": "ghcnd",
+        "id": "USW00003919",
+        "name": "SALINA MUNI AP",
+        "lat": 38.78,
+        "lon": -97.6444,
+        "elevationM": 385,
+        "distanceKm": 7.3,
+        "elevationDiffM": 9,
+        "coverage": {
+          "tmax": 1,
+          "tmin": 1,
+          "prcp": 1
+        },
+        "shift": 0,
+        "alignment": {
+          "corrShift0": 0.4366,
+          "corrShiftMinus1": -0.0015,
+          "days": 274,
+          "basis": "Pearson r of station PRCP (re-dated by the shift) with ERA5 UTC-day precipitation at the site, 2025-07-01 → 2026-03-31"
+        },
+        "climatology": {
+          "years": [
+            2019,
+            2024
+          ],
+          "values": 2191,
+          "usable": true
+        },
+        "licence": "NOAA NCEI GHCN-Daily v3 — U.S. data public domain; some non-U.S. data are restricted to non-commercial use (WMO Resolution 40). Cite Menne et al. (2012), doi:10.1175/JTECH-D-11-00103.1.",
+        "dataUrl": "https://www.ncei.noaa.gov/pub/data/ghcn/daily/by_station/USW00003919.csv.gz",
+        "obsTime": null
+      },
+      "notes": []
+    },
+    {
+      "site": "mato-grosso",
+      "name": "Mato Grosso · Brazil",
+      "lat": -12.54,
+      "lng": -55.72,
+      "siteElevationM": 373,
+      "tmax": null,
+      "precip": null,
+      "notes": []
+    },
+    {
+      "site": "parana",
+      "name": "Paraná · Brazil",
+      "lat": -24.95,
+      "lng": -53.46,
+      "siteElevationM": 735,
+      "tmax": null,
+      "precip": null,
+      "notes": []
+    },
+    {
+      "site": "cordoba",
+      "name": "Córdoba · Argentina",
+      "lat": -31.42,
+      "lng": -64.19,
+      "siteElevationM": 401,
+      "tmax": {
+        "source": "meteostat",
+        "id": "87344",
+        "name": "Cordoba Aerodrome",
+        "lat": -31.3167,
+        "lon": -64.2167,
+        "elevationM": 484,
+        "distanceKm": 11.8,
+        "elevationDiffM": 83,
+        "coverage": {
+          "tmax": 0.897,
+          "tmin": 0.897,
+          "prcp": 0
+        },
+        "shift": 0,
+        "alignment": {
+          "corrShift0": 0.9472,
+          "corrShiftMinus1": 0.7836,
+          "days": 252,
+          "basis": "Pearson r of station TMAX (re-dated by the shift) with ERA5 UTC-day Tmax at the site, 2025-07-01 → 2026-03-31"
+        },
+        "climatology": {
+          "years": [
+            2019,
+            2024
+          ],
+          "values": 1020,
+          "usable": false
+        },
+        "licence": "Meteostat (https://meteostat.net), CC BY-NC 4.0 — attribution required, non-commercial use only. Only values whose source tags are observational are used.",
+        "dataUrl": "https://data.meteostat.net/daily/<year>/87344.csv.gz",
+        "obsTime": null
+      },
+      "precip": null,
+      "notes": [
+        "Station record too short for a 2019–2024 climatology; the ERA5 grid-point climatology is used as the reference forecast for that variable."
+      ]
+    },
+    {
+      "site": "minas",
+      "name": "Minas Gerais · Brazil",
+      "lat": -21.55,
+      "lng": -45.43,
+      "siteElevationM": 916,
+      "tmax": null,
+      "precip": null,
+      "notes": []
+    },
+    {
+      "site": "daloa",
+      "name": "Daloa · Côte d’Ivoire",
+      "lat": 6.88,
+      "lng": -6.45,
+      "siteElevationM": 258,
+      "tmax": null,
+      "precip": null,
+      "notes": []
+    },
+    {
+      "site": "punjab",
+      "name": "Punjab · India",
+      "lat": 30.9,
+      "lng": 75.86,
+      "siteElevationM": 250,
+      "tmax": null,
+      "precip": null,
+      "notes": []
+    },
+    {
+      "site": "beauce",
+      "name": "Beauce · France",
+      "lat": 48.45,
+      "lng": 1.49,
+      "siteElevationM": 128,
+      "tmax": null,
+      "precip": null,
+      "notes": []
+    },
+    {
+      "site": "odesa",
+      "name": "Odesa · Ukraine",
+      "lat": 46.48,
+      "lng": 30.73,
+      "siteElevationM": 63,
+      "tmax": null,
+      "precip": null,
+      "notes": []
+    },
+    {
+      "site": "nsw",
+      "name": "New South Wales · Australia",
+      "lat": -32.25,
+      "lng": 148.6,
+      "siteElevationM": 263,
+      "tmax": {
+        "source": "ghcnd",
+        "id": "ASN00065070",
+        "name": "DUBBO AIRPORT AWS",
+        "lat": -32.2206,
+        "lon": 148.5753,
+        "elevationM": 284,
+        "distanceKm": 4,
+        "elevationDiffM": 21,
+        "coverage": {
+          "tmax": 0.992,
+          "tmin": 0.994,
+          "prcp": 0.994
+        },
+        "shift": 0,
+        "alignment": {
+          "corrShift0": 0.9912,
+          "corrShiftMinus1": 0.8967,
+          "days": 274,
+          "basis": "Pearson r of station TMAX (re-dated by the shift) with ERA5 UTC-day Tmax at the site, 2025-07-01 → 2026-03-31"
+        },
+        "climatology": {
+          "years": [
+            2019,
+            2024
+          ],
+          "values": 2177,
+          "usable": true
+        },
+        "licence": "NOAA NCEI GHCN-Daily v3 — U.S. data public domain; some non-U.S. data are restricted to non-commercial use (WMO Resolution 40). Cite Menne et al. (2012), doi:10.1175/JTECH-D-11-00103.1.",
+        "dataUrl": "https://www.ncei.noaa.gov/pub/data/ghcn/daily/by_station/ASN00065070.csv.gz",
+        "obsTime": null
+      },
+      "precip": {
+        "source": "ghcnd",
+        "id": "ASN00065070",
+        "name": "DUBBO AIRPORT AWS",
+        "lat": -32.2206,
+        "lon": 148.5753,
+        "elevationM": 284,
+        "distanceKm": 4,
+        "elevationDiffM": 21,
+        "coverage": {
+          "tmax": 0.992,
+          "tmin": 0.994,
+          "prcp": 0.994
+        },
+        "shift": -1,
+        "alignment": {
+          "corrShift0": 0.0981,
+          "corrShiftMinus1": 0.5629,
+          "days": 274,
+          "basis": "Pearson r of station PRCP (re-dated by the shift) with ERA5 UTC-day precipitation at the site, 2025-07-01 → 2026-03-31"
+        },
+        "climatology": {
+          "years": [
+            2019,
+            2024
+          ],
+          "values": 2170,
+          "usable": true
+        },
+        "licence": "NOAA NCEI GHCN-Daily v3 — U.S. data public domain; some non-U.S. data are restricted to non-commercial use (WMO Resolution 40). Cite Menne et al. (2012), doi:10.1175/JTECH-D-11-00103.1.",
+        "dataUrl": "https://www.ncei.noaa.gov/pub/data/ghcn/daily/by_station/ASN00065070.csv.gz",
+        "obsTime": null
+      },
+      "notes": []
+    },
+    {
+      "site": "jilin",
+      "name": "Jilin · China",
+      "lat": 43.84,
+      "lng": 126.55,
+      "siteElevationM": 205,
+      "tmax": null,
+      "precip": null,
+      "notes": []
+    },
+    {
+      "site": "mekong",
+      "name": "Mekong Delta · Vietnam",
+      "lat": 10.05,
+      "lng": 105.75,
+      "siteElevationM": 4,
+      "tmax": null,
+      "precip": null,
+      "notes": []
+    },
+    {
+      "site": "texas",
+      "name": "Texas · United States",
+      "lat": 32.78,
+      "lng": -96.8,
+      "siteElevationM": 130,
+      "tmax": {
+        "source": "ghcnd",
+        "id": "USW00013960",
+        "name": "DALLAS FAA AP",
+        "lat": 32.8383,
+        "lon": -96.8358,
+        "elevationM": 147.5,
+        "distanceKm": 7.3,
+        "elevationDiffM": 18,
+        "coverage": {
+          "tmax": 1,
+          "tmin": 1,
+          "prcp": 0.998
+        },
+        "shift": 0,
+        "alignment": {
+          "corrShift0": 0.9829,
+          "corrShiftMinus1": 0.8635,
+          "days": 274,
+          "basis": "Pearson r of station TMAX (re-dated by the shift) with ERA5 UTC-day Tmax at the site, 2025-07-01 → 2026-03-31"
+        },
+        "climatology": {
+          "years": [
+            2019,
+            2024
+          ],
+          "values": 2192,
+          "usable": true
+        },
+        "licence": "NOAA NCEI GHCN-Daily v3 — U.S. data public domain; some non-U.S. data are restricted to non-commercial use (WMO Resolution 40). Cite Menne et al. (2012), doi:10.1175/JTECH-D-11-00103.1.",
+        "dataUrl": "https://www.ncei.noaa.gov/pub/data/ghcn/daily/by_station/USW00013960.csv.gz",
+        "obsTime": "2400"
+      },
+      "precip": {
+        "source": "ghcnd",
+        "id": "USW00013960",
+        "name": "DALLAS FAA AP",
+        "lat": 32.8383,
+        "lon": -96.8358,
+        "elevationM": 147.5,
+        "distanceKm": 7.3,
+        "elevationDiffM": 18,
+        "coverage": {
+          "tmax": 1,
+          "tmin": 1,
+          "prcp": 0.998
+        },
+        "shift": 0,
+        "alignment": {
+          "corrShift0": 0.5917,
+          "corrShiftMinus1": 0.109,
+          "days": 273,
+          "basis": "Pearson r of station PRCP (re-dated by the shift) with ERA5 UTC-day precipitation at the site, 2025-07-01 → 2026-03-31"
+        },
+        "climatology": {
+          "years": [
+            2019,
+            2024
+          ],
+          "values": 2192,
+          "usable": true
+        },
+        "licence": "NOAA NCEI GHCN-Daily v3 — U.S. data public domain; some non-U.S. data are restricted to non-commercial use (WMO Resolution 40). Cite Menne et al. (2012), doi:10.1175/JTECH-D-11-00103.1.",
+        "dataUrl": "https://www.ncei.noaa.gov/pub/data/ghcn/daily/by_station/USW00013960.csv.gz",
+        "obsTime": "2400"
+      },
+      "notes": []
+    },
+    {
+      "site": "northeast",
+      "name": "Northeast · United States",
+      "lat": 40.71,
+      "lng": -74.01,
+      "siteElevationM": 27,
+      "tmax": {
+        "source": "ghcnd",
+        "id": "USW00094728",
+        "name": "NY CITY CNTRL PARK",
+        "lat": 40.7789,
+        "lon": -73.9692,
+        "elevationM": 42.7,
+        "distanceKm": 8.4,
+        "elevationDiffM": 16,
+        "coverage": {
+          "tmax": 1,
+          "tmin": 1,
+          "prcp": 1
+        },
+        "shift": 0,
+        "alignment": {
+          "corrShift0": 0.9906,
+          "corrShiftMinus1": 0.9317,
+          "days": 274,
+          "basis": "Pearson r of station TMAX (re-dated by the shift) with ERA5 UTC-day Tmax at the site, 2025-07-01 → 2026-03-31"
+        },
+        "climatology": {
+          "years": [
+            2019,
+            2024
+          ],
+          "values": 2192,
+          "usable": true
+        },
+        "licence": "NOAA NCEI GHCN-Daily v3 — U.S. data public domain; some non-U.S. data are restricted to non-commercial use (WMO Resolution 40). Cite Menne et al. (2012), doi:10.1175/JTECH-D-11-00103.1.",
+        "dataUrl": "https://www.ncei.noaa.gov/pub/data/ghcn/daily/by_station/USW00094728.csv.gz",
+        "obsTime": "2400"
+      },
+      "precip": {
+        "source": "ghcnd",
+        "id": "USW00094728",
+        "name": "NY CITY CNTRL PARK",
+        "lat": 40.7789,
+        "lon": -73.9692,
+        "elevationM": 42.7,
+        "distanceKm": 8.4,
+        "elevationDiffM": 16,
+        "coverage": {
+          "tmax": 1,
+          "tmin": 1,
+          "prcp": 1
+        },
+        "shift": 0,
+        "alignment": {
+          "corrShift0": 0.6659,
+          "corrShiftMinus1": -0.0328,
+          "days": 274,
+          "basis": "Pearson r of station PRCP (re-dated by the shift) with ERA5 UTC-day precipitation at the site, 2025-07-01 → 2026-03-31"
+        },
+        "climatology": {
+          "years": [
+            2019,
+            2024
+          ],
+          "values": 2192,
+          "usable": true
+        },
+        "licence": "NOAA NCEI GHCN-Daily v3 — U.S. data public domain; some non-U.S. data are restricted to non-commercial use (WMO Resolution 40). Cite Menne et al. (2012), doi:10.1175/JTECH-D-11-00103.1.",
+        "dataUrl": "https://www.ncei.noaa.gov/pub/data/ghcn/daily/by_station/USW00094728.csv.gz",
+        "obsTime": "2400"
+      },
+      "notes": []
+    },
+    {
+      "site": "northwest-europe",
+      "name": "Northwest Europe · Netherlands",
+      "lat": 52.37,
+      "lng": 4.9,
+      "siteElevationM": 11,
+      "tmax": {
+        "source": "ghcnd",
+        "id": "NLE00152485",
+        "name": "SCHIPHOL",
+        "lat": 52.3156,
+        "lon": 4.7903,
+        "elevationM": -3,
+        "distanceKm": 9.6,
+        "elevationDiffM": -14,
+        "coverage": {
+          "tmax": 0.921,
+          "tmin": 0.921,
+          "prcp": 0.921
+        },
+        "shift": 0,
+        "alignment": {
+          "corrShift0": 0.9958,
+          "corrShiftMinus1": 0.9332,
+          "days": 274,
+          "basis": "Pearson r of station TMAX (re-dated by the shift) with ERA5 UTC-day Tmax at the site, 2025-07-01 → 2026-03-31"
+        },
+        "climatology": {
+          "years": [
+            2019,
+            2024
+          ],
+          "values": 2191,
+          "usable": true
+        },
+        "licence": "NOAA NCEI GHCN-Daily v3 — U.S. data public domain; some non-U.S. data are restricted to non-commercial use (WMO Resolution 40). Cite Menne et al. (2012), doi:10.1175/JTECH-D-11-00103.1.",
+        "dataUrl": "https://www.ncei.noaa.gov/pub/data/ghcn/daily/by_station/NLE00152485.csv.gz",
+        "obsTime": null
+      },
+      "precip": {
+        "source": "ghcnd",
+        "id": "NLE00152485",
+        "name": "SCHIPHOL",
+        "lat": 52.3156,
+        "lon": 4.7903,
+        "elevationM": -3,
+        "distanceKm": 9.6,
+        "elevationDiffM": -14,
+        "coverage": {
+          "tmax": 0.921,
+          "tmin": 0.921,
+          "prcp": 0.921
+        },
+        "shift": 0,
+        "alignment": {
+          "corrShift0": 0.6673,
+          "corrShiftMinus1": 0.2838,
+          "days": 274,
+          "basis": "Pearson r of station PRCP (re-dated by the shift) with ERA5 UTC-day precipitation at the site, 2025-07-01 → 2026-03-31"
+        },
+        "climatology": {
+          "years": [
+            2019,
+            2024
+          ],
+          "values": 2191,
+          "usable": true
+        },
+        "licence": "NOAA NCEI GHCN-Daily v3 — U.S. data public domain; some non-U.S. data are restricted to non-commercial use (WMO Resolution 40). Cite Menne et al. (2012), doi:10.1175/JTECH-D-11-00103.1.",
+        "dataUrl": "https://www.ncei.noaa.gov/pub/data/ghcn/daily/by_station/NLE00152485.csv.gz",
+        "obsTime": null
+      },
+      "notes": []
+    }
+  ],
+  "excluded": [
+    {
+      "site": "mato-grosso",
+      "variable": "tmax",
+      "reason": "no station within 40 km with ≥ 80% observational TMAX coverage (best: meteostat 86645 Sorriso, 1.1 km, 2%)"
+    },
+    {
+      "site": "mato-grosso",
+      "variable": "precip",
+      "reason": "no station within 40 km with ≥ 80% observational PRCP coverage (best: meteostat 86645 Sorriso, 1.1 km, 0%)"
+    },
+    {
+      "site": "parana",
+      "variable": "tmax",
+      "reason": "no station within 40 km with ≥ 80% observational TMAX coverage (best: meteostat SBCA0 Cascavel / Chiba, 6.9 km, 0%)"
+    },
+    {
+      "site": "parana",
+      "variable": "precip",
+      "reason": "no station within 40 km with ≥ 80% observational PRCP coverage (best: meteostat SBCA0 Cascavel / Chiba, 6.9 km, 0%)"
+    },
+    {
+      "site": "cordoba",
+      "variable": "precip",
+      "reason": "no station within 40 km with ≥ 80% observational PRCP coverage (best: meteostat 87345 Cordoba Observatori / San Vicente, 2.3 km, 44%)"
+    },
+    {
+      "site": "minas",
+      "variable": "tmax",
+      "reason": "no station within 40 km with ≥ 80% observational TMAX coverage (best: meteostat 86848 Varginha, 3.2 km, 3%)"
+    },
+    {
+      "site": "minas",
+      "variable": "precip",
+      "reason": "no station within 40 km with ≥ 80% observational PRCP coverage (best: meteostat 86848 Varginha, 3.2 km, 0%)"
+    },
+    {
+      "site": "daloa",
+      "variable": "tmax",
+      "reason": "no station within 40 km with ≥ 80% observational TMAX coverage (best: meteostat 65560 Daloa, 2.4 km, 10%)"
+    },
+    {
+      "site": "daloa",
+      "variable": "precip",
+      "reason": "no station within 40 km with ≥ 80% observational PRCP coverage (best: meteostat 65560 Daloa, 2.4 km, 10%)"
+    },
+    {
+      "site": "punjab",
+      "variable": "tmax",
+      "reason": "no station within 40 km with ≥ 80% observational TMAX coverage (best: meteostat 42099 Ludhiana, 7.9 km, 5%)"
+    },
+    {
+      "site": "punjab",
+      "variable": "precip",
+      "reason": "no station within 40 km with ≥ 80% observational PRCP coverage (best: meteostat 42099 Ludhiana, 7.9 km, 5%)"
+    },
+    {
+      "site": "beauce",
+      "variable": "tmax",
+      "reason": "no station within 40 km with ≥ 80% observational TMAX coverage (best: meteostat 07143 Chartres, 2.7 km, 0%)"
+    },
+    {
+      "site": "beauce",
+      "variable": "precip",
+      "reason": "no station within 40 km with ≥ 80% observational PRCP coverage (best: meteostat 07143 Chartres, 2.7 km, 0%)"
+    },
+    {
+      "site": "odesa",
+      "variable": "tmax",
+      "reason": "no station within 40 km with ≥ 80% observational TMAX coverage (best: meteostat 33837 Odesa, 5.9 km, 11%)"
+    },
+    {
+      "site": "odesa",
+      "variable": "precip",
+      "reason": "no station within 40 km with ≥ 80% observational PRCP coverage (best: meteostat 33837 Odesa, 5.9 km, 0%)"
+    },
+    {
+      "site": "jilin",
+      "variable": "tmax",
+      "reason": "no station within 40 km with ≥ 80% observational TMAX coverage (best: meteostat 54172 Jilin, 1.1 km, 0%)"
+    },
+    {
+      "site": "jilin",
+      "variable": "precip",
+      "reason": "no station within 40 km with ≥ 80% observational PRCP coverage (best: meteostat 54172 Jilin, 1.1 km, 0%)"
+    },
+    {
+      "site": "mekong",
+      "variable": "tmax",
+      "reason": "no station within 40 km with ≥ 80% observational TMAX coverage (best: meteostat 48910 Vinh Long, 31.2 km, 0%)"
+    },
+    {
+      "site": "mekong",
+      "variable": "precip",
+      "reason": "no station within 40 km with ≥ 80% observational PRCP coverage (best: meteostat 48910 Vinh Long, 31.2 km, 0%)"
+    }
+  ],
+  "candidates": {
+    "iowa": [
+      {
+        "source": "ghcnd",
+        "id": "USW00094989",
+        "name": "AMES MUNI AP",
+        "distanceKm": 4.4,
+        "coverage": {
+          "tmax": 1,
+          "tmin": 1,
+          "prcp": 0.998
+        }
+      },
+      {
+        "source": "ghcnd",
+        "id": "USC00130203",
+        "name": "AMES 5 SE",
+        "distanceKm": 9.8,
+        "coverage": {
+          "tmax": 0.958,
+          "tmin": 0.968,
+          "prcp": 0.984
+        }
+      },
+      {
+        "source": "ghcnd",
+        "id": "USC00130200",
+        "name": "AMES 8 WSW",
+        "distanceKm": 12.8,
+        "coverage": {
+          "tmax": 0.996,
+          "tmin": 0.998,
+          "prcp": 0.996
+        }
+      },
+      {
+        "source": "ghcnd",
+        "id": "USC00130807",
+        "name": "BOONE",
+        "distanceKm": 22.4,
+        "coverage": {
+          "tmax": 0.986,
+          "tmin": 0.972,
+          "prcp": 0.994
+        }
+      },
+      {
+        "source": "ghcnd",
+        "id": "USC00132209",
+        "name": "DES MOINES WSFO-JOHNSTON",
+        "distanceKm": 33.7,
+        "coverage": {
+          "tmax": 0.99,
+          "tmin": 0.988,
+          "prcp": 0.996
+        }
+      },
+      {
+        "source": "meteostat",
+        "id": "KAMW0",
+        "name": "Ames / Old Orchard Mobile Home Park",
+        "distanceKm": 4.2,
+        "coverage": {
+          "tmax": 0.978,
+          "tmin": 0.978,
+          "prcp": 0.653
+        }
+      },
+      {
+        "source": "meteostat",
+        "id": "74449",
+        "name": "Slater, Ia.",
+        "distanceKm": 15.9,
+        "coverage": {
+          "tmax": 0,
+          "tmin": 0,
+          "prcp": 0
+        }
+      },
+      {
+        "source": "meteostat",
+        "id": "KBNW0",
+        "name": "Boone",
+        "distanceKm": 18.9,
+        "coverage": {
+          "tmax": 0.958,
+          "tmin": 0.958,
+          "prcp": 0
+        }
+      },
+      {
+        "source": "meteostat",
+        "id": "KIKV0",
+        "name": "Ankeny / Oakwood Heights Mobile Home Park",
+        "distanceKm": 37.9,
+        "coverage": {
+          "tmax": 0.964,
+          "tmin": 0.964,
+          "prcp": 0
+        }
+      }
+    ],
+    "kansas": [
+      {
+        "source": "ghcnd",
+        "id": "USW00003919",
+        "name": "SALINA MUNI AP",
+        "distanceKm": 7.3,
+        "coverage": {
+          "tmax": 1,
+          "tmin": 1,
+          "prcp": 1
+        }
+      },
+      {
+        "source": "ghcnd",
+        "id": "USC00145363",
+        "name": "MINNEAPOLIS",
+        "distanceKm": 32.7,
+        "coverage": {
+          "tmax": 0.994,
+          "tmin": 0.994,
+          "prcp": 0.998
+        }
+      },
+      {
+        "source": "ghcnd",
+        "id": "USC00140010",
+        "name": "ABILENE",
+        "distanceKm": 35.7,
+        "coverage": {
+          "tmax": 0.897,
+          "tmin": 0.899,
+          "prcp": 0.917
+        }
+      },
+      {
+        "source": "ghcnd",
+        "id": "USC00144178",
+        "name": "KANOPOLIS LAKE",
+        "distanceKm": 39.8,
+        "coverage": {
+          "tmax": 0.992,
+          "tmin": 0.992,
+          "prcp": 0.933
+        }
+      },
+      {
+        "source": "meteostat",
+        "id": "74545",
+        "name": "Smokey Hill Gunnery Range, Ks.",
+        "distanceKm": 26.8,
+        "coverage": {
+          "tmax": 0.911,
+          "tmin": 0.911,
+          "prcp": 0.083
+        }
+      }
+    ],
+    "mato-grosso": [
+      {
+        "source": "meteostat",
+        "id": "86645",
+        "name": "Sorriso",
+        "distanceKm": 1.1,
+        "coverage": {
+          "tmax": 0.024,
+          "tmin": 0.024,
+          "prcp": 0
+        }
+      }
+    ],
+    "parana": [
+      {
+        "source": "meteostat",
+        "id": "SBCA0",
+        "name": "Cascavel / Chiba",
+        "distanceKm": 6.9,
+        "coverage": {
+          "tmax": 0,
+          "tmin": 0,
+          "prcp": 0
+        }
+      },
+      {
+        "source": "meteostat",
+        "id": "83828",
+        "name": "Toledo",
+        "distanceKm": 36.6,
+        "coverage": {
+          "tmax": 0,
+          "tmin": 0,
+          "prcp": 0
+        }
+      },
+      {
+        "source": "meteostat",
+        "id": "SBTD0",
+        "name": "Toledo",
+        "distanceKm": 37.9,
+        "coverage": {
+          "tmax": 0,
+          "tmin": 0,
+          "prcp": 0
+        }
+      }
+    ],
+    "cordoba": [
+      {
+        "source": "meteostat",
+        "id": "87345",
+        "name": "Cordoba Observatori / San Vicente",
+        "distanceKm": 2.3,
+        "coverage": {
+          "tmax": 0.76,
+          "tmin": 0.76,
+          "prcp": 0.435
+        }
+      },
+      {
+        "source": "meteostat",
+        "id": "87347",
+        "name": "Cordoba / Santa Isabel",
+        "distanceKm": 8,
+        "coverage": {
+          "tmax": 0,
+          "tmin": 0,
+          "prcp": 0
+        }
+      },
+      {
+        "source": "meteostat",
+        "id": "87344",
+        "name": "Cordoba Aerodrome",
+        "distanceKm": 11.8,
+        "coverage": {
+          "tmax": 0.897,
+          "tmin": 0.897,
+          "prcp": 0
+        }
+      },
+      {
+        "source": "meteostat",
+        "id": "87349",
+        "name": "Pilar Observatorio",
+        "distanceKm": 40,
+        "coverage": {
+          "tmax": 0.099,
+          "tmin": 0.111,
+          "prcp": 0
+        }
+      }
+    ],
+    "minas": [
+      {
+        "source": "meteostat",
+        "id": "86848",
+        "name": "Varginha",
+        "distanceKm": 3.2,
+        "coverage": {
+          "tmax": 0.026,
+          "tmin": 0.026,
+          "prcp": 0
+        }
+      },
+      {
+        "source": "meteostat",
+        "id": "83684",
+        "name": "Cambuquira",
+        "distanceKm": 36,
+        "coverage": {
+          "tmax": 0,
+          "tmin": 0,
+          "prcp": 0
+        }
+      }
+    ],
+    "daloa": [
+      {
+        "source": "meteostat",
+        "id": "65560",
+        "name": "Daloa",
+        "distanceKm": 2.4,
+        "coverage": {
+          "tmax": 0.105,
+          "tmin": 0.089,
+          "prcp": 0.097
+        }
+      }
+    ],
+    "punjab": [
+      {
+        "source": "meteostat",
+        "id": "42099",
+        "name": "Ludhiana",
+        "distanceKm": 7.9,
+        "coverage": {
+          "tmax": 0.05,
+          "tmin": 0.052,
+          "prcp": 0.054
+        }
+      },
+      {
+        "source": "meteostat",
+        "id": "VILD0",
+        "name": "Ludhiana / Dor?ha",
+        "distanceKm": 10.2,
+        "coverage": {
+          "tmax": 0,
+          "tmin": 0,
+          "prcp": 0
+        }
+      },
+      {
+        "source": "meteostat",
+        "id": "42098",
+        "name": "Halwara / Halw?ra",
+        "distanceKm": 27.7,
+        "coverage": {
+          "tmax": 0,
+          "tmin": 0,
+          "prcp": 0
+        }
+      }
+    ],
+    "beauce": [
+      {
+        "source": "meteostat",
+        "id": "07143",
+        "name": "Chartres",
+        "distanceKm": 2.7,
+        "coverage": {
+          "tmax": 0,
+          "tmin": 0,
+          "prcp": 0
+        }
+      }
+    ],
+    "odesa": [
+      {
+        "source": "meteostat",
+        "id": "33837",
+        "name": "Odesa",
+        "distanceKm": 5.9,
+        "coverage": {
+          "tmax": 0.111,
+          "tmin": 0.105,
+          "prcp": 0.004
+        }
+      }
+    ],
+    "nsw": [
+      {
+        "source": "ghcnd",
+        "id": "ASN00065070",
+        "name": "DUBBO AIRPORT AWS",
+        "distanceKm": 4,
+        "coverage": {
+          "tmax": 0.992,
+          "tmin": 0.994,
+          "prcp": 0.994
+        }
+      },
+      {
+        "source": "meteostat",
+        "id": "95719",
+        "name": "Dubbo",
+        "distanceKm": 5.6,
+        "coverage": {
+          "tmax": 0.976,
+          "tmin": 0.974,
+          "prcp": 0.974
+        }
+      },
+      {
+        "source": "meteostat",
+        "id": "94719",
+        "name": "Dubbo",
+        "distanceKm": 6.4,
+        "coverage": {
+          "tmax": 0.944,
+          "tmin": 0.944,
+          "prcp": 0
+        }
+      }
+    ],
+    "jilin": [
+      {
+        "source": "meteostat",
+        "id": "54172",
+        "name": "Jilin",
+        "distanceKm": 1.1,
+        "coverage": {
+          "tmax": 0,
+          "tmin": 0,
+          "prcp": 0
+        }
+      }
+    ],
+    "mekong": [
+      {
+        "source": "meteostat",
+        "id": "48910",
+        "name": "Vinh Long",
+        "distanceKm": 31.2,
+        "coverage": {
+          "tmax": 0,
+          "tmin": 0,
+          "prcp": 0
+        }
+      }
+    ],
+    "texas": [
+      {
+        "source": "ghcnd",
+        "id": "USW00013960",
+        "name": "DALLAS FAA AP",
+        "distanceKm": 7.3,
+        "coverage": {
+          "tmax": 1,
+          "tmin": 1,
+          "prcp": 0.998
+        }
+      },
+      {
+        "source": "ghcnd",
+        "id": "USW00003971",
+        "name": "DALLAS REDBIRD AP",
+        "distanceKm": 13,
+        "coverage": {
+          "tmax": 1,
+          "tmin": 1,
+          "prcp": 0.984
+        }
+      },
+      {
+        "source": "ghcnd",
+        "id": "USC00410058",
+        "name": "ADDISON AIRPORT",
+        "distanceKm": 21.2,
+        "coverage": {
+          "tmax": 1,
+          "tmin": 1,
+          "prcp": 0.982
+        }
+      },
+      {
+        "source": "ghcnd",
+        "id": "USW00053975",
+        "name": "LANCASTER AP",
+        "distanceKm": 23.6,
+        "coverage": {
+          "tmax": 0.51,
+          "tmin": 0.51,
+          "prcp": 0.51
+        }
+      },
+      {
+        "source": "ghcnd",
+        "id": "USW00003927",
+        "name": "DAL-FTW WSCMO AP",
+        "distanceKm": 24.5,
+        "coverage": {
+          "tmax": 1,
+          "tmin": 1,
+          "prcp": 0.996
+        }
+      },
+      {
+        "source": "meteostat",
+        "id": "72258",
+        "name": "Dallas / Oldham",
+        "distanceKm": 8.9,
+        "coverage": {
+          "tmax": 1,
+          "tmin": 1,
+          "prcp": 0.998
+        }
+      },
+      {
+        "source": "meteostat",
+        "id": "KRBD0",
+        "name": "Dallas / Westwood Park",
+        "distanceKm": 12.7,
+        "coverage": {
+          "tmax": 0.978,
+          "tmin": 0.978,
+          "prcp": 0.659
+        }
+      },
+      {
+        "source": "meteostat",
+        "id": "KNBE0",
+        "name": "Dallas / Lakeland Heights",
+        "distanceKm": 16.4,
+        "coverage": {
+          "tmax": 0,
+          "tmin": 0,
+          "prcp": 0
+        }
+      },
+      {
+        "source": "meteostat",
+        "id": "KADS0",
+        "name": "Dallas / Addison",
+        "distanceKm": 21.2,
+        "coverage": {
+          "tmax": 0.764,
+          "tmin": 0.764,
+          "prcp": 0
+        }
+      }
+    ],
+    "northeast": [
+      {
+        "source": "ghcnd",
+        "id": "USW00094728",
+        "name": "NY CITY CNTRL PARK",
+        "distanceKm": 8.4,
+        "coverage": {
+          "tmax": 1,
+          "tmin": 1,
+          "prcp": 1
+        }
+      },
+      {
+        "source": "ghcnd",
+        "id": "USC00283704",
+        "name": "HARRISON",
+        "distanceKm": 12.7,
+        "coverage": {
+          "tmax": 1,
+          "tmin": 1,
+          "prcp": 0.998
+        }
+      },
+      {
+        "source": "ghcnd",
+        "id": "USW00014732",
+        "name": "LAGUARDIA AP",
+        "distanceKm": 13.4,
+        "coverage": {
+          "tmax": 1,
+          "tmin": 1,
+          "prcp": 1
+        }
+      },
+      {
+        "source": "ghcnd",
+        "id": "USW00014734",
+        "name": "NEWARK LIBERTY INTL AP",
+        "distanceKm": 13.8,
+        "coverage": {
+          "tmax": 1,
+          "tmin": 1,
+          "prcp": 1
+        }
+      },
+      {
+        "source": "ghcnd",
+        "id": "USC00288884",
+        "name": "TETERBORO AP",
+        "distanceKm": 17,
+        "coverage": {
+          "tmax": 0.976,
+          "tmin": 0.976,
+          "prcp": 0.996
+        }
+      },
+      {
+        "source": "meteostat",
+        "id": "KJRB0",
+        "name": "New York / Wall Street",
+        "distanceKm": 1,
+        "coverage": {
+          "tmax": 0.819,
+          "tmin": 0.819,
+          "prcp": 0.002
+        }
+      },
+      {
+        "source": "meteostat",
+        "id": "KNYC0",
+        "name": "New York City / Yorkville",
+        "distanceKm": 8.4,
+        "coverage": {
+          "tmax": 0.984,
+          "tmin": 0.984,
+          "prcp": 0.585
+        }
+      },
+      {
+        "source": "meteostat",
+        "id": "72503",
+        "name": "LaGuardia Airport",
+        "distanceKm": 13.4,
+        "coverage": {
+          "tmax": 1,
+          "tmin": 1,
+          "prcp": 0.998
+        }
+      },
+      {
+        "source": "meteostat",
+        "id": "72502",
+        "name": "Newark Airport",
+        "distanceKm": 13.8,
+        "coverage": {
+          "tmax": 1,
+          "tmin": 1,
+          "prcp": 0.998
+        }
+      }
+    ],
+    "northwest-europe": [
+      {
+        "source": "ghcnd",
+        "id": "NLE00152485",
+        "name": "SCHIPHOL",
+        "distanceKm": 9.6,
+        "coverage": {
+          "tmax": 0.921,
+          "tmin": 0.921,
+          "prcp": 0.921
+        }
+      },
+      {
+        "source": "ghcnd",
+        "id": "NLE00152475",
+        "name": "WIJK AAN ZEE",
+        "distanceKm": 25.1,
+        "coverage": {
+          "tmax": 0.921,
+          "tmin": 0.921,
+          "prcp": 0.921
+        }
+      },
+      {
+        "source": "ghcnd",
+        "id": "NLE00152478",
+        "name": "BERKHOUT",
+        "distanceKm": 30.8,
+        "coverage": {
+          "tmax": 0.921,
+          "tmin": 0.921,
+          "prcp": 0.921
+        }
+      },
+      {
+        "source": "ghcnd",
+        "id": "NLM00006260",
+        "name": "DE BILT",
+        "distanceKm": 35.6,
+        "coverage": {
+          "tmax": 0.921,
+          "tmin": 0.921,
+          "prcp": 0.921
+        }
+      },
+      {
+        "source": "meteostat",
+        "id": "06241",
+        "name": "Amsterdam Coenhaven Aws",
+        "distanceKm": 5.7,
+        "coverage": {
+          "tmax": 0,
+          "tmin": 0,
+          "prcp": 0
+        }
+      },
+      {
+        "source": "meteostat",
+        "id": "06240",
+        "name": "Amsterdam Airport Schiphol",
+        "distanceKm": 11.9,
+        "coverage": {
+          "tmax": 1,
+          "tmin": 1,
+          "prcp": 0.369
+        }
+      },
+      {
+        "source": "meteostat",
+        "id": "06225",
+        "name": "Ijmuiden",
+        "distanceKm": 24,
+        "coverage": {
+          "tmax": 0,
+          "tmin": 0,
+          "prcp": 0
+        }
+      },
+      {
+        "source": "meteostat",
+        "id": "06247",
+        "name": "Bloemendaal",
+        "distanceKm": 24.3,
+        "coverage": {
+          "tmax": 0,
+          "tmin": 0,
+          "prcp": 0
+        }
+      }
+    ]
+  },
+  "sources": {
+    "ghcnd": "https://www.ncei.noaa.gov/pub/data/ghcn/daily/ (ghcnd-stations.txt, ghcnd-inventory.txt, by_station/*.csv.gz)",
+    "meteostat": "https://data.meteostat.net/daily/<year>/<station>.csv.gz (Meteostat, CC BY-NC 4.0); station list https://bulk.meteostat.net/v2/stations/full.json.gz",
+    "elevation": "Open-Meteo elevation API (Copernicus DEM GLO-90) at the benchmark site coordinates"
+  }
+}

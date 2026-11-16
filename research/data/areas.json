@@ -1,0 +1,273 @@
+{
+  "version": "astraeus-areas-v1",
+  "generatedAt": "2026-11-16T09:38:38.800Z",
+  "method": {
+    "points": "4 points per area: production-weighted k-medoids (PAM, greedy BUILD + SWAP) of the producing units on great-circle distance; each point is the medoid unit's internal point / polygon centroid",
+    "weights": "share of the area total (production, or population for heating demand) whose unit is nearest to that point",
+    "areaMean": "weighted mean of the daily values at the points, formed separately for each model, lead and variable and for ERA5; a day is kept only if every point has a value",
+    "budget": "4 points × 4 areas = 16 Open-Meteo locations, chosen to fit a 3,000 weighted-call budget"
+  },
+  "areas": [
+    {
+      "id": "iowa-corn",
+      "name": "Iowa corn belt",
+      "benchmarkSite": "iowa",
+      "commodity": "corn",
+      "measure": "corn for grain production",
+      "unit": "bushels",
+      "year": 2022,
+      "totalValue": 2470000000,
+      "unallocatedValue": 14192000,
+      "sources": [
+        {
+          "title": "USDA NASS Iowa Ag News — 2023 Corn County Estimates (includes revised 2022 county production)",
+          "url": "https://www.nass.usda.gov/sites/default/files/Statistics_by_State/Iowa/Publications/County_Estimates/2024/IA-CtyEst-Corn-02-24.pdf",
+          "note": "2022 used: the 2023 column suppresses 13 counties (269 M bu in “Other counties”)"
+        },
+        {
+          "title": "US Census Bureau 2024 Gazetteer — counties (internal points)",
+          "url": "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2024_Gazetteer/2024_Gaz_counties_national.zip"
+        }
+      ],
+      "units": 97,
+      "points": [
+        {
+          "id": "iowa-corn-1",
+          "name": "Linn County, IA",
+          "code": "19113",
+          "lat": 42.078,
+          "lng": -91.5977,
+          "weight": 0.2961,
+          "unitsAssigned": 33,
+          "valueAssigned": 727165000
+        },
+        {
+          "id": "iowa-corn-2",
+          "name": "Franklin County, IA",
+          "code": "19069",
+          "lat": 42.7365,
+          "lng": -93.2714,
+          "weight": 0.2943,
+          "unitsAssigned": 22,
+          "valueAssigned": 722732000
+        },
+        {
+          "id": "iowa-corn-3",
+          "name": "Audubon County, IA",
+          "code": "19009",
+          "lat": 41.6792,
+          "lng": -94.9043,
+          "weight": 0.2222,
+          "unitsAssigned": 26,
+          "valueAssigned": 545618000
+        },
+        {
+          "id": "iowa-corn-4",
+          "name": "Cherokee County, IA",
+          "code": "19035",
+          "lat": 42.7427,
+          "lng": -95.6333,
+          "weight": 0.1874,
+          "unitsAssigned": 16,
+          "valueAssigned": 460293000
+        }
+      ],
+      "meanDistanceKm": 70.7
+    },
+    {
+      "id": "mato-grosso-soy",
+      "name": "Mato Grosso soybean belt",
+      "benchmarkSite": "mato-grosso",
+      "commodity": "soybeans",
+      "measure": "soybean (grain) quantity produced",
+      "unit": "tonnes",
+      "year": 2024,
+      "totalValue": 38396410,
+      "unallocatedValue": 0,
+      "sources": [
+        {
+          "title": "IBGE Produção Agrícola Municipal 2024 — SIDRA table 1612 (lavouras temporárias), variable 214, product 2713 Soja (em grão)",
+          "url": "https://apisidra.ibge.gov.br/values/t/1612/n6/in%20n3%2051/v/214/p/2024/c81/2713"
+        },
+        {
+          "title": "IBGE Malha Municipal 2024 — MT municipalities (polygon centroids)",
+          "url": "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2024/UFs/MT/MT_Municipios_2024.zip"
+        }
+      ],
+      "units": 131,
+      "points": [
+        {
+          "id": "mato-grosso-soy-1",
+          "name": "Sorriso - MT",
+          "code": "5107925",
+          "lat": -12.668,
+          "lng": -55.723,
+          "weight": 0.4123,
+          "unitsAssigned": 34,
+          "valueAssigned": 15832202
+        },
+        {
+          "id": "mato-grosso-soy-2",
+          "name": "Querência - MT",
+          "code": "5107065",
+          "lat": -12.1587,
+          "lng": -52.7434,
+          "weight": 0.2261,
+          "unitsAssigned": 26,
+          "valueAssigned": 8682311
+        },
+        {
+          "id": "mato-grosso-soy-3",
+          "name": "Poxoréu - MT",
+          "code": "5107008",
+          "lat": -15.851,
+          "lng": -54.186,
+          "weight": 0.1853,
+          "unitsAssigned": 37,
+          "valueAssigned": 7114793
+        },
+        {
+          "id": "mato-grosso-soy-4",
+          "name": "Sapezal - MT",
+          "code": "5107875",
+          "lat": -13.1544,
+          "lng": -58.6535,
+          "weight": 0.1763,
+          "unitsAssigned": 34,
+          "valueAssigned": 6767104
+        }
+      ],
+      "meanDistanceKm": 133.5
+    },
+    {
+      "id": "minas-coffee",
+      "name": "Minas Gerais coffee regions",
+      "benchmarkSite": "minas",
+      "commodity": "coffee",
+      "measure": "coffee (green bean, total) quantity produced",
+      "unit": "tonnes",
+      "year": 2024,
+      "totalValue": 1687329,
+      "unallocatedValue": 0,
+      "sources": [
+        {
+          "title": "IBGE Produção Agrícola Municipal 2024 — SIDRA table 1613 (lavouras permanentes), variable 214, product 2723 Café (em grão) Total",
+          "url": "https://apisidra.ibge.gov.br/values/t/1613/n6/in%20n3%2031/v/214/p/2024/c82/2723"
+        },
+        {
+          "title": "IBGE Malha Municipal 2024 — MG municipalities (polygon centroids)",
+          "url": "https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2024/UFs/MG/MG_Municipios_2024.zip"
+        }
+      ],
+      "units": 494,
+      "points": [
+        {
+          "id": "minas-coffee-1",
+          "name": "Elói Mendes - MG",
+          "code": "3123601",
+          "lat": -21.6124,
+          "lng": -45.5973,
+          "weight": 0.2901,
+          "unitsAssigned": 126,
+          "valueAssigned": 489501
+        },
+        {
+          "id": "minas-coffee-2",
+          "name": "Manhuaçu - MG",
+          "code": "3139409",
+          "lat": -20.1953,
+          "lng": -42.1068,
+          "weight": 0.2614,
+          "unitsAssigned": 250,
+          "valueAssigned": 441012
+        },
+        {
+          "id": "minas-coffee-3",
+          "name": "Bom Jesus da Penha - MG",
+          "code": "3107604",
+          "lat": -21.0138,
+          "lng": -46.5291,
+          "weight": 0.2245,
+          "unitsAssigned": 50,
+          "valueAssigned": 378845
+        },
+        {
+          "id": "minas-coffee-4",
+          "name": "Patrocínio - MG",
+          "code": "3148103",
+          "lat": -18.9705,
+          "lng": -47.0513,
+          "weight": 0.224,
+          "unitsAssigned": 68,
+          "valueAssigned": 377971
+        }
+      ],
+      "meanDistanceKm": 75
+    },
+    {
+      "id": "northeast-heating",
+      "name": "US Northeast heating demand",
+      "benchmarkSite": "northeast",
+      "commodity": "natural-gas / heating-oil demand",
+      "measure": "resident population (heating-demand proxy)",
+      "unit": "persons",
+      "year": 2024,
+      "totalValue": 57832935,
+      "unallocatedValue": 0,
+      "sources": [
+        {
+          "title": "US Census Bureau county population totals, Vintage 2024 (co-est2024-alldata), Northeast region (REGION = 1)",
+          "url": "https://www2.census.gov/programs-surveys/popest/datasets/2020-2024/counties/totals/co-est2024-alldata.csv"
+        },
+        {
+          "title": "US Census Bureau 2024 Gazetteer — counties (internal points)",
+          "url": "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2024_Gazetteer/2024_Gaz_counties_national.zip"
+        }
+      ],
+      "units": 218,
+      "points": [
+        {
+          "id": "northeast-heating-1",
+          "name": "New York County, NY",
+          "code": "36061",
+          "lat": 40.7766,
+          "lng": -73.9702,
+          "weight": 0.4084,
+          "unitsAssigned": 42,
+          "valueAssigned": 23616542
+        },
+        {
+          "id": "northeast-heating-2",
+          "name": "Middlesex County, MA",
+          "code": "25017",
+          "lat": 42.4817,
+          "lng": -71.3949,
+          "weight": 0.2448,
+          "unitsAssigned": 74,
+          "valueAssigned": 14155963
+        },
+        {
+          "id": "northeast-heating-3",
+          "name": "Montgomery County, PA",
+          "code": "42091",
+          "lat": 40.21,
+          "lng": -75.3702,
+          "weight": 0.2055,
+          "unitsAssigned": 39,
+          "valueAssigned": 11885781
+        },
+        {
+          "id": "northeast-heating-4",
+          "name": "McKean County, PA",
+          "code": "42083",
+          "lat": 41.8146,
+          "lng": -78.5725,
+          "weight": 0.1413,
+          "unitsAssigned": 63,
+          "valueAssigned": 8174649
+        }
+      ],
+      "meanDistanceKm": 84.2
+    }
+  ]
+}
