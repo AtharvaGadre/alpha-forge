@@ -68,3 +68,53 @@ If D2 is adopted, the live pipeline fetches ERA5 2019–2024 daily Tmean and Tma
 - Dabernig, M., Mayr, G. J., Messner, J. W. and Zeileis, A. (2017). Spatial ensemble post-processing with standardized anomalies. *Quarterly Journal of the Royal Meteorological Society* 143, 909–916. https://doi.org/10.1002/qj.2975
 - Lang, M. N., Lerch, S., Mayr, G. J., Simon, T., Stauffer, R. and Zeileis, A. (2020). Remember the past: a comparison of time-adaptive training schemes for non-homogeneous regression. *Nonlinear Processes in Geophysics* 27, 23–34. https://doi.org/10.5194/npg-27-23-2020
 - Scheuerer, M. and Büermann, L. (2014). Spatially adaptive post-processing of ensemble forecasts for temperature. *Journal of the Royal Statistical Society C* 63, 405–422. https://doi.org/10.1111/rssc.12040
+
+---
+
+*Everything below was added after the pre-specification commit (87958e2, 2026-11-16T12:39:58Z).*
+
+## 6. Development-period results and selection
+
+**Run.** `npx tsx research/weather-benchmark.ts --suite v31dev --period dev --offline`, archived as `public/research/archive/weather-v31-dev.json` (generated 2026-11-16T12:41:01Z). v3 reproduces its published dev value exactly (0.78946 °C). No confirmation-period number of either candidate was computed.
+
+**Pooled temperature, development period (22,144 cases):**
+
+| Method | Pooled CRPS (°C) | Δ vs v3 | 80% coverage | below p10 | above p90 | bias (°C) |
+|---|---|---|---|---|---|---|
+| v3 (`astraeus-v3`) | 0.78946 | — | 77.4% | 11.6% | 11.0% | +0.033 |
+| **D1 `v31d1-unit-slope`** | **0.76746** | **−0.02199 (−2.79%)** | **78.0%** | 10.9% | 11.1% | −0.020 |
+| D2 `v31d2-clim-anchor` | 0.77111 | −0.01834 (−2.32%) | 78.0% | 11.0% | 11.0% | −0.013 |
+| Zero-training Gaussian (reference) | 0.84939 | +0.05993 (+7.59%) | 80.0% | 8.8% | 11.1% | −0.060 |
+
+**Per cell (CRPS °C / 80% coverage % / bias °C):**
+
+| Cell | v3 | D1 | D2 |
+|---|---|---|---|
+| Tmean d1 | 0.337 / 78.6 / −0.024 | 0.338 / 78.4 / −0.024 | 0.339 / 78.1 / −0.015 |
+| Tmean d3 | 0.472 / 76.9 / −0.016 | 0.465 / 77.0 / −0.025 | 0.473 / 77.3 / −0.024 |
+| Tmean d5 | 0.692 / 77.3 / +0.006 | 0.670 / 77.8 / −0.022 | 0.682 / 77.9 / −0.029 |
+| Tmean d7 | 1.058 / 76.4 / +0.051 | 1.016 / 77.5 / −0.029 | 1.033 / 76.9 / −0.017 |
+| Tmax d1 | 0.580 / 78.3 / +0.040 | 0.575 / 79.0 / −0.001 | 0.573 / 79.4 / +0.013 |
+| Tmax d3 | 0.775 / 77.2 / +0.028 | 0.757 / 78.2 / −0.013 | 0.759 / 78.4 / −0.009 |
+| Tmax d5 | 1.017 / 77.5 / +0.053 | 0.983 / 78.4 / −0.014 | 0.984 / 78.0 / −0.018 |
+| Tmax d7 | 1.415 / 77.1 / +0.133 | 1.364 / 77.9 / −0.031 | 1.355 / 77.8 / −0.006 |
+
+**Selection (Section 4 rule).**
+
+- Both candidates are eligible on coverage (78.0% each).
+- Both lower pooled CRPS below v3's by far more than 0.0001 °C.
+- D1's pooled CRPS is lower than D2's by 0.00365 °C, which is outside the 0.0001 °C tie band.
+- **D1 is selected and frozen as `astraeus-v3.1`.** Its precipitation component is v3's (no rain candidate was run).
+
+**What the dev numbers say, and do not say.**
+
+- **The gain is at the longer leads.** Day 1 is unchanged (Tmean +0.3%, Tmax −0.9%). Days 5–7 improve by 3–4%: Tmean d7 1.058 → 1.016, Tmax d7 1.415 → 1.364. The pull toward the window mean grows with lead because the fitted b falls with lead.
+- **The bias that grew with lead is gone.** v3's dev bias rose from +0.04 °C at Tmax day 1 to +0.13 °C at day 7. Under D1 it is between −0.03 and 0.00 °C at every lead.
+- **Removing the pull beat redirecting it.** We expected D2 to win at long leads, where shrinking a noisy forecast toward normal usually helps. It won only at Tmax d1 and d7, and lost pooled. One reading is that a slope estimated from 90 recency-weighted days is itself too noisy to be useful. We did not test this.
+- **This is the largest single dev improvement in the project's post-processing work.** v3 gained 0.55% over v2 on dev; v3.1 gains 2.8% over v3. That is still a dev-period number, chosen on dev.
+
+- **Benchmark check.** On dev, `astraeus-v3.1` reproduces D1 exactly in every temperature cell. Its precipitation CRPS, bias, MAE and RMSE equal v3's in every cell, with 0 differences in `bySite`. The only differences are precipitation PIT coverage at leads 1/3/5/7: 82.3 / 81.4 / 81.2 / 79.0% for v3.1 against 81.4 / 80.6 / 81.1 / 80.0% for v3. This is randomisation noise: v3.1 draws its own randomised-PIT numbers for dry days. Run: `--suite raw-ensemble,astraeus-v3,v31d1-unit-slope,astraeus-v3.1 --period dev`.
+
+## 7. Freeze
+
+`astraeus-v3.1` is implemented as `ASTRAEUS_V31_TEMPERATURE` and `fitAstraeusV31` in `src/engine/weatherPostprocessing.ts`, predicted with `predictAstraeusV3`, with unit tests in `weatherPostprocessing.test.ts`. It is registered as `astraeus-v3.1` in `research/weather-benchmark.ts` and appended to the `final` suite after v3, with its own randomised-PIT stream, so every other method's scores are unchanged by its presence.

@@ -1128,3 +1128,24 @@ export function fitAstraeusV3(rows: AgedTrainingRow[], kind: VariableKind): Astr
 export function predictAstraeusV3(model: AstraeusV3Model, f: number[]): PredictiveForecast {
   return model.kind === 'temperature' ? predictNgrV3(model.ngr, f) : { kind: 'weighted-ensemble', members: f, weights: model.weights };
 }
+
+// ---------------------------------------------------------------------------
+// 11. Astraeus v3.1 — frozen 2026-11-16 from the development period only (docs/results/WEATHER_V31.md)
+// ---------------------------------------------------------------------------
+
+/**
+ * Astraeus v3.1 temperature component = candidate D1, selected by the pre-specified rule: v3 (logistic skill-weighted NGR,
+ * 35-day recency weights, blocked-CV scale factor) with the regression slope fixed at 1, so the forecast is no longer
+ * pulled toward the training window's mean temperature. Frozen: do not change without a new version and a new
+ * development-period selection.
+ */
+export const ASTRAEUS_V31_TEMPERATURE: Readonly<NgrV3Options> = Object.freeze({ ...ASTRAEUS_V3_TEMPERATURE, location: 'unit-slope' as const });
+
+/** Fit Astraeus v3.1 (temperature: D1; precipitation: v3's skill-weighted ensemble, unchanged). Predict with predictAstraeusV3. */
+export function fitAstraeusV31(rows: AgedTrainingRow[], kind: VariableKind): AstraeusV3Model | null {
+  if (rows.length < 10) return null;
+  if (kind === 'precipitation') return { kind, weights: skillWeights(rows, 0.25) };
+  const ngr = fitNgrV3(rows, ASTRAEUS_V31_TEMPERATURE);
+  return ngr ? { kind, ngr } : null;
+}
+

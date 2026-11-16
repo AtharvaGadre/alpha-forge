@@ -8,7 +8,7 @@ import {
   crpsWeightedEnsemble, skillWeights, fitNgrSkill, predictNgrSkill, fitCensoredPower, predictCensoredPower,
   crpsCensoredPower, powerCdf, insideCentral, rawGaussian,
   cdfOf, crpsLogistic, logisticCdf, fitNgrV3, predictNgrV3, fitScaleFactor,
-  ASTRAEUS_V3_TEMPERATURE, fitAstraeusV3, predictAstraeusV3, type NgrV3Options,
+  ASTRAEUS_V3_TEMPERATURE, fitAstraeusV3, predictAstraeusV3, type NgrV3Options, ASTRAEUS_V31_TEMPERATURE, fitAstraeusV31,
 } from './weatherPostprocessing';
 import { buildCalibratedOutlook, OUTLOOK_METHOD_VERSION } from './calibratedOutlook';
 
@@ -419,6 +419,17 @@ test('Astraeus v3 is the frozen C6 configuration for temperature and v2 for prec
   const pr = fitAstraeusV3(rain, 'precipitation')!;
   assert.deepEqual(predictAstraeusV3(pr, [0, 1, 2, 0.5, 3]), { kind: 'weighted-ensemble', members: [0, 1, 2, 0.5, 3], weights: skillWeights(rain, 0.25) });
   assert.equal(fitAstraeusV3(rows.slice(0, 9), 'temperature'), null);
+});
+
+test('Astraeus v3.1 is v3 with a unit slope (candidate D1) and leaves rain unchanged', () => {
+  assert.deepEqual({ ...ASTRAEUS_V31_TEMPERATURE }, { family: 'logistic', halfLifeDays: 35, recalibrate: 'cv', shrink: 0.25, location: 'unit-slope' });
+  assert.ok(Object.isFrozen(ASTRAEUS_V31_TEMPERATURE));
+  const rows = syntheticWindow(83, (age) => 0.02 * (90 - age));
+  const m = fitAstraeusV31(rows, 'temperature')!;
+  assert.ok(m.kind === 'temperature' && m.ngr.params.b === 1);
+  assert.deepEqual(predictAstraeusV3(m, [15, 16, 14, 15.5, 17]), predictNgrV3(fitNgrV3(rows, { ...ASTRAEUS_V3_TEMPERATURE, location: 'unit-slope' })!, [15, 16, 14, 15.5, 17]));
+  const rain = rows.map((r) => ({ f: r.f.map((v) => Math.max(0, v - 14)), y: Math.max(0, r.y - 14) }));
+  assert.deepEqual(fitAstraeusV31(rain, 'precipitation'), fitAstraeusV3(rain, 'precipitation'));
 });
 
 test('live outlook uses the method chosen by the adoption rule, reports it in `version`, and v2 stays selectable', () => {

@@ -30,7 +30,7 @@ import {
   dieboldMariano, seededRandom, insideCentral, rawGaussian, crpsEnsemble,
   fitEmosNormal, predictEmosNormal, fitEmosCensored, predictEmosCensored, fitNgrSkill, predictNgrSkill, skillWeights, fitCensoredPower, predictCensoredPower,
   fitAstraeusV1, predictAstraeusV1, biasCorrectedEnsemble, applyBiasCorrection, fitNgrV3, predictNgrV3,
-  fitAstraeusV3, predictAstraeusV3, ASTRAEUS_V3_WINDOW_DAYS, ASTRAEUS_V3_TEMPERATURE,
+  fitAstraeusV3, predictAstraeusV3, ASTRAEUS_V3_WINDOW_DAYS, ASTRAEUS_V3_TEMPERATURE, fitAstraeusV31,
   type PredictiveForecast, type TrainingRow, type VariableKind, type NgrV3Options,
 } from '../src/engine/weatherPostprocessing';
 
@@ -350,6 +350,16 @@ for (const c of V31_CANDIDATES) {
   V[c.id] = { id: c.id, label: c.label, applies: 'temperature', window: 90, ownPitStream: true, fit: (t) => { const m = fitNgrV3(t, c.opts); return m ? (f, clim) => predictNgrV3(m, f, clim) : null; } };
 }
 
+/**
+ * Astraeus v3.1 — frozen on 2026-11-16 from the development period only (docs/results/WEATHER_V31.md): candidate D1 for
+ * temperature (v3 with the NGR slope fixed at 1); v3's skill-weighted ensemble for precipitation.
+ */
+V['astraeus-v3.1'] = {
+  id: 'astraeus-v3.1', label: 'Astraeus v3.1 (v3 with unit regression slope for temperature; skill-weighted ensemble for rain; 90-day window)',
+  applies: 'both', window: ASTRAEUS_V3_WINDOW_DAYS, ownPitStream: true,
+  fit: (t, k) => { const m = fitAstraeusV31(t, k); return m ? (f) => predictAstraeusV3(m, f) : null; },
+};
+
 const ownPitStreams = new Map<string, () => number>();
 /** Uniform draw for the randomised PIT of method `m`: the shared stream, or the method's own (Variant.ownPitStream). */
 function pitDraw(m: string, shared: () => number): number {
@@ -360,7 +370,8 @@ function pitDraw(m: string, shared: () => number): number {
 
 const SUITES: Record<string, string[]> = {
   // astraeus-v3 is appended last and draws its own PIT stream, so the other methods' scores are unchanged by its presence
-  final: ['raw-ensemble', 'raw-gauss', 'astraeus-v1', 'emos', 'astraeus-v2', 'astraeus-v3'],
+  // astraeus-v3.1 is appended after v3, with its own PIT stream, for the same reason
+  final: ['raw-ensemble', 'raw-gauss', 'astraeus-v1', 'emos', 'astraeus-v2', 'astraeus-v3', 'astraeus-v3.1'],
   run1: ['raw-ensemble', 'astraeus-v1', 'bias-corrected', 'emos', 'emos-weighted'],
   dev: ['raw-ensemble', 'astraeus-v1', 'emos',
     'ngr-skill-40', 'ngr-skill-60', 'ngr-skill-90', 'ngr-skill-clim-60', 'ngr-skill-clim-90', 'weighted-ensemble-40', 'weighted-ensemble-90',
