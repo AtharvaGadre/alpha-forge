@@ -282,6 +282,7 @@ ${(() => {
   })()}
 - Forecast *changes* (H1, H2), the weather news to be revealed by the next storage report (H3, H4) and the storage-scaled forecast level (H6) do not predict next-week returns out of sample. That is what an efficient market implies: the information is public at the Friday close and is priced.
 - Contemporaneous diagnostic: the weather surprise arriving *during* the holding week has a positive but statistically weak association with that week's return (${fmt(c.pctReturnPerSd)}% per SD, HAC t ${fmt(c.t)}). Weekly returns are dominated by non-weather news, so even same-week weather news explains only ~${fmt(c.r2 * 100, 1)}% of their variance.
+- H3 and H4 subtract the mapped nine-city forecast from CPC values for the same days, so the forecast's winter warm bias (see the degree-day verification in \`STORAGE_STUDY.md\`) gives them a seasonal component. The ridge intercept absorbs only a constant part. Both are null either way.
 - Taken with \`STORAGE_STUDY.md\`: weather forecasts strongly predict the physical storage change, but that predictability does not transfer to next-week futures returns.
 - ${json.leadLimitation}
 `;

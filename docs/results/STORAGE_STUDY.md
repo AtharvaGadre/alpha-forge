@@ -94,14 +94,14 @@ The OLS on report weeks 2010-01-08 … 2021-03-26 (trend + 3 harmonics + HDD + C
 
 ## Results
 
-*Generated 2026-11-16T10:01:59.407Z by `npx tsx research/storage-study.ts`. Machine-readable: `public/research/storage-skill.json` (every number below is in that file). Inputs SHA-256 `3532261dcbaa4bd0…`.*
+*Generated 2026-11-16T10:11:04.261Z by `npx tsx research/storage-study.ts`. Machine-readable: `public/research/storage-skill.json` (every number below is in that file). Inputs SHA-256 `3532261dcbaa4bd0…`.*
 
 ### Data actually used
 
 - EIA Lower-48 weekly levels from `https://www.eia.gov/dnav/ng/hist/nw2_epg0_swo_r48_bcfw.htm` (fetched 2026-11-16T09:43:46.904Z); implied flow = net change minus 19 documented non-flow adjustments. Check against EIA's stated implied flows: 12 of 17 match exactly; differences: 2015-07-17 (66 vs stated 68); 2015-08-28 (88 vs stated 86); 2019-04-05 (28 vs stated 29); 2023-06-30 (72 vs stated 68); 2024-09-20 (56 vs stated 55).
 - CPC daily CONUS gas-weighted HDD and population-weighted CDD 2009–2026.
 - City→CPC maps (ERA5, 2016-01-01…2020-12-31, daily): CONUS HDD reproduced with R² 0.982 (RMSE 1.53 °F·day/day), CDD R² 0.970 (RMSE 0.78). CPC division weights reproduce CPC CONUS with R² 0.9994 (HDD) and 0.9957 (CDD).
-- Test windows: IFS+GFS (primary) 2024-03-15…2026-11-06, **n = 139** weeks; GFS long 2021-05-07…2026-11-06, **n = 280** weeks.
+- Test windows: IFS+GFS (primary) 2024-03-15…2026-11-06, **n = 139** weeks; GFS long 2021-05-07…2026-11-06, **n = 280** weeks. Calendar weeks missing from the GFS window because forecast inputs were incomplete (not because of outcomes): 2024-01-05, 2024-01-12, 2024-01-19, 2024-01-26, 2024-02-02, 2024-02-09, 2024-02-16, 2024-02-23.
 - Open-Meteo weight for the full input set: 1643 weighted calls (fetched in this run: 0).
 
 ### Development-period model selection (2015-01-09…2021-03-26, n = 325, CPC actual weather)
@@ -163,17 +163,17 @@ Share of the oracle's MSE gain over the seasonal model captured by the issued fo
 
 ### Forecast degree days vs CPC truth (weekly sums, °F·day)
 
-| Window | Source | n | HDD RMSE | HDD bias | HDD corr. | CDD RMSE | CDD bias |
-|---|---|---:|---:|---:|---:|---:|---:|
-| IFS+GFS | ERA5 at nine cities (mapped) | 139 | 10.1 | -1.1 | 0.996 | 4.4 | 1.0 |
-| IFS+GFS | GFS, bias-corrected | 139 | 10.1 | -0.1 | 0.994 | 4.6 | 1.8 |
-| IFS+GFS | GFS, raw | 139 | 14.2 | -4.0 | 0.992 | 7.1 | 4.9 |
-| IFS+GFS | ECMWF IFS, bias-corrected | 139 | 11.2 | -0.8 | 0.992 | 5.7 | 1.5 |
-| IFS+GFS | IFS + GFS mean, bias-corrected | 139 | 10.3 | -0.7 | 0.994 | 4.8 | 1.5 |
-| IFS+GFS | IFS + GFS mean, raw | 139 | 10.2 | -0.6 | 0.994 | 5.3 | 3.1 |
-| GFS long | ERA5 at nine cities (mapped) | 280 | 10.3 | -1.4 | 0.996 | 4.1 | 1.3 |
-| GFS long | GFS, bias-corrected | 280 | 10.6 | -0.3 | 0.994 | 4.5 | 2.2 |
-| GFS long | GFS, raw | 280 | 14.4 | -4.1 | 0.992 | 6.9 | 4.6 |
+| Window | Source | n | HDD RMSE | HDD bias | HDD corr. | CDD RMSE | CDD bias | Dec–Feb n | Dec–Feb HDD RMSE | Dec–Feb HDD bias |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| IFS+GFS | ERA5 at nine cities (mapped) | 139 | 10.1 | -1.1 | 0.996 | 4.4 | 1.0 | 26 | 12.5 | -11.0 |
+| IFS+GFS | GFS, bias-corrected | 139 | 10.1 | -0.1 | 0.994 | 4.6 | 1.8 | 26 | 10.6 | -6.8 |
+| IFS+GFS | GFS, raw | 139 | 14.2 | -4.0 | 0.992 | 7.1 | 4.9 | 26 | 20.3 | -18.5 |
+| IFS+GFS | ECMWF IFS, bias-corrected | 139 | 11.2 | -0.8 | 0.992 | 5.7 | 1.5 | 26 | 12.4 | -8.3 |
+| IFS+GFS | IFS + GFS mean, bias-corrected | 139 | 10.3 | -0.7 | 0.994 | 4.8 | 1.5 | 26 | 10.8 | -7.7 |
+| IFS+GFS | IFS + GFS mean, raw | 139 | 10.2 | -0.6 | 0.994 | 5.3 | 3.1 | 26 | 11.6 | -8.6 |
+| GFS long | ERA5 at nine cities (mapped) | 280 | 10.3 | -1.4 | 0.996 | 4.1 | 1.3 | 57 | 12.0 | -10.7 |
+| GFS long | GFS, bias-corrected | 280 | 10.6 | -0.3 | 0.994 | 4.5 | 2.2 | 57 | 11.3 | -7.6 |
+| GFS long | GFS, raw | 280 | 14.4 | -4.1 | 0.992 | 6.9 | 4.6 | 57 | 20.2 | -18.2 |
 
 Correlations include the seasonal cycle and are therefore high for every source; RMSE is the informative column.
 
@@ -226,6 +226,9 @@ Source `https://ir.eia.gov/ngs/ngsstats.xls` (extracted 2026-11-16T09:58:59.5762
 - The EIA five-year average is recomputed from today’s revised history with EIA’s daily-interpolation method; EIA’s published values at release time used the history then available.
 - Weekly weather explains demand-side variation only; production, LNG feed-gas outages, pipeline maintenance and price-driven fuel switching are left to the seasonal/trend terms.
 - Previous Runs archives start in March 2021 (GFS) and February 2024 (ECMWF IFS), so the primary window is ~2.7 years; the longer GFS window is the better-powered test.
+- The missing GFS block (listed above) is the January–February 2024 period, which includes the record withdrawal of the January 2024 Arctic outbreak; such weeks are where the five-year average errs most, so their absence more likely understates than overstates the forecast’s skill, but it is untested.
+- Targets and training use today’s revised EIA history and CPC files (data vintage of the fetch date), not the values available in real time; two restatement steps (May 2024, Aug 2025) were inferred from original vs revised stocks.
+- The nine-city index reads warm against CPC in winter: the Dec–Feb weekly HDD bias is negative for ERA5 at the cities and for every forecast in the verification table. It therefore comes from the pooled-season city→CPC linear map, not from the forecasts. It works against the forecast model (fitted on CPC truth), so it can only reduce the reported skill; a season-specific map is an obvious improvement for a future version.
 - Open-Meteo free API: non-commercial research use only.
 
 ### Reproduce

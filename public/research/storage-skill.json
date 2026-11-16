@@ -1,6 +1,6 @@
 {
  "study": "astraeus-ng-storage-weather-v1",
- "generatedAt": "2026-11-16T10:01:59.407Z",
+ "generatedAt": "2026-11-16T10:11:04.261Z",
  "preSpecification": "docs/results/STORAGE_STUDY.md (pre-specification section, committed before the test windows were scored)",
  "config": {
   "study": "astraeus-ng-storage-weather-v1",
@@ -1571,7 +1571,10 @@
    "hddBias": -1.1393088661892035,
    "cddRmse": 4.363446054503654,
    "cddBias": 0.9735378763422012,
-   "hddCorr": 0.9959546257161821
+   "hddCorr": 0.9959546257161821,
+   "winterN": 26,
+   "winterHddRmse": 12.492021246894225,
+   "winterHddBias": -11.036372589307563
   },
   {
    "window": "multi",
@@ -1581,7 +1584,10 @@
    "hddBias": -0.081147012378254,
    "cddRmse": 4.587819456600039,
    "cddBias": 1.7555597813909767,
-   "hddCorr": 0.994350390140815
+   "hddCorr": 0.994350390140815,
+   "winterN": 26,
+   "winterHddRmse": 10.57701736588633,
+   "winterHddBias": -6.8174182627884665
   },
   {
    "window": "multi",
@@ -1591,7 +1597,10 @@
    "hddBias": -3.979190775228475,
    "cddRmse": 7.1019193744354325,
    "cddBias": 4.918759624775367,
-   "hddCorr": 0.992198447693038
+   "hddCorr": 0.992198447693038,
+   "winterN": 26,
+   "winterHddRmse": 20.273271368025394,
+   "winterHddBias": -18.484781625323354
   },
   {
    "window": "multi",
@@ -1601,7 +1610,10 @@
    "hddBias": -0.8124086446758125,
    "cddRmse": 5.7434119752831645,
    "cddBias": 1.485219575983603,
-   "hddCorr": 0.9922502417192429
+   "hddCorr": 0.9922502417192429,
+   "winterN": 26,
+   "winterHddRmse": 12.432499906890014,
+   "winterHddBias": -8.27053515643542
   },
   {
    "window": "multi",
@@ -1611,7 +1623,10 @@
    "hddBias": -0.7031043334897112,
    "cddRmse": 4.8080207980471945,
    "cddBias": 1.4509917517729618,
-   "hddCorr": 0.9940439613849836
+   "hddCorr": 0.9940439613849836,
+   "winterN": 26,
+   "winterHddRmse": 10.762270858711943,
+   "winterHddBias": -7.710040899208817
   },
   {
    "window": "multi",
@@ -1621,7 +1636,10 @@
    "hddBias": -0.6383587635779723,
    "cddRmse": 5.315846548088744,
    "cddBias": 3.0655492556360735,
-   "hddCorr": 0.9941237585694106
+   "hddCorr": 0.9941237585694106,
+   "winterN": 26,
+   "winterHddRmse": 11.584443996982909,
+   "winterHddBias": -8.593249492326532
   },
   {
    "window": "gfs",
@@ -1631,7 +1649,10 @@
    "hddBias": -1.3837727637389061,
    "cddRmse": 4.079874843633173,
    "cddBias": 1.3041894404921923,
-   "hddCorr": 0.9960099782462767
+   "hddCorr": 0.9960099782462767,
+   "winterN": 57,
+   "winterHddRmse": 11.971901565373004,
+   "winterHddBias": -10.7498454997687
   },
   {
    "window": "gfs",
@@ -1641,7 +1662,10 @@
    "hddBias": -0.33380654048225633,
    "cddRmse": 4.4815414892107395,
    "cddBias": 2.1550516198968026,
-   "hddCorr": 0.9937514986650405
+   "hddCorr": 0.9937514986650405,
+   "winterN": 57,
+   "winterHddRmse": 11.333824189393708,
+   "winterHddBias": -7.599619426246956
   },
   {
    "window": "gfs",
@@ -1651,7 +1675,10 @@
    "hddBias": -4.0814834835961324,
    "cddRmse": 6.903573560924784,
    "cddBias": 4.618022398585607,
-   "hddCorr": 0.9917948562414675
+   "hddCorr": 0.9917948562414675,
+   "winterN": 57,
+   "winterHddRmse": 20.217436477238028,
+   "winterHddBias": -18.185541545843716
   }
  ],
  "bySeason": [
@@ -1915,6 +1942,16 @@
    }
   ]
  },
+ "missingGfsWeeks": [
+  "2024-01-05",
+  "2024-01-12",
+  "2024-01-19",
+  "2024-01-26",
+  "2024-02-02",
+  "2024-02-09",
+  "2024-02-16",
+  "2024-02-23"
+ ],
  "weeks": [
   {
    "weekEnd": "2021-05-07",
@@ -8085,6 +8122,9 @@
   "The EIA five-year average is recomputed from today’s revised history with EIA’s daily-interpolation method; EIA’s published values at release time used the history then available.",
   "Weekly weather explains demand-side variation only; production, LNG feed-gas outages, pipeline maintenance and price-driven fuel switching are left to the seasonal/trend terms.",
   "Previous Runs archives start in March 2021 (GFS) and February 2024 (ECMWF IFS), so the primary window is ~2.7 years; the longer GFS window is the better-powered test.",
+  "The missing GFS block (listed above) is the January–February 2024 period, which includes the record withdrawal of the January 2024 Arctic outbreak; such weeks are where the five-year average errs most, so their absence more likely understates than overstates the forecast’s skill, but it is untested.",
+  "Targets and training use today’s revised EIA history and CPC files (data vintage of the fetch date), not the values available in real time; two restatement steps (May 2024, Aug 2025) were inferred from original vs revised stocks.",
+  "The nine-city index reads warm against CPC in winter: the Dec–Feb weekly HDD bias is negative for ERA5 at the cities and for every forecast in the verification table. It therefore comes from the pooled-season city→CPC linear map, not from the forecasts. It works against the forecast model (fitted on CPC truth), so it can only reduce the reported skill; a season-specific map is an obvious improvement for a future version.",
   "Open-Meteo free API: non-commercial research use only."
  ]
 }

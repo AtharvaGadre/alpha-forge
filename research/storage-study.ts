@@ -345,7 +345,7 @@ function comparisons(rows: WeekRow[]): Comparison[] {
 }
 
 function ddVerification(rows: WeekRow[]) {
-  const out: Array<{ window: string; source: string; n: number; hddRmse: number; hddBias: number; cddRmse: number; cddBias: number; hddCorr: number }> = [];
+  const out: Array<{ window: string; source: string; n: number; hddRmse: number; hddBias: number; cddRmse: number; cddBias: number; hddCorr: number; winterN: number; winterHddRmse: number; winterHddBias: number }> = [];
   const corr = (a: number[], b: number[]) => {
     const ma = mean(a), mb = mean(b);
     let sab = 0, saa = 0, sbb = 0;
@@ -364,7 +364,8 @@ function ddVerification(rows: WeekRow[]) {
       const pairs = w.map((r) => [r.truth, f(r)] as const).filter((p): p is readonly [DD, DD] => p[1] !== null);
       const eh = pairs.map(([t, x]) => x.hdd - t.hdd);
       const ec = pairs.map(([t, x]) => x.cdd - t.cdd);
-      out.push({ window, source, n: pairs.length, hddRmse: rmse(eh), hddBias: mean(eh), cddRmse: rmse(ec), cddBias: mean(ec), hddCorr: corr(pairs.map((p) => p[0].hdd), pairs.map((p) => p[1].hdd)) });
+      const winter = w.filter((r) => [12, 1, 2].includes(monthOf(r.weekEnd))).map((r) => [r.truth, f(r)] as const).filter((p): p is readonly [DD, DD] => p[1] !== null).map(([t, x]) => x.hdd - t.hdd);
+      out.push({ window, source, n: pairs.length, hddRmse: rmse(eh), hddBias: mean(eh), cddRmse: rmse(ec), cddBias: mean(ec), hddCorr: corr(pairs.map((p) => p[0].hdd), pairs.map((p) => p[1].hdd)), winterN: winter.length, winterHddRmse: rmse(winter), winterHddBias: mean(winter) });
     }
   }
   return out;
@@ -392,6 +393,15 @@ function leadVerification(d: Data, rows: WeekRow[]) {
       out.push({ window, models: models.join('+'), lead, n: e.length, hddRmse: rmse(e), hddBias: mean(e) });
     }
   }
+  return out;
+}
+
+/** Fridays inside the GFS window with no test row. */
+function missingWeeks(rows: WeekRow[]): string[] {
+  const have = new Set(windowRows(rows, 'gfs').map((r) => r.weekEnd));
+  const w = windowRows(rows, 'gfs');
+  const out: string[] = [];
+  for (let f = w[0].weekEnd; f <= w.at(-1)!.weekEnd; f = addDaysIso(f, 7)) if (!have.has(f)) out.push(f);
   return out;
 }
 
@@ -548,6 +558,7 @@ async function main() {
     bySeason: seasons,
     leadVerification: leads,
     publishedFiveYearCheck: published,
+    missingGfsWeeks: missingWeeks(rows),
     weeks: rows.map((r) => ({
       weekEnd: r.weekEnd, y: r.y, netChange: r.netChange, fiveYr: +r.fiveYr.toFixed(2), seasonal: +r.seasonal.toFixed(2), oracle: +r.oracle.toFixed(2),
       oracleEra5City: r.oracleEra5City === null ? null : +r.oracleEra5City.toFixed(2),
@@ -579,6 +590,9 @@ const CAVEATS = [
   'The EIA five-year average is recomputed from today’s revised history with EIA’s daily-interpolation method; EIA’s published values at release time used the history then available.',
   'Weekly weather explains demand-side variation only; production, LNG feed-gas outages, pipeline maintenance and price-driven fuel switching are left to the seasonal/trend terms.',
   'Previous Runs archives start in March 2021 (GFS) and February 2024 (ECMWF IFS), so the primary window is ~2.7 years; the longer GFS window is the better-powered test.',
+  'The missing GFS block (listed above) is the January–February 2024 period, which includes the record withdrawal of the January 2024 Arctic outbreak; such weeks are where the five-year average errs most, so their absence more likely understates than overstates the forecast’s skill, but it is untested.',
+  'Targets and training use today’s revised EIA history and CPC files (data vintage of the fetch date), not the values available in real time; two restatement steps (May 2024, Aug 2025) were inferred from original vs revised stocks.',
+  'The nine-city index reads warm against CPC in winter: the Dec–Feb weekly HDD bias is negative for ERA5 at the cities and for every forecast in the verification table. It therefore comes from the pooled-season city→CPC linear map, not from the forecasts. It works against the forecast model (fitted on CPC truth), so it can only reduce the reported skill; a season-specific map is an obvious improvement for a future version.',
   'Open-Meteo free API: non-commercial research use only.',
 ];
 
@@ -613,7 +627,7 @@ function renderResults(json: any, rows: WeekRow[], comps: Comparison[]): string 
 - EIA Lower-48 weekly levels from \`${json.provenance.eia.url}\` (fetched ${json.provenance.eia.fetchedAt}); implied flow = net change minus ${NON_FLOW_ADJUSTMENTS.length} documented non-flow adjustments. Check against EIA's stated implied flows: ${json.target.impliedFlowChecks.filter((c: any) => c.diff === 0).length} of ${json.target.impliedFlowChecks.length} match exactly; differences: ${json.target.impliedFlowChecks.filter((c: any) => c.diff !== 0).map((c: any) => `${c.weekEnd} (${c.impliedFlow} vs stated ${c.statedImpliedFlow})`).join('; ') || 'none'}.
 - CPC daily CONUS gas-weighted HDD and population-weighted CDD ${C.cpcFirstYear}–${C.cpcLastYear}.
 - City→CPC maps (ERA5, ${C.calibration.start}…${C.calibration.end}, daily): CONUS HDD reproduced with R² ${fmt(m.era5CityFit.hddR2, 3)} (RMSE ${fmt(m.era5CityFit.hddRmse, 2)} °F·day/day), CDD R² ${fmt(m.era5CityFit.cddR2, 3)} (RMSE ${fmt(m.era5CityFit.cddRmse, 2)}). CPC division weights reproduce CPC CONUS with R² ${fmt(m.divisionWeightFit.hddR2, 4)} (HDD) and ${fmt(m.divisionWeightFit.cddR2, 4)} (CDD).
-- Test windows: IFS+GFS (primary) ${wMulti[0]?.weekEnd}…${wMulti.at(-1)?.weekEnd}, **n = ${wMulti.length}** weeks; GFS long ${wGfs[0]?.weekEnd}…${wGfs.at(-1)?.weekEnd}, **n = ${wGfs.length}** weeks.
+- Test windows: IFS+GFS (primary) ${wMulti[0]?.weekEnd}…${wMulti.at(-1)?.weekEnd}, **n = ${wMulti.length}** weeks; GFS long ${wGfs[0]?.weekEnd}…${wGfs.at(-1)?.weekEnd}, **n = ${wGfs.length}** weeks. Calendar weeks missing from the GFS window because forecast inputs were incomplete (not because of outcomes): ${json.missingGfsWeeks.length ? json.missingGfsWeeks.join(', ') : 'none'}.
 - Open-Meteo weight for the full input set: ${json.provenance.openMeteoWeightPlanned} weighted calls (fetched in this run: ${json.provenance.openMeteoWeightFetchedThisRun}).
 
 ### Development-period model selection (${dev.period.first}…${dev.period.last}, n = ${dev.period.n}, CPC actual weather)
@@ -644,9 +658,9 @@ Share of the oracle's MSE gain over the seasonal model captured by the issued fo
 
 ### Forecast degree days vs CPC truth (weekly sums, °F·day)
 
-| Window | Source | n | HDD RMSE | HDD bias | HDD corr. | CDD RMSE | CDD bias |
-|---|---|---:|---:|---:|---:|---:|---:|
-${json.degreeDayVerification.map((v: any) => `| ${v.window === 'multi' ? 'IFS+GFS' : 'GFS long'} | ${v.source} | ${v.n} | ${fmt(v.hddRmse)} | ${fmt(v.hddBias)} | ${fmt(v.hddCorr, 3)} | ${fmt(v.cddRmse)} | ${fmt(v.cddBias)} |`).join('\n')}
+| Window | Source | n | HDD RMSE | HDD bias | HDD corr. | CDD RMSE | CDD bias | Dec–Feb n | Dec–Feb HDD RMSE | Dec–Feb HDD bias |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+${json.degreeDayVerification.map((v: any) => `| ${v.window === 'multi' ? 'IFS+GFS' : 'GFS long'} | ${v.source} | ${v.n} | ${fmt(v.hddRmse)} | ${fmt(v.hddBias)} | ${fmt(v.hddCorr, 3)} | ${fmt(v.cddRmse)} | ${fmt(v.cddBias)} | ${v.winterN} | ${fmt(v.winterHddRmse)} | ${fmt(v.winterHddBias)} |`).join('\n')}
 
 Correlations include the seasonal cycle and are therefore high for every source; RMSE is the informative column.
 

@@ -54,7 +54,7 @@ H3–H6 use information that is public at the origin, so it should already be pr
 
 ## Results
 
-*Generated 2026-11-16T10:01:08.116Z by `npx tsx research/price-revisions.ts`. Machine-readable: `public/research/price-revisions.json`. Inputs SHA-256 `e36ab84ed21cca58…`. Origins dropped: 8 non-Friday closes, 10 with missing inputs.*
+*Generated 2026-11-16T10:10:45.444Z by `npx tsx research/price-revisions.ts`. Machine-readable: `public/research/price-revisions.json`. Inputs SHA-256 `e36ab84ed21cca58…`. Origins dropped: 8 non-Friday closes, 10 with missing inputs.*
 
 | Test | Kind | OOS n | OOS window | R²os wx | 95% CI | R²os mkt | R²os wx vs mkt | RMSE wx/RW | CW p (wx>mkt) | BH q | DM p (wx<RW) | BH q | In-sample % ret per SD (HAC t) |
 |---|---|---:|---|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|
@@ -77,5 +77,6 @@ Weekly return regressed on the weather surprise that arrives during the holding 
 - Lowest raw Clark–West p: H5_WKANOM_5Y (p 0.039, q 0.233; R²os 3.30%, 95% CI -4.2 to 9.6%; DM vs no-change p 0.352). After multiple-testing control it is not evidence. Its in-sample sign (2.18% per SD, HAC t 2.6) is also the opposite of the naive fundamental reading for H5 (a larger-than-normal weather-implied build preceding *higher* returns), so treat it as noise or a reversal effect to re-test, not a mechanism.
 - Forecast *changes* (H1, H2), the weather news to be revealed by the next storage report (H3, H4) and the storage-scaled forecast level (H6) do not predict next-week returns out of sample. That is what an efficient market implies: the information is public at the Friday close and is priced.
 - Contemporaneous diagnostic: the weather surprise arriving *during* the holding week has a positive but statistically weak association with that week's return (1.09% per SD, HAC t 1.62). Weekly returns are dominated by non-weather news, so even same-week weather news explains only ~1.2% of their variance.
+- H3 and H4 subtract the mapped nine-city forecast from CPC values for the same days, so the forecast's winter warm bias (see the degree-day verification in `STORAGE_STUDY.md`) gives them a seasonal component. The ridge intercept absorbs only a constant part. Both are null either way.
 - Taken with `STORAGE_STUDY.md`: weather forecasts strongly predict the physical storage change, but that predictability does not transfer to next-week futures returns.
 - The Previous Runs API exposes previous_day1…previous_day7 only. A week-on-week revision of a fixed target window (issue t vs t − 7) needs leads 8–14 and is impossible; H1/H2 are the longest revisions the archive supports (1 day, and lead k+1 vs lead 7 for days 0…+5).
