@@ -37,7 +37,7 @@ export function rateLimit(opts: { name: string; capacity: number; refillPerSecon
   return handler;
 }
 
-/** SHA-256 sources for every inline <script> in the built index.html (the theme bootstrap). */
+/** SHA-256 sources for every inline <script> in the given HTML (index.html theme bootstrap, standalone demo pages). */
 export function inlineScriptHashes(html: string): string[] {
   return [...html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi)]
     .map((m) => `'sha256-${createHash('sha256').update(m[1], 'utf8').digest('base64')}'`);
@@ -45,12 +45,14 @@ export function inlineScriptHashes(html: string): string[] {
 
 /**
  * Content-Security-Policy for the production bundle. The browser only talks to this origin (all weather, market
- * and literature data are fetched server-side) plus Google Fonts for the stylesheet and font files.
+ * and literature data are fetched server-side) plus Google Fonts for the stylesheet and font files. Inline scripts
+ * are allowed only by hash, taken from the HTML files actually served (dist/*.html).
  */
-export function buildCsp(indexHtml: string): string {
+export function buildCsp(htmlFiles: string[]): string {
+  const hashes = [...new Set(htmlFiles.flatMap(inlineScriptHashes))];
   return [
     "default-src 'self'",
-    `script-src 'self' ${inlineScriptHashes(indexHtml).join(' ')}`.trim(),
+    `script-src 'self' ${hashes.join(' ')}`.trim(),
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' data: https://fonts.gstatic.com",
     "img-src 'self' data: blob:",

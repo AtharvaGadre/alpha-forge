@@ -57,7 +57,9 @@ async function startServer() {
   const distPath = path.join(__dirname, 'dist');
   let csp: string | null = null;
   if (production) {
-    try { csp = buildCsp(fs.readFileSync(path.join(distPath, 'index.html'), 'utf8')); } catch { csp = buildCsp(''); }
+    let pages: string[] = [];
+    try { pages = fs.readdirSync(distPath).filter((f) => f.endsWith('.html')).map((f) => fs.readFileSync(path.join(distPath, f), 'utf8')); } catch { /* no build yet */ }
+    csp = buildCsp(pages);
   }
   app.use(securityHeaders({ csp }));
   app.use(express.json({ limit: '64kb' }));
