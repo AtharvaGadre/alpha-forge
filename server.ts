@@ -9,6 +9,7 @@ import { COMMODITIES, COMMODITY_ENGINE_VERSION, commodityTarget, buildCommodityF
 import express from 'express';
 import http from 'http';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import { WebSocketServer } from 'ws';
@@ -1231,14 +1232,16 @@ Ground your synthesis strictly in the verified country data below (do NOT fabric
     res.json(workflow.modelComparison);
   });
 
-  app.get('/api/v1/models/skill', (req, res) => {
-    const query = String(req.query.q || 'Brazil');
-    const workflow = executeArgonVoiceWorkflow({ query });
-    res.json({
-      region: workflow.resolvedScope.regionLabel,
-      verificationMetrics: workflow.modelComparison.verificationMetrics,
-      autonomousImprovements: AUTONOMOUS_FORECAST_IMPROVEMENTS,
-    });
+  // Model skill is served from the published, reproducible benchmark (research/weather-benchmark.ts),
+  // never from illustrative fixtures.
+  app.get('/api/v1/models/skill', async (_req, res) => {
+    try {
+      const raw = await fs.promises.readFile(path.join(process.cwd(), 'public', 'research', 'weather-skill.json'), 'utf8');
+      const r = JSON.parse(raw);
+      res.json({ version: r.version, period: r.periodLabel, generatedAt: r.generatedAt, headlineMethod: r.headlineMethod, sites: r.sites?.length, summary: r.summary?.map(({ pit, reliability, ...row }: any) => row), singleModels: r.singleModels, provenance: r.provenance, caveats: r.caveats, fullResults: '/research/weather-skill.json' });
+    } catch {
+      res.status(503).json({ error: 'Benchmark results not generated. Run: npx tsx research/weather-benchmark.ts --suite final --period confirm' });
+    }
   });
 
   // 10h. POST /api/v1/forecasts/ensemble
@@ -1269,21 +1272,11 @@ Ground your synthesis strictly in the verified country data below (do NOT fabric
     res.json({ news: GLOBAL_NEWS_ITEMS });
   });
 
-  // 10j. POST /api/v1/research/experiments & GET /api/v1/research/experiments/:id
-  app.post('/api/v1/research/experiments', (_req, res) => {
-    res.json({
-      status: 'COMPLETED',
-      experiments: AUTONOMOUS_FORECAST_IMPROVEMENTS,
-    });
-  });
-
-  app.get('/api/v1/research/experiments/:id', (req, res) => {
-    const found =
-      AUTONOMOUS_FORECAST_IMPROVEMENTS.find(
-        (e) => e.experimentId === req.params.id
-      ) || AUTONOMOUS_FORECAST_IMPROVEMENTS[0];
-    res.json(found);
-  });
+  // 10j. Retired: the former experiment records were illustrative fixtures, not measured results.
+  const retiredExperiments = (_req: express.Request, res: express.Response) =>
+    res.status(410).json({ error: 'Retired. Illustrative experiment fixtures were removed; measured results are published at /research/weather-skill.json and /research/price-skill.json.' });
+  app.post('/api/v1/research/experiments', retiredExperiments);
+  app.get('/api/v1/research/experiments/:id', retiredExperiments);
 
   // 10k. POST /api/v1/reports & GET /api/v1/reports/:id
   app.post('/api/v1/reports', (req, res) => {

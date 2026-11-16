@@ -886,6 +886,10 @@ export interface ForecastImprovementExperimentRecord {
   observedResultSummary: string;
 }
 
+/**
+ * ILLUSTRATIVE FIXTURES used only by the legacy offline ARGON demo. These records are NOT measured
+ * results and are no longer served by the API; measured skill lives in public/research/weather-skill.json.
+ */
 export const AUTONOMOUS_FORECAST_IMPROVEMENTS: ForecastImprovementExperimentRecord[] = [
   {
     experimentId: 'EXP-WX-BR-EMOS-01',
@@ -895,7 +899,7 @@ export const AUTONOMOUS_FORECAST_IMPROVEMENTS: ForecastImprovementExperimentReco
     diagnosis:
       'Systematic +4.6 mm wet bias and under-dispersed 90% prediction intervals (78.5% empirical coverage vs 90% nominal) along the Mantiqueira orographic ridge in raw 0.25° global models.',
     supportingEvidence:
-      'Out-of-sample evaluation across N = 412 archived forecast-observation pairs at INMET stations (Varginha, Patrocínio, Guaxupé) during Oct–Mar flowering/cherry-fill seasons.',
+      'ILLUSTRATIVE FIXTURE (not a measured result): out-of-sample evaluation across N = 412 archived forecast-observation pairs at INMET stations (Varginha, Patrocínio, Guaxupé) during Oct–Mar flowering/cherry-fill seasons.',
     proposedAlgorithmChange:
       'Elevation-stratified Ensemble Model Output Statistics (EMOS) with censored non-homogeneous Gaussian regression (CNLR) and SRTM 90m slope-aspect residual correction.',
     experimentalDesign:
@@ -911,7 +915,7 @@ export const AUTONOMOUS_FORECAST_IMPROVEMENTS: ForecastImprovementExperimentReco
     computationalRequirements: 'CPU-bound vector optimization (< 140 ms per regional grid slice; zero GPU retraining required).',
     successCriteria: 'Must reduce unseen out-of-sample CRPS by ≥ 8% and bring 90% PI coverage within [87%, 93%].',
     observedResultSummary:
-      'PASSED: Unseen holdout RMSE improved by 11.4% (11.84 → 10.49 mm), CRPS improved by 13.1% (6.42 → 5.58 mm), and 90% PI coverage rose from 78.5% to 89.2%.',
+      'ILLUSTRATIVE FIXTURE — PASSED: Unseen holdout RMSE improved by 11.4% (11.84 → 10.49 mm), CRPS improved by 13.1% (6.42 → 5.58 mm), and 90% PI coverage rose from 78.5% to 89.2%.',
   },
   {
     experimentId: 'EXP-WX-ASIA-CONV-02',
@@ -1597,7 +1601,7 @@ export function executeArgonVoiceWorkflow(params: {
         status: 'COMPLETED',
         timestampUtc: nowIso,
         summary:
-          'Compiled full 28-section report and ran candidate experiment EXP-WX-BR-EMOS-01 (reducing Sul de Minas 120h RMSE by 11.4% from 11.84 mm to 10.49 mm on unseen data).',
+          'Compiled full 28-section report and attached the illustrative fixture experiment EXP-WX-BR-EMOS-01 (offline demo record, not a measured result).',
         sourceCitation: 'AlphaForge Model Laboratory (EXP-WX-BR-EMOS-01)',
       },
     ];

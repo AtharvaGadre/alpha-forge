@@ -3,7 +3,21 @@
  * Colours come from CSS custom properties (--viz-1…3, --viz-ref) validated for both themes with the
  * data-viz palette checker; identity is never colour-only (legend + direct labels + dash for references).
  */
-import React, { useId, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
+
+/** Width of the plot container, so SVG text renders at true pixel size on every screen. */
+function useWidth(fallback: number) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [w, setW] = useState(fallback);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => { const cw = Math.round(e.contentRect.width); if (cw > 0) setW(Math.max(300, cw)); });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  return [ref, w] as const;
+}
 
 export interface SeriesPoint { x: number; y: number | null }
 export interface LineSeries { id: string; label: string; color: string; dashed?: boolean; points: SeriesPoint[]; emphasis?: boolean }
@@ -32,8 +46,9 @@ export function LineChart({ series, height = 260, xLabel, yLabel, xFormat = (x) 
   series: LineSeries[]; height?: number; xLabel?: string; yLabel?: string; xFormat?: (x: number) => string; yFormat?: (y: number) => string;
   yDomain?: [number, number]; zeroLine?: boolean; caption?: string; directLabels?: boolean;
 }) {
-  const width = 640;
-  const m = { top: 16, right: directLabels ? 132 : 18, bottom: 40, left: 52 };
+  const [box, width] = useWidth(640);
+  const showDirect = directLabels && width >= 520;
+  const m = { top: 16, right: showDirect ? 132 : 18, bottom: 40, left: 52 };
   const xs = useMemo(() => [...new Set(series.flatMap((s) => s.points.map((p) => p.x)))].sort((a, b) => a - b), [series]);
   const ys = series.flatMap((s) => s.points.map((p) => p.y).filter((y): y is number => y !== null && Number.isFinite(y)));
   const [y0, y1] = yDomain ?? [Math.min(...ys, zeroLine ? 0 : Infinity), Math.max(...ys, zeroLine ? 0 : -Infinity)];
@@ -63,7 +78,7 @@ export function LineChart({ series, height = 260, xLabel, yLabel, xFormat = (x) 
   return <figure className="viz-figure">
     {caption && <figcaption id={titleId}>{caption}</figcaption>}
     <Legend items={series.map((s) => ({ label: s.label, color: s.color, dashed: s.dashed }))} />
-    <div className="viz-plot">
+    <div className="viz-plot" ref={box}>
       <svg ref={ref} viewBox={`0 0 ${width} ${height}`} role="img" aria-labelledby={caption ? titleId : undefined} onPointerMove={onMove} onPointerLeave={() => setHover(null)}>
         {yt.map((t) => <g key={t}><line className="viz-grid" x1={m.left} x2={width - m.right} y1={sy(t)} y2={sy(t)} /><text className="viz-tick" x={m.left - 8} y={sy(t) + 4} textAnchor="end">{yFormat(t)}</text></g>)}
         {zeroLine && lo < 0 && hi > 0 && <line className="viz-zero" x1={m.left} x2={width - m.right} y1={sy(0)} y2={sy(0)} />}
@@ -78,7 +93,7 @@ export function LineChart({ series, height = 260, xLabel, yLabel, xFormat = (x) 
             {pts.map((p) => <circle key={p.x} cx={sx(p.x)} cy={sy(p.y as number)} r={hx === p.x ? 5 : 3.2} fill={s.color} stroke="var(--viz-surface)" strokeWidth="2" />)}
           </g>;
         })}
-        {directLabels && ends.map(({ s, y }) => <text key={s.id} className="viz-direct" x={width - m.right + 10} y={y + 4}>{s.label.length > 18 ? `${s.label.slice(0, 17)}…` : s.label}</text>)}
+        {showDirect && ends.map(({ s, y }) => <text key={s.id} className="viz-direct" x={width - m.right + 10} y={y + 4}>{s.label.length > 18 ? `${s.label.slice(0, 17)}…` : s.label}</text>)}
         {hx !== null && <line className="viz-crosshair" x1={sx(hx)} x2={sx(hx)} y1={m.top} y2={height - m.bottom} />}
         <rect x={m.left} y={m.top} width={width - m.left - m.right} height={height - m.top - m.bottom} fill="transparent" />
       </svg>
@@ -152,7 +167,7 @@ export interface FanDay { date: string; truth: number; p10: number; p50: number;
 
 /** Calibrated band (p10–p90) with median, raw model forecasts as faint ticks and ERA5 truth as dots. */
 export function FanChart({ days, unit, caption, height = 280, memberLabel = 'Raw models', bandLabel = 'Astraeus 80% interval' }: { days: FanDay[]; unit: string; caption?: string; height?: number; memberLabel?: string; bandLabel?: string }) {
-  const width = 720;
+  const [box, width] = useWidth(720);
   const m = { top: 14, right: 16, bottom: 34, left: 46 };
   const [hover, setHover] = useState<number | null>(null);
   const ref = useRef<SVGSVGElement>(null);
@@ -176,10 +191,10 @@ export function FanChart({ days, unit, caption, height = 280, memberLabel = 'Raw
   return <figure className="viz-figure viz-fan">
     {caption && <figcaption>{caption}</figcaption>}
     <Legend items={[{ label: bandLabel, color: 'var(--viz-1)' }, { label: 'Astraeus median', color: 'var(--viz-1)' }, { label: memberLabel, color: 'var(--viz-ref)', dashed: true }, { label: 'ERA5 observed', color: 'var(--viz-ink)' }]} />
-    <div className="viz-plot">
+    <div className="viz-plot" ref={box}>
       <svg ref={ref} viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`${caption ?? 'Forecast fan chart'}; ${inside} of ${days.length} observations inside the 80% interval`} onPointerMove={onMove} onPointerLeave={() => setHover(null)}>
         {ticks.map((t) => <g key={t}><line className="viz-grid" x1={m.left} x2={width - m.right} y1={sy(t)} y2={sy(t)} /><text className="viz-tick" x={m.left - 8} y={sy(t) + 4} textAnchor="end">{fmt(t, 0)}</text></g>)}
-        {days.map((d, i) => (i % Math.ceil(days.length / 6) === 0 ? <text key={d.date} className="viz-tick" x={sx(i)} y={height - 12} textAnchor="middle">{d.date.slice(5)}</text> : null))}
+        {days.map((d, i) => (i % Math.ceil(days.length / Math.max(3, Math.floor(width / 110))) === 0 ? <text key={d.date} className="viz-tick" x={sx(i)} y={height - 12} textAnchor="middle">{d.date.slice(5)}</text> : null))}
         <path d={band} fill="var(--viz-1)" fillOpacity="0.2" />
         {days.map((d, i) => Object.values(d.members).map((v, j) => <line key={`${i}-${j}`} x1={sx(i) - 2.5} x2={sx(i) + 2.5} y1={sy(v)} y2={sy(v)} stroke="var(--viz-ref)" strokeWidth="1.2" opacity="0.7" />))}
         <path d={days.map((d, i) => `${i ? 'L' : 'M'}${sx(i)},${sy(d.p50)}`).join('')} fill="none" stroke="var(--viz-1)" strokeWidth="2.2" />

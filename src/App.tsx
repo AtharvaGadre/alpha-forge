@@ -1,12 +1,9 @@
 import {researchFor,papersFor} from './engine/commodityResearch';
-import {CommodityResearchWorkbench} from './components/CommodityResearchWorkbench';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { FileText, Gauge, BookOpen, ArrowRight, Check, ChevronDown, ChevronRight, CircleHelp, Download, ExternalLink, FlaskConical, Globe2, Layers3, Loader2, Radar, RefreshCw, Search, ShieldCheck, SlidersHorizontal, Sprout, Star, Waves, X, Zap } from 'lucide-react';
 import { COMMODITIES, SECTORS, type CommodityDefinition, type CommodityForecast } from './engine/commodityForecastEngine';
-import { ForecastLab, LinkedMarkets } from './components/ForecastLab';
 import { appendForecastSnapshot, linksForCommodity, TRANSMISSION_VERSION } from './engine/commodityTransmissionEngine';
-import { GlobeLanding } from './components/GlobeLanding';
 import { workspaceViewFromHash, type WorkspaceView } from './engine/workspaceNavigation';
 import './globe-landing.css';
 import './commodity.css';
@@ -15,8 +12,14 @@ import './research-workbench.css';
 import './astraeus.css';
 import { AstraeusGuide, AppearanceControls } from './components/AstraeusGuide';
 import { Landing } from './components/landing/Landing';
-import { ForecastSkill } from './components/ForecastSkill';
-import { TechnicalReport } from './components/TechnicalReport';
+// Heavy workspace views load on demand so the public landing page stays light.
+const GlobeLanding = lazy(() => import('./components/GlobeLanding').then((m) => ({ default: m.GlobeLanding })));
+const ForecastLab = lazy(() => import('./components/ForecastLab').then((m) => ({ default: m.ForecastLab })));
+const LinkedMarkets = lazy(() => import('./components/ForecastLab').then((m) => ({ default: m.LinkedMarkets })));
+const CommodityResearchWorkbench = lazy(() => import('./components/CommodityResearchWorkbench').then((m) => ({ default: m.CommodityResearchWorkbench })));
+const ForecastSkill = lazy(() => import('./components/ForecastSkill').then((m) => ({ default: m.ForecastSkill })));
+const TechnicalReport = lazy(() => import('./components/TechnicalReport').then((m) => ({ default: m.TechnicalReport })));
+const ViewLoading = () => <div className="sk-loading" role="status">Loading…</div>;
 import { CalibratedOutlookPanel } from './components/CalibratedOutlookPanel';
 import './landing.css';
 import './components/charts/charts.css';
@@ -142,7 +145,7 @@ export function App() {
       <header className="af-topbar"><div className="af-breadcrumb">Workspace <ChevronRight size={13} /><strong>{view === 'watchlist' ? 'Watchlist' : view === 'accuracy' ? 'Forecast skill' : view === 'report' ? 'Technical report' : view === 'methodology' ? 'Research method' : view === 'advanced' ? 'Forecast lab' : view === 'globe' ? 'Global explorer' : view === 'research' ? 'Weather & evidence' : 'Market overview'}</strong></div><button className="af-top-home" onClick={() => navigate('globe')}><Globe2 size={12} /> Back to globe</button><AppearanceControls /><span className="af-top-label"><Globe2 size={14} /> Global coverage <span className="af-avatar">AS</span></span></header>
       <div className="af-content" key={view}>
         {view !== 'globe' && view !== 'research' && view !== 'accuracy' && view !== 'report' && <div className="af-page-heading"><div><div className="af-eyebrow">THE FORECAST ADVANTAGE</div><h1>{view === 'watchlist' ? 'Your markets. In focus.' : view === 'methodology' ? 'A signal is only as good as its evidence.' : view === 'advanced' ? 'Connect the forecast to the wider market.' : 'See what moves markets.'}</h1><p>From physical forecasts to commodity outlooks. Follow the driver, understand the mechanism, check the evidence.</p></div><button className="af-button af-outline" disabled={!!scan || !watchlist.length || view === 'methodology'} onClick={() => void scanWatchlist()}>{scan ? <Loader2 className="af-spin" size={15} /> : <RefreshCw size={15} />}{scan ? `Analysing ${scan.done}/${scan.total}` : 'Analyse watchlist'}</button></div>}
-        {view === 'accuracy' ? <ForecastSkill onReport={() => navigate('report')} /> : view === 'report' ? <TechnicalReport onSkill={() => navigate('accuracy')} /> : view === 'globe' ? <GlobeLanding commodity={selected} regionId={region.id} results={results} pending={pending} errors={errors} onSelect={(id,rid) => { select(COMMODITIES.find(c => c.id === id)!); setRegionId(rid); }} onRun={() => run(selected,region.id)} onMarkets={() => navigate('markets')} onLab={() => navigate('advanced')} onResearch={()=>navigate('research')} /> : view === 'research' ? <CommodityResearchWorkbench commodity={selected} regionId={region.id} onCommodity={id=>select(COMMODITIES.find(c=>c.id===id)!)} onRegion={setRegionId} onGlobe={()=>navigate('globe')}/> : view === 'methodology' ? <Methodology /> : view === 'advanced' ? <ForecastLab commodity={selected} regionId={region.id} results={results} history={history} pending={pending} errors={errors} onCommodity={id => select(COMMODITIES.find(c => c.id === id)!)} onRegion={setRegionId} onRun={run} /> : <>
+        <Suspense fallback={<ViewLoading />}>{view === 'accuracy' ? <ForecastSkill onReport={() => navigate('report')} /> : view === 'report' ? <TechnicalReport onSkill={() => navigate('accuracy')} /> : view === 'globe' ? <GlobeLanding commodity={selected} regionId={region.id} results={results} pending={pending} errors={errors} onSelect={(id,rid) => { select(COMMODITIES.find(c => c.id === id)!); setRegionId(rid); }} onRun={() => run(selected,region.id)} onMarkets={() => navigate('markets')} onLab={() => navigate('advanced')} onResearch={()=>navigate('research')} /> : view === 'research' ? <CommodityResearchWorkbench commodity={selected} regionId={region.id} onCommodity={id=>select(COMMODITIES.find(c=>c.id===id)!)} onRegion={setRegionId} onGlobe={()=>navigate('globe')}/> : view === 'methodology' ? <Methodology /> : view === 'advanced' ? <ForecastLab commodity={selected} regionId={region.id} results={results} history={history} pending={pending} errors={errors} onCommodity={id => select(COMMODITIES.find(c => c.id === id)!)} onRegion={setRegionId} onRun={run} /> : <>
           <section className="af-stats" aria-label="Coverage summary"><div><span>Commodity universe</span><strong>{COMMODITIES.length}<small>across {SECTORS.length} sectors</small></strong><Layers3 size={20} /></div><div><span>Analysed this session</span><strong>{analyzed}<small>of {COMMODITIES.length} commodities</small></strong><Radar size={20} /></div><div><span>Regional pressure signals</span><strong>{material}<small>conditional, not price targets</small></strong><Zap size={20} /></div><div><span>Forecast window</span><strong>7<small>days · weather outlook</small></strong><Globe2 size={20} /></div></section>
           <div className="af-workspace">
             <section className="af-universe af-panel">
@@ -184,7 +187,7 @@ export function App() {
             </section>
           </div>
           <section className="af-process"><div><span className="af-eyebrow">FROM FORECAST TO UNDERSTANDING</span><h2>Follow the whole chain.</h2></div>{[{ n: '01', title: 'Physical forecast', text: 'Fresh regional weather models' }, { n: '02', title: 'Economic mechanism', text: 'Supply, demand or disruption' }, { n: '03', title: 'Market evidence', text: 'Observed prices, not imagined returns' }, { n: '04', title: 'Challenge the thesis', text: 'Check offsets and invalidation' }].map(s => <article key={s.n}><span>{s.n}</span><strong>{s.title}</strong><p>{s.text}</p></article>)}</section>
-        </>}
+        </>}</Suspense>
         <footer className="af-footer"><span>ASTRAEUS <i /> Forecast-driven commodity research</span><span>Data gaps stay visible. Evidence stays attached.</span></footer>
       </div>
     </main>
