@@ -19,24 +19,24 @@ Astraeus combines seven global weather models, calibrates them against the ERA5 
 
 ## Headline results
 
-Confirmation period (April–November 2026), 16 commodity regions, 7 models, truth = ERA5. The method was selected on a separate development period and frozen before this period was scored; an exploratory first run had also covered it, so a strictly prospective test (`--period prospective`, forecasts after 16 Nov 2026) is specified. The benchmark was independently code-reviewed; the report's revision history lists every correction.
+Confirmation period (April–November 2026), 16 commodity regions, 7 models, truth = ERA5. The method was selected on a separate development period and frozen before this period was scored; an exploratory first run had also covered it, so a strictly prospective test (`--period prospective`: target days after 16 Nov 2026, whose outcomes were unknown at the freeze) is specified. The benchmark was independently code-reviewed; the report's revision history lists every correction.
 
 CRPS reduction of **Astraeus v2** (higher is better):
 
 | | Day 1 | Day 3 | Day 5 | Day 7 |
 |---|---|---|---|---|
 | Max temperature vs no-training Gaussian of the same models | 14.8% | 11.3% | 7.4% | 4.5% |
-| Mean temperature vs no-training Gaussian | 15.0% | 12.5% | 5.5% | 2.7% (n.s.) |
+| Mean temperature vs no-training Gaussian | 15.0% | 12.5% | 5.5% (n.s.) | 2.7% (n.s.) |
 | Max temperature vs raw ensemble (5–7 members) | 17.2% | 14.8% | 11.0% | 8.7% |
 | Rainfall vs raw ensemble (like-for-like) | 2.3% | 1.8% | 1.2% | 1.1% |
 
 Significance: Diebold–Mariano on case-weighted daily losses, largest p across Newey–West bandwidths; 95% block-bootstrap intervals in `public/research/weather-skill.json`. The gains come from bias correction and skill weighting; v2 is mildly under-dispersive (80% intervals cover ~74–78% of temperature outcomes), while the raw ensemble is over-dispersive at short leads. The development comparison and the first run replayed on development days are archived in `docs/results/archive/`.
 
-**Astraeus v3** (live since 16 Nov 2026) corrects part of that over-confidence: a logistic, recency-weighted, cross-validation-recalibrated NGR, chosen among six pre-specified candidates on development days only and frozen (commit `9b99959`) before it was scored. On the confirmation period it beats v2 in every temperature cell (max temperature 15.6% → 5.9% vs the no-training Gaussian at days 1 → 7; 80% coverage 78–79%). That period is where the over-confidence was spotted, so this is a consistency check; the live track record is the real test (`docs/results/WEATHER_V3.md`).
+**Astraeus v3** (live since 16 Nov 2026) corrects part of that over-confidence: a logistic, recency-weighted, cross-validation-recalibrated NGR, chosen among six pre-specified candidates on development days only and frozen (commit `9b99959`) before it was scored. On the confirmation period it beats v2 in every temperature cell (max temperature 15.6% → 5.9% vs the no-training Gaussian at days 1 → 7; 80% coverage 78–79%). That period is where the over-confidence was spotted, so this is a consistency check; the real test is the benchmark on target days after 16 Nov (`--period prospective`), while the live track record logs the deployed product (its first snapshot, 16 Nov, is still v2) (`docs/results/WEATHER_V3.md`).
 
 **Against weather stations the picture is weaker.** At the 7 regions with a usable GHCN-Daily or Meteostat station, the ERA5-trained forecasts gain only 1–5% over the no-training Gaussian for max temperature and their 80% intervals hold just 50–70% of station values; training the same method on the station's own record restores ~11% at day 1 and ~80% coverage. Production-weighted area means keep the day-1 gain but lose about 4 points at days 3–7. Skill figures above are for ~30 km grid boxes, not points (`docs/results/STATION_VERIFICATION.md`, `AREA_VERIFICATION.md`).
 
-**Weather forecasts do predict the physical balance.** A pre-specified study (`docs/results/STORAGE_STUDY.md`) forecasts the EIA weekly US natural-gas storage change from gas-weighted degree-day forecasts issued before each week begins. The forecasts have 74% lower squared error than the EIA five-year average over 139 weeks (95% CI 57–83%; 74% over 280 weeks with GFS alone), with most of the gain in winter. The benchmarks are naive: analysts' consensus forecasts were not available.
+**Weather forecasts do predict the physical balance.** A pre-specified study (`docs/results/STORAGE_STUDY.md`) forecasts the EIA weekly US natural-gas storage change from gas-weighted degree-day forecasts issued before each week begins (raw GFS and ECMWF IFS runs at nine cities with a trailing bias correction — not the calibrated outlook). The forecasts have 74% lower squared error than the EIA five-year average over 139 weeks (95% CI 57–83%; 74% over 280 weeks with GFS alone), with most of the gain in winter. The benchmarks are naive: analysts' consensus forecasts were not available.
 
 A companion walk-forward study (`docs/results/PRICE_STUDY.md`, 6 commodities, 2008–2026) finds that weather information almost never improves out-of-sample weekly futures-return forecasts. The single cell surviving Benjamini–Hochberg correction — natural-gas weather forecasts at a 1-week horizon — beats a market-only model (Clark–West q = 0.004) but not a no-change forecast (Diebold–Mariano p = 0.21) on 88 weeks, so it is reported as a hypothesis to monitor, not a signal. Six pre-specified measures of forecast *changes* also fail to predict natural-gas returns (`docs/results/PRICE_STUDY_REVISIONS.md`).
 

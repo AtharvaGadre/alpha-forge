@@ -199,7 +199,7 @@ export function Landing({ onEnter }: { onEnter: (view: WorkspaceView) => void })
       <header className="lp-section-head" data-reveal>
         <p className="lp-eyebrow">Measured, not claimed</p>
         <h2>Tested on a held-out period — and independently reviewed.</h2>
-        <p>The method was chosen on October 2025 – March 2026, frozen, then scored on April – November 2026 across sixteen commodity regions against ERA5 reanalysis. Temperature is compared with a no-training forecast built from the same models; rain with the raw ensemble. Every interval is a 95% block bootstrap. A strictly prospective test — forecasts issued after the freeze — will be scored as those forecasts verify.</p>
+        <p>The method was chosen on October 2025 – March 2026, frozen, then scored on April – November 2026 across sixteen commodity regions against ERA5 reanalysis. Temperature is compared with a no-training forecast built from the same models; rain with the raw ensemble. Every interval is a 95% block bootstrap. A strictly prospective test — forecasts for days after the freeze — will be scored as those forecasts verify.</p>
       </header>
       <div className="lp-proof-grid">
         <div className="lp-proof-numbers" data-reveal>
@@ -232,7 +232,7 @@ export function Landing({ onEnter }: { onEnter: (view: WorkspaceView) => void })
         <div className="lp-storage-num"><strong><CountUp value={ng.skillMse * 100} decimals={0} suffix="%" /></strong><span>lower squared error, weekly US gas-storage change</span></div>
         <div className="lp-storage-copy">
           <h3>Where weather does forecast: the physical balance.</h3>
-          <p>The same forecasts, issued before each week begins, predict the weekly change in US natural-gas storage with {pct(ng.skillMse, 0)} lower squared error than the EIA five-year average over {ng.n} weeks (95% CI {pct(ng.ci[0], 0)} to {pct(ng.ci[1], 0)}){ngGfs ? `, and ${pct(ngGfs.skillMse, 0)} over ${ngGfs.n} weeks with GFS alone` : ''}. Most of the gain comes in winter. The study was pre-specified; analysts’ consensus forecasts were not available, so this is skill against naive benchmarks, not against the market.</p>
+          <p>Raw GFS and ECMWF forecasts — not the calibrated outlook — issued before each week begins predict the weekly change in US natural-gas storage with {pct(ng.skillMse, 0)} lower squared error than the EIA five-year average over {ng.n} weeks (95% CI {pct(ng.ci[0], 0)} to {pct(ng.ci[1], 0)}){ngGfs ? `, and ${pct(ngGfs.skillMse, 0)} over ${ngGfs.n} weeks with GFS alone` : ''}. Most of the gain comes in winter. The study was pre-specified; analysts’ consensus forecasts were not available, so this is skill against naive benchmarks, not against the market.</p>
           <a href="#report" onClick={go('report')}>Read Section 4.11 <ArrowUpRight size={12} /></a>
         </div>
       </div> : null}

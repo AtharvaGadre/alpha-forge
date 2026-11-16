@@ -197,7 +197,7 @@ The Section 5 rule was applied to the confirmation numbers above:
 - takes an optional `method` ('astraeus-v2' | 'astraeus-v3');
 - defaults to `OUTLOOK_METHOD_VERSION = 'astraeus-v3'`;
 - sets `version` and the method description to the method actually used;
-- passes each training row's age in days (counted back from the last verification date), so the recency weights match the benchmark;
+- passes each training row's age in days (counted back from the last verification date), so the recency weights match the benchmark when the training days have no gaps (the benchmark counts by position; with gaps the live ages are slightly larger — note added after the independent review of 16 Nov);
 - leaves the older-half → newer-half held-out check unchanged, now run with the selected method.
 
 A unit test covers the default, the `version` field, v2 still being selectable, and identical rainfall output.

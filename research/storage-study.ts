@@ -725,7 +725,7 @@ function interpretation(comps: Comparison[], sigConf: Comparison[], seasons: Ret
     `- The gain is concentrated in the heating season. In the GFS window, Nov–Mar RMSE is ${fmt(heat.rmse.fiveYr)} Bcf for the five-year average, ${fmt(heat.rmse.fcGfs)} for the GFS forecast model and ${fmt(heat.rmse.oracle)} for the oracle (n ${heat.n}). Apr–Oct it is ${fmt(inj.rmse.fiveYr)}, ${fmt(inj.rmse.fcGfs)} and ${fmt(inj.rmse.oracle)} (n ${inj.n}): summer weather moves injections far less than winter weather moves withdrawals.`,
     `- The seasonal model alone does not beat the five-year average (${line('D4', 'IFS+GFS window')}; ${line('D12', 'GFS window')}). All of the skill comes from weather.`,
     `- Bias correction mattered for GFS alone (${line('D13', 'raw GFS vs seasonal')}, against ${pct(get('C4').skillMse)} corrected). For the IFS+GFS mean, the uncorrected variant was marginally better in this window (${line('D7', 'raw IFS+GFS vs seasonal')}, against ${pct(get('C2').skillMse)} corrected). The pre-specified corrected version is the headline.`,
-    `- Representing CPC's national index by nine cities costs little: ${line('D8', 'CPC oracle vs nine-city ERA5 oracle (IFS+GFS window)')}.`,
+    `- The cost of representing CPC's national index by nine cities is not distinguishable from zero: ${line('D8', 'CPC oracle vs nine-city ERA5 oracle (IFS+GFS window)')}.`,
     '- Scope: this compares weather-driven forecasts with the five-year average and a seasonal model. It does **not** compare them with analyst or survey consensus, which uses pipeline-flow data and was not available here, so no claim is made about beating market expectations.',
   ].join('\n');
 }

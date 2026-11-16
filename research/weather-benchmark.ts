@@ -382,6 +382,8 @@ function extensionChunks(): Array<[string, string]> {
   }
   return out;
 }
+/** Extra Diebold–Mariano reference methods, e.g. `--versus-extra astraeus-v2` for the v3-vs-v2 test (default none, so published files are unchanged). */
+const VERSUS_EXTRA = arg('versus-extra', '').split(',').filter(Boolean);
 const DM_LAG = 14; // Newey–West bandwidth (days); robustness reported at lead, 7 and 21
 const BOOT_BLOCK = 7;
 const SUITE = arg('suite', PERIOD === 'prospective' ? 'final' : 'run1'); // the prospective test scores v2 and v3
@@ -722,7 +724,7 @@ async function main() {
         pit: histogram(rows.map((r) => r.pit), 10).map((c) => r3(c / Math.max(1, rows.length))),
         reliability: reliabilityBins(probs, events, 10).map((b) => ({ p: r3(b.meanForecast), o: r3(b.observedFrequency), n: b.n })),
       });
-      for (const versus of ['raw-ensemble', 'raw-gauss', 'astraeus-v1', 'climatology']) {
+      for (const versus of ['raw-ensemble', 'raw-gauss', 'astraeus-v1', 'climatology', ...VERSUS_EXTRA]) {
         if (versus === m || !methods.includes(versus)) continue;
         const res = dmTest(m, versus);
         significance.push({ variable: v.id, lead, method: m, versus, meanDiff: r3(res.meanDiff), statistic: r3(res.statistic), pValue: res.pValue, robustMaxP: res.robustMaxP, lag: DM_LAG, days: res.n });

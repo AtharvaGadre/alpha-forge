@@ -26,7 +26,7 @@ const v3devFull = read<WeatherSkill>('public/research/archive/weather-v3-dev.jso
 const stationsFull = read<any>('public/research/archive/weather-stations-confirm.json');
 const areasFull = read<any>('public/research/archive/weather-areas-confirm.json');
 const extras: ReportExtras = {
-  v3dev: v3devFull ? ({ ...v3devFull, summary: v3devFull.summary.filter((x) => x.variable !== 'precip'), significance: [], bySite: [], singleModels: [], examples: undefined } as unknown as WeatherSkill) : null,
+  v3dev: v3devFull ? ({ ...v3devFull, summary: v3devFull.summary.filter((x) => x.variable !== 'precip'), significance: [], bySite: v3devFull.bySite.filter((x) => x.variable !== 'precip'), singleModels: [], examples: undefined } as unknown as WeatherSkill) : null,
   v3tests: read<V3Tests>('public/research/archive/weather-v3-vs-v2-dm.json'),
   stations: stationsFull ? ({
     stations: {
