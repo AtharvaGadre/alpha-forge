@@ -154,8 +154,12 @@ export function buildCalibratedOutlook(input: {
   const truth = new Map<OutlookVariable, Map<string, number>>();
   for (const v of VARS) {
     const map = new Map<string, number>();
+    // Prefer UTC days built from all 24 hourly ERA5 values (the benchmark's definition); fall back to the archive's daily field.
+    const hourlyTruth = eraLocs.map((loc) => (loc?.hourly?.[v.hourly] ? hourlyAggregate(loc.hourly.time, loc.hourly[v.hourly], v.agg) : null));
     for (const d of verifyDates) {
-      const val = areal(eraLocs.map((loc) => {
+      const val = areal(eraLocs.map((loc, pi) => {
+        const h = hourlyTruth[pi];
+        if (h) return h.get(d);
         const k = loc?.daily?.time?.indexOf(d) ?? -1;
         const x = k >= 0 ? loc.daily[v.eraDaily]?.[k] : undefined;
         return x === null ? undefined : x;
@@ -247,7 +251,7 @@ export function buildCalibratedOutlook(input: {
   return {
     version: method,
     method: METHOD_TEXT[method],
-    truth: 'ERA5 reanalysis (Open-Meteo archive), areal mean of the region’s sample points',
+    truth: 'ERA5 reanalysis (Open-Meteo archive, models=era5), UTC days from all 24 hourly values, areal mean of the region’s sample points',
     trainingDates: { start: trainStart, end: trainEnd },
     models: [...usedModels],
     days,

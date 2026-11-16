@@ -1258,7 +1258,8 @@ export async function runLiveAtmospherePipeline(opts: RunLivePipelineOptions): P
   const modelIds = LIVE_MODEL_SPECS.map((m) => m.apiId).join(',');
   const fcUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latList(pts)}&longitude=${lngList(pts)}&daily=precipitation_sum,temperature_2m_mean,temperature_2m_max,wind_speed_10m_mean,et0_fao_evapotranspiration&models=${modelIds}&past_days=30&forecast_days=7&wind_speed_unit=ms&timezone=UTC`;
   const ensUrl = `https://ensemble-api.open-meteo.com/v1/ensemble?latitude=${latList(pts)}&longitude=${lngList(pts)}&daily=precipitation_sum&models=ecmwf_ifs025,gfs025&forecast_days=8&timezone=UTC`;
-  const eraDaily = 'daily=precipitation_sum,temperature_2m_mean,temperature_2m_max,wind_speed_10m_mean,et0_fao_evapotranspiration&hourly=soil_moisture_0_to_7cm,soil_moisture_7_to_28cm,soil_moisture_28_to_100cm&wind_speed_unit=ms&timezone=UTC';
+  // models=era5 + hourly temperature/precipitation: the calibrated outlook trains on exactly the truth the benchmark and the track record verify against.
+  const eraDaily = 'daily=precipitation_sum,temperature_2m_mean,temperature_2m_max,wind_speed_10m_mean,et0_fao_evapotranspiration&hourly=temperature_2m,precipitation,soil_moisture_0_to_7cm,soil_moisture_7_to_28cm,soil_moisture_28_to_100cm&models=era5&wind_speed_unit=ms&timezone=UTC';
   const eraUrl = (start: string, end: string) =>
     `https://archive-api.open-meteo.com/v1/archive?latitude=${latList(pts)}&longitude=${lngList(pts)}&start_date=${start}&end_date=${end}&${eraDaily}`;
   // Same-calendar 30-day precipitation minus reference ET₀ windows for water-balance context.
@@ -1270,7 +1271,7 @@ export async function runLiveAtmospherePipeline(opts: RunLivePipelineOptions): P
   const [fcRaw, ensRaw, eraRaw, prevRaw, metas, climRaw] = await Promise.all([
     cached(`fc-agro-v1|${locKey}|${hourKey}`, 30 * 60_000, () => logged<any>(log, 'Open-Meteo Forecast (8 models)', fcUrl, 15000, fetchJson, () => 'daily precip, temperature, wind, reference ET₀'),),
     cached(`ens|${locKey}|${hourKey}`, 30 * 60_000, () => logged<any>(log, 'Open-Meteo Ensemble (ECMWF ENS + GEFS)', ensUrl, 15000, fetchJson, () => 'member precipitation')),
-    cached(`era-agro-v2|${locKey}|${today}`, 12 * 3_600_000, () => logged<any>(log, 'Open-Meteo Historical (ERA5, verification truth and soil moisture)', eraUrl(eraTruthStart, eraTruthEnd), 20000, fetchJson, () => `${eraTruthStart}…${eraTruthEnd}`)),
+    cached(`era-agro-v3|${locKey}|${today}`, 12 * 3_600_000, () => logged<any>(log, 'Open-Meteo Historical (ERA5, verification truth and soil moisture)', eraUrl(eraTruthStart, eraTruthEnd), 20000, fetchJson, () => `${eraTruthStart}…${eraTruthEnd}`)),
     cached(`prev-v2|${locKey}|${today}`, 6 * 3_600_000, () => logged<any>(log, 'Open-Meteo Previous Runs (lead 1–6 d)', prevUrl, 25000, fetchJson, () => `${verifyDates[0]}…${verifyDates[verifyDates.length - 1]}`)),
     Promise.all(
       LIVE_MODEL_SPECS.map((m) =>
