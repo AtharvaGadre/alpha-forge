@@ -148,6 +148,9 @@ Otherwise the live outlook stays on v2. v3 is still kept in the `final` suite fo
 
 `astraeus-v3` is implemented as `ASTRAEUS_V3_TEMPERATURE`, `fitAstraeusV3` and `predictAstraeusV3` in `src/engine/weatherPostprocessing.ts`, with unit tests in `weatherPostprocessing.test.ts`. It is registered as `astraeus-v3` in `research/weather-benchmark.ts` and appended to the `final` suite. It draws its randomised-PIT numbers from its own stream, so its presence leaves every other method's scores unchanged. The freeze commit's hash and UTC time are recorded below, in a follow-up commit.
 
+- **Freeze commit:** `9b999596cc6fed04b1eae302dd5f0b8481ac79bb` ("freeze astraeus-v3: …"), committed **2026-11-16T09:37:06Z**.
+- Recorded before the confirmation period was scored. That is also before any prospective outcome exists: the first prospective target day is 2026-11-17, and ERA5 for it is published around 2026-11-22.
+
 ## References
 
 - Bergmeir, C., Benítez, J. M. (2012). On the use of cross-validation for time series predictor evaluation. *Information Sciences* 191, 192–213. doi:10.1016/j.ins.2011.12.028 (verified via Crossref).
