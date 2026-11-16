@@ -102,7 +102,7 @@ export function PriceEvidence({ p }: { p: PriceSkill | null }) {
       const v = r.metrics.oosR2WxVsMkt;
       const q = r.qCwWxVsMkt;
       const sig = q != null && q < 0.1;
-      return <span role="cell" key={`${t}${h}`} className={`lp-price-cell ${v > 0 ? 'pos' : 'neg'} ${sig ? 'sig' : ''}`} style={{ ['--mag' as any]: Math.min(1, Math.abs(v) / 0.08) }} title={`Out-of-sample R² vs market-only: ${(v * 100).toFixed(1)}% · Clark–West p = ${r.metrics.cwWxVsMkt?.p?.toFixed(3)} · BH q = ${q?.toFixed(3) ?? '—'} · n = ${r.metrics.n} weeks`}>
+      return <span role="cell" key={`${t}${h}`} className={`lp-price-cell ${v > 0 ? 'pos' : 'neg'} ${sig ? 'sig' : ''}`} style={{ ['--mag' as any]: Math.min(1, Math.abs(v) / 0.08) }} title={`R² gain vs market-only: ${(v * 100).toFixed(1)}% · Clark–West p = ${r.metrics.cwWxVsMkt?.p?.toFixed(3)} · BH q = ${q?.toFixed(3) ?? '—'} · vs no-change: DM p = ${r.metrics.dmWxVsRw?.p?.toFixed(2) ?? '—'} · n = ${r.metrics.n} weeks`}>
         {v > 0 ? '+' : ''}{(v * 100).toFixed(1)}%{sig && <b aria-label="significant after multiple-testing correction">●</b>}
       </span>;
     }))}</div>)}
@@ -210,10 +210,10 @@ export function Landing({ onEnter }: { onEnter: (view: WorkspaceView) => void })
       <header className="lp-section-head" data-reveal>
         <p className="lp-eyebrow">From forecast to price</p>
         <h2>Weather moves prices — sometimes. We test which.</h2>
-        <p>A walk-forward study (2005–2026) asks whether weather information improves out-of-sample forecasts of weekly futures returns beyond a market-only model. Most of the time it does not: markets price realised weather fast. The exception is forecast information for natural gas.</p>
+        <p>A walk-forward study (2008–2026) asks whether weather information improves out-of-sample forecasts of weekly futures returns beyond a market-only model. Almost always it does not: markets price weather fast. The one cell that survives correction — natural-gas forecasts at one week — beats the market-only model but not a simple no-change forecast, on 88 weeks of data. Astraeus treats it as a hypothesis to monitor, not a trading signal.</p>
       </header>
       <div data-reveal><PriceEvidence p={price} /></div>
-      <p className="lp-footnote" data-reveal>Cells show out-of-sample R² gained over a market-only model; ● marks Benjamini–Hochberg q &lt; 0.10 (Clark–West test). Continuous front-month contracts contain roll jumps; results are research evidence, not trading advice.</p>
+      <p className="lp-footnote" data-reveal>Cells show out-of-sample R² gained over a market-only model; ● marks Benjamini–Hochberg q &lt; 0.10 (Clark–West test). Hover a cell for the test against a no-change forecast. Continuous front-month contracts contain roll jumps; results are research evidence, not trading advice.</p>
     </section>
 
     <section className="lp-section lp-research">

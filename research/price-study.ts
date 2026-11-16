@@ -3,7 +3,7 @@
  * futures returns?
  *
  *   npx tsx research/price-study.ts            # fetch (cached) data, run study, write outputs
- *   npx tsx research/price-study.ts --offline  # use the cache only; fail on a cache miss
+ *   npx tsx research/price-study.ts --offline --end=2026-11-14  # cache only, fixed data end date
  *
  * Outputs: public/research/price-skill.json and docs/results/PRICE_STUDY.md.
  * Raw provider responses are aggregated to daily values before caching in research/cache/.
@@ -311,12 +311,13 @@ function eraQuantity(era: Record<string, Record<Era5Var, DailySeries>>, pointIds
 
 type PrevRuns = Record<string, Record<string, LeadBlock>>; // point → model → block
 
-function forecastQuantity(prev: PrevRuns, pointIds: string[], q: Quantity): LeadSeries {
+function forecastQuantity(prev: PrevRuns, pointIds: string[], q: Quantity, onlyModel?: string): LeadSeries {
   const out: LeadSeries = new Map();
   for (const lead of LEADS) {
     const per: DailySeries[] = [];
     for (const id of pointIds) {
-      for (const [, block] of Object.entries(prev[id] ?? {})) {
+      for (const [model, block] of Object.entries(prev[id] ?? {})) {
+        if (onlyModel && model !== onlyModel) continue;
         const days = block[lead] ?? {};
         const s: DailySeries = new Map();
         for (const [d, a] of Object.entries(days)) {
@@ -458,7 +459,11 @@ function buildRows(
   const spec = (f: FeatureDef): NormalSpec => ({ ...CONFIG.normal, sdFloor: f.sdFloor });
   const feats = study.features.filter((f) => (tier === 'NWP_FORECAST' ? f.forecast : !f.forecast));
   const labels =
-    tier === 'NWP_FORECAST' ? feats.flatMap((f) => [`${f.label}: forecast anomaly (days +1…+6)`, `${f.label}: forecast revision (lead k+1 minus lead 7)`]) : feats.map((f) => f.label);
+    tier === 'NWP_FORECAST'
+      ? feats.flatMap((f) => [`${f.label}: forecast anomaly (days +1…+6)`, `${f.label}: forecast revision (lead k+1 minus lead 7)`])
+      : tier === 'ORACLE_TARGET_WINDOW'
+        ? feats.map((f) => f.label.replace(/\d+-day/, `realised over the ${7 * horizon}-day holding period`))
+        : feats.map((f) => f.label.replace(/(\d+)-day/, '$1-day window ending 7 days before origin'));
   const first = tier === 'NWP_FORECAST' ? CONFIG.forecastTierFirstOrigin : CONFIG.longTierFirstOrigin;
   const rows: StudyRow[] = [];
   for (const wp of weeklyPoints(bars, bars[bars.length - 1].date)) {
@@ -514,13 +519,21 @@ interface ResultRow {
   sensitivity: Array<{ feature: string; pctReturnPerSd: number; t: number; p: number }> | null;
   qCwWxVsMkt: number | null;
   qDmWxVsRw: number | null;
+  /** Cumulative SSE(HM) − SSE(WX) along the OOS path (Goyal–Welch style), sampled every 4 origins for long tiers. */
+  cumulativeSseGain: Array<[string, number]>;
+  /** Full OOS predictions for the short NWP tier only: [origin, y, hm, mkt, wx]. */
+  predictions?: Array<[string, number, number, number, number]>;
+  /** Pre-declared robustness grid, run only for forecastable rows with Clark–West q < 0.10. */
+  robustness?: Array<{ variant: string; n: number; oosR2Wx: number; oosR2WxVsMkt: number; cwP: number | null; dmVsRwP: number | null }>;
 }
 
 const fmt = (x: number | null | undefined, d = 3) => (x === null || x === undefined || !Number.isFinite(x) ? '—' : x.toFixed(d));
 const fmtP = (x: number | null | undefined) => (x === null || x === undefined ? '—' : x < 0.001 ? '<0.001' : x.toFixed(3));
 
 async function main() {
-  const end = addDaysIso(TODAY, -1);
+  const endArg = process.argv.find((a) => a.startsWith('--end='))?.slice(6);
+  if (endArg && !/^\d{4}-\d{2}-\d{2}$/.test(endArg)) throw new Error('--end must be YYYY-MM-DD');
+  const end = endArg ?? addDaysIso(TODAY, -1);
   // Budget check before any request.
   const era5Weight = Object.values(POINTS).reduce((a, p) => a + chunks(CONFIG.era5Start, end, ['2005-01-01', '2010-01-01', '2015-01-01', '2020-01-01', '2025-01-01']).reduce((s, [x, y]) => s + openMeteoWeight(p.era5.length, daysBetween(x, y)), 0), 0);
   const prevWeight = Object.values(POINTS).filter((p) => p.forecast).reduce((a, p) => a + p.forecast!.models.length * chunks(CONFIG.forecastTierStart, end, ['2024-09-01', '2025-03-01', '2025-09-01', '2026-03-01', '2026-09-01']).reduce((s, [x, y]) => s + openMeteoWeight(p.forecast!.vars.length * LEADS.length, daysBetween(x, y)), 0), 0);
@@ -547,6 +560,7 @@ async function main() {
   }
 
   const results: ResultRow[] = [];
+  const built = new Map<string, { rows: StudyRow[]; eraQ: Map<string, DailySeries>; fcQ: Map<string, LeadSeries> }>();
   const coverage: Record<string, unknown> = {};
   for (const study of STUDIES) {
     const eraQ = new Map(study.features.map((f) => [f.key, eraQuantity(era, f.points, f.quantity)]));
@@ -568,7 +582,12 @@ async function main() {
             sensitivity = keep.map((j, i) => ({ feature: featureLabels[j], pctReturnPerSd: reg.coef[i + 1] * 100, t: reg.t[i + 1], p: reg.p[i + 1] }));
           }
         }
-        results.push({ commodity: study.id, name: study.name, symbol: study.symbol, tier, horizonWeeks: h, features: featureLabels, nRows: rows.length, metrics, sensitivity, qCwWxVsMkt: null, qDmWxVsRw: null });
+        let cum = 0;
+        const path = preds.map((p) => [p.origin, (cum += (p.y - p.hm) ** 2 - (p.y - p.wx) ** 2)] as [string, number]);
+        const cumulativeSseGain = (tier === 'NWP_FORECAST' ? path : path.filter((_, i) => i % 4 === 0 || i === path.length - 1)).map(([d, v]) => [d, Number(v.toFixed(6))] as [string, number]);
+        const predictions = tier === 'NWP_FORECAST' ? preds.map((p) => [p.origin, ...[p.y, p.hm, p.mkt, p.wx].map((v) => Number(v.toFixed(6)))] as [string, number, number, number, number]) : undefined;
+        results.push({ commodity: study.id, name: study.name, symbol: study.symbol, tier, horizonWeeks: h, features: featureLabels, nRows: rows.length, metrics, sensitivity, qCwWxVsMkt: null, qDmWxVsRw: null, cumulativeSseGain, predictions });
+        built.set(`${study.id}|${tier}|${h}`, { rows, eraQ, fcQ });
         console.log(`${study.id} ${tier} h=${h}: rows ${rows.length}, OOS ${metrics?.n ?? 0}, R2os(wx) ${fmt(metrics?.oosR2Wx, 4)}, CW p ${fmtP(metrics?.cwWxVsMkt?.p)}`);
       }
     }
@@ -581,6 +600,47 @@ async function main() {
     const qCw = benjaminiHochberg(members.map((r) => r.metrics?.cwWxVsMkt?.p ?? null));
     const qDm = benjaminiHochberg(members.map((r) => r.metrics?.dmWxVsRw?.p ?? null));
     members.forEach((r, i) => { r.qCwWxVsMkt = qCw[i]; r.qDmWxVsRw = qDm[i]; });
+  }
+
+  // Pre-declared robustness grid for any forecastable row that survives BH (q < 0.10). The headline
+  // numbers above stay at the ex-ante configuration; these variants only show how fragile they are.
+  for (const r of results.filter((x) => x.tier !== 'ORACLE_TARGET_WINDOW' && x.qCwWxVsMkt !== null && x.qCwWxVsMkt < 0.1)) {
+    const study = STUDIES.find((s) => s.id === r.commodity)!;
+    const b = built.get(`${r.commodity}|${r.tier}|${r.horizonWeeks}`)!;
+    const minTrain = r.tier === 'NWP_FORECAST' ? CONFIG.minTrainForecast : CONFIG.minTrainLong;
+    const score = (variant: string, rows: StudyRow[], lambdaPerObs = CONFIG.lambdaPerObs, dropLargest = 0) => {
+      let preds = walkForward(rows, { minTrain, lambdaPerObs });
+      if (dropLargest) {
+        const cut = [...preds].sort((a, z) => Math.abs(z.y) - Math.abs(a.y))[dropLargest - 1]?.y;
+        preds = preds.filter((p) => Math.abs(p.y) < Math.abs(cut ?? Infinity));
+      }
+      const m = evaluateSkill(preds, r.horizonWeeks, { resamples: 200, seed: CONFIG.bootstrap.seed });
+      if (m) r.robustness!.push({ variant, n: m.n, oosR2Wx: m.oosR2Wx, oosR2WxVsMkt: m.oosR2WxVsMkt, cwP: m.cwWxVsMkt?.p ?? null, dmVsRwP: m.dmWxVsRw?.p ?? null });
+    };
+    r.robustness = [];
+    for (const l of [0.03, 0.3, 1]) score(`ridge λ = ${l} × n`, b.rows, l);
+    score('drop the 5 largest |return| OOS weeks', b.rows, CONFIG.lambdaPerObs, 5);
+    if (r.tier === 'NWP_FORECAST') {
+      const keep = (pick: (j: number) => boolean) => b.rows.map((row) => ({ ...row, weather: row.weather.filter((_, j) => pick(j)) }));
+      score('forecast-anomaly features only', keep((j) => j % 2 === 0));
+      score('forecast-revision features only', keep((j) => j % 2 === 1));
+      const models = [...new Set(study.features.filter((f) => f.forecast).flatMap((f) => f.points.flatMap((id) => POINTS[id].forecast?.models ?? [])))];
+      if (models.length > 1) {
+        for (const model of models) {
+          const fcOnly = new Map(study.features.filter((f) => f.forecast).map((f) => [f.key, forecastQuantity(prev, f.points, f.quantity, model)]));
+          score(`${model} only`, buildRows(study, r.tier, r.horizonWeeks, prices[study.symbol], b.eraQ, fcOnly).rows);
+        }
+      }
+    }
+    const preds = walkForward(b.rows, { minTrain, lambdaPerObs: CONFIG.lambdaPerObs });
+    const mid = preds[Math.floor(preds.length / 2)]?.origin;
+    if (mid) {
+      for (const [label, part] of [['first half of OOS window', preds.filter((p) => p.origin < mid)], ['second half of OOS window', preds.filter((p) => p.origin >= mid)]] as const) {
+        const m = evaluateSkill(part, r.horizonWeeks, { resamples: 200, seed: CONFIG.bootstrap.seed });
+        if (m) r.robustness.push({ variant: label, n: m.n, oosR2Wx: m.oosR2Wx, oosR2WxVsMkt: m.oosR2WxVsMkt, cwP: m.cwWxVsMkt?.p ?? null, dmVsRwP: m.dmWxVsRw?.p ?? null });
+      }
+    }
+    console.log(`Robustness ${r.commodity} ${r.tier} h=${r.horizonWeeks}: ${r.robustness.map((v) => `${v.variant} R2 ${fmt(v.oosR2Wx * 100, 1)}% CW p ${fmtP(v.cwP)}`).join(' | ')}`);
   }
 
   const inputsSha256 = createHash('sha256').update(JSON.stringify({ CONFIG, prices, era: Object.fromEntries(Object.entries(era).map(([k, v]) => [k, Object.fromEntries(Object.entries(v).map(([vk, s]) => [vk, [...s]]))])), prev })).digest('hex');
@@ -667,7 +727,7 @@ Weather shocks move agricultural and energy supply and demand, and futures price
 - **Weather:** ERA5 reanalysis (Hersbach et al. 2020) daily values via Open-Meteo at representative production or demand coordinates (equal-weighted). Extreme degree-days use single-sine within-day interpolation (Baskerville & Emin 1969) above 29 °C (corn) / 30 °C (soybeans, wheat), following the non-linear yield response in Schlenker & Roberts (2009). Natural gas uses heating + cooling degree-days at base 18 °C. Anomalies are standardised against the same calendar window in up to 10 **prior** years (minimum 5). Crop features are season-gated (zero outside the stated months).
 - **Three information sets (tiers):**
   1. **Realised, lagged** (${json.config.longTierFirstOrigin} onward): ERA5 windows ending ${json.config.era5LagDays} days before the origin (ERA5 publication latency is about five days). Tradable information.
-  2. **ORACLE** (same period): realised ERA5 over the *target* window (origin + 1 … origin + 7h days). This is look-ahead **by design**: it measures how much of the return a perfect weather forecast could explain, an upper bound for any forecast-based signal. It is not a forecast and is never mixed into the forecastable family.
+  2. **ORACLE** (same period): realised ERA5 over the *target* window (origin + 1 … origin + 7h days). This is look-ahead **by design**: it asks whether knowing the realised weather anomaly over the holding period, inside the same linear design, would explain returns. It is a diagnostic, not a forecast, and it is never mixed into the forecastable family. It is not a strict upper bound: markets already price the part of that anomaly that was forecast at the origin, so only the unforecast remainder should move prices.
   3. **NWP forecast** (${json.config.forecastTierFirstOrigin} onward): ECMWF IFS (and GFS for natural gas) archived forecasts from the Open-Meteo Previous Runs API. Features are the anomaly of days +1…+6 taken from runs initialised at least one day before the origin (lead k+1 for day k), and the forecast revision (newest admissible lead minus the lead-7 forecast for the same target days).
 - **Models:** RW (zero return); HM (expanding historical mean); MKT (ridge on 1-week return, 4-week return and 12-week realised volatility); WX (MKT + tier weather features, nesting MKT). Ridge penalty λ = ${json.config.lambdaPerObs} × n_train on standardised predictors, fixed ex ante. Predictors are standardised with training-window statistics only.
 - **Walk-forward:** expanding window refit every week; a training example is admissible only once its target return is fully realised before the origin, so overlapping 4-week targets cannot leak. Minimum training: ${json.config.minTrainLong} weeks (long tiers), ${json.config.minTrainForecast} weeks (NWP tier).
@@ -677,17 +737,23 @@ Weather shocks move agricultural and energy supply and demand, and futures price
 
 ${table((r) => r.tier !== 'ORACLE_TARGET_WINDOW')}
 
-## Results — ORACLE upper bound (not a forecast)
+## Results — ORACLE diagnostic (look-ahead by design, not a forecast)
 
 ${table((r) => r.tier === 'ORACLE_TARGET_WINDOW')}
 
-## Contemporaneous and lagged sensitivity (in-sample, descriptive, 1-week horizon)
+## In-sample sensitivity (descriptive, 1-week horizon)
 
 Full-sample OLS of weekly log returns on season-gated, standardised weather features, with Newey–West HAC t-statistics. Coefficients are % return per one-standard-deviation anomaly. This describes association, not forecast skill.
 
 | Commodity | Tier | Feature | % return per SD | HAC t | p (two-sided) |
 |---|---|---|---:|---:|---:|
 ${sens.join('\n')}
+
+## Robustness of rows that survive multiple-testing control
+
+Pre-declared variants, run only for forecastable rows with Clark–West q < 0.10. Headline numbers above keep the ex-ante configuration; these variants show fragility, not a search for a better result.
+
+${robustnessTable(rows)}
 
 ## Interpretation
 
@@ -701,7 +767,7 @@ ${json.caveats.map((c: string) => `- ${c}`).join('\n')}
 
 \`\`\`bash
 npx tsx research/price-study.ts            # fetches missing data into research/cache/ (gitignored)
-npx tsx research/price-study.ts --offline  # reruns from cache only
+npx tsx research/price-study.ts --offline --end=${json.provenance.dataEnd}  # reruns this exact study from cache
 npx tsx --test src/engine/priceSkill.test.ts
 \`\`\`
 
@@ -713,19 +779,43 @@ ${REFERENCES.map((r) => `- ${r}`).join('\n')}
 `;
 }
 
+function robustnessTable(rows: ResultRow[]): string {
+  const rs = rows.filter((r) => r.robustness?.length);
+  if (!rs.length) return '_No forecastable row reached q < 0.10, so no robustness grid was run._';
+  return [
+    '| Row | Variant | OOS n | R²os wx vs HM | R²os wx vs MKT | CW p | DM p vs RW |',
+    '|---|---|---:|---:|---:|---:|---:|',
+    ...rs.flatMap((r) => r.robustness!.map((v) => `| ${r.name} / ${TIER_LABEL[r.tier]} / ${r.horizonWeeks}w | ${v.variant} | ${v.n} | ${fmt(v.oosR2Wx * 100, 2)}% | ${fmt(v.oosR2WxVsMkt * 100, 2)}% | ${fmtP(v.cwP)} | ${fmtP(v.dmVsRwP)} |`)),
+  ].join('\n');
+}
+
+const ofN = (k: number, n: number, noun: string) => `${k} of ${n} ${noun} ${k === 1 ? 'has' : 'have'}`;
+
 function interpretation(rows: ResultRow[], sig: ResultRow[]): string {
   const forecastable = rows.filter((r) => r.tier !== 'ORACLE_TARGET_WINDOW' && r.metrics);
   const oracle = rows.filter((r) => r.tier === 'ORACLE_TARGET_WINDOW' && r.metrics);
-  const posR2 = forecastable.filter((r) => r.metrics!.oosR2Wx > 0).length;
-  const oracleBest = [...oracle].sort((a, b) => b.metrics!.oosR2Wx - a.metrics!.oosR2Wx).slice(0, 3);
+  const posR2 = forecastable.filter((r) => r.metrics!.oosR2Wx > 0);
+  const posOracle = oracle.filter((r) => r.metrics!.oosR2Wx > 0);
+  const lagged = forecastable.filter((r) => r.tier === 'REALISED_LAGGED');
+  const laggedSig = lagged.filter((r) => r.qCwWxVsMkt !== null && r.qCwWxVsMkt < 0.1).length;
+  const sigLines = sig.map((r) => {
+    const m = r.metrics!;
+    const dmSig = m.dmWxVsRw && m.dmWxVsRw.p < 0.05;
+    const ciZero = m.oosR2WxCi95.lo <= 0;
+    const signs = (r.sensitivity ?? []).map((x) => `${x.feature} ${x.pctReturnPerSd >= 0 ? '+' : ''}${fmt(x.pctReturnPerSd, 2)}% per SD (HAC t ${fmt(x.t, 2)})`).join('; ');
+    const rob = r.robustness?.length ? ` Robustness variants give R²os from ${fmt(Math.min(...r.robustness.map((v) => v.oosR2Wx)) * 100, 1)}% to ${fmt(Math.max(...r.robustness.map((v) => v.oosR2Wx)) * 100, 1)}%.` : '';
+    return `${r.name} / ${TIER_LABEL[r.tier]} / ${r.horizonWeeks}w: Clark–West q = ${fmtP(r.qCwWxVsMkt)}, R²os ${fmt(m.oosR2Wx * 100, 2)}% (95% CI ${fmt(m.oosR2WxCi95.lo * 100, 1)} to ${fmt(m.oosR2WxCi95.hi * 100, 1)}%), Diebold–Mariano vs the random walk p = ${fmtP(m.dmWxVsRw?.p)}, n = ${m.n}. ${dmSig ? '' : 'The weather model adds information relative to the market-only model, but its accuracy gain over a no-change forecast is not statistically significant'}${!dmSig && ciZero ? ', and the bootstrap interval for R²os includes zero' : ''}${dmSig ? '' : '.'}${rob} In-sample coefficients over the NWP sample: ${signs}. These signs are a hypothesis for further testing, not an established mechanism.`;
+  });
   const lines = [
-    `- Forecastable rows with positive out-of-sample R² for the weather model: **${posR2} of ${forecastable.length}**.`,
+    laggedSig === 0
+      ? `- **Realised weather that is a week old does not forecast returns.** ${ofN(lagged.filter((r) => r.metrics!.oosR2Wx > 0).length, lagged.length, 'lagged-ERA5 rows')} positive out-of-sample R², and none is significant after Benjamini–Hochberg control. This is the expected outcome in an informationally efficient futures market: the weather is public when it is used.`
+      : `- ${laggedSig} of ${lagged.length} lagged-ERA5 rows survive Benjamini–Hochberg control (q < 0.10); ${lagged.filter((r) => r.metrics!.oosR2Wx > 0).length} have positive out-of-sample R².`,
+    `- Across all forecastable rows, ${ofN(posR2.length, forecastable.length, 'rows')} positive out-of-sample R² for the weather model.`,
     sig.length
-      ? `- Rows where weather adds information over the market-only model after Benjamini–Hochberg control (Clark–West q < 0.10): ${sig.map((r) => `${r.name} / ${TIER_LABEL[r.tier]} / ${r.horizonWeeks}w (q = ${fmtP(r.qCwWxVsMkt)})`).join('; ')}.`
+      ? `- Rows where weather adds information over the market-only model after Benjamini–Hochberg control (q < 0.10):\n${sigLines.map((l) => `  - ${l}`).join('\n')}`
       : '- **No forecastable row survives Benjamini–Hochberg control at q < 0.10** for the Clark–West test of weather over the market-only model.',
-    `- ORACLE rows with the highest R²os: ${oracleBest.map((r) => `${r.name} ${r.horizonWeeks}w ${fmt(r.metrics!.oosR2Wx * 100, 2)}%`).join(', ')}. The gap between the oracle and the forecastable tiers bounds what better weather forecasts could add under this linear, equal-weighted design.`,
-    '- Realised weather that is already a week old is public information when it is used; an efficient market should already price it, so a null result in that tier is the expected outcome rather than a failure of the method.',
-    '- The NWP tier covers only about 2.7 years, so its confidence intervals are wide. Treat its point estimates as exploratory until more archived forecasts accumulate.',
+    `- **ORACLE diagnostic:** ${ofN(posOracle.length, oracle.length, 'oracle rows')} positive out-of-sample R². Knowing the realised weather *level* over the holding period does not, by itself, forecast returns in this linear design. A likely reason is that most of that anomaly was already in the forecast at the origin and was priced; the in-sample sensitivity table shows where realised holding-period weather is still contemporaneously associated with returns. Prices respond to weather *news* (forecast changes), which is why the NWP tier includes forecast revisions.`,
+    '- The NWP tier covers only about 2.7 years (out-of-sample from March 2025), so confidence intervals are wide and crop features are active in only one or two growing seasons. Crop NWP rows have strongly negative R²os: with about 52–140 training weeks, the extra predictors add estimation noise faster than signal. Treat every NWP point estimate as exploratory until more archived forecasts accumulate, and re-run this study as the archive grows (the code and cache make it a one-command update).',
   ];
   return lines.join('\n');
 }

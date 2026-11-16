@@ -12,6 +12,12 @@ import type { PriceSkill, WeatherSkill } from '../src/engine/researchData';
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const read = <T>(p: string): T | null => (existsSync(path.join(ROOT, p)) ? JSON.parse(readFileSync(path.join(ROOT, p), 'utf8')) : null);
 const weather = read<WeatherSkill>('public/research/weather-skill.json');
+// Slim price summary for the website (drops per-week loss paths; the full file stays the source of record).
+const fullPrice = read<any>('public/research/price-skill.json');
+if (fullPrice) {
+  const { rows, ...rest } = fullPrice;
+  writeFileSync(path.join(ROOT, 'public', 'research', 'price-summary.json'), JSON.stringify({ ...rest, source: '/research/price-skill.json', rows: rows.map(({ cumulativeSseGain, predictions, paths, ...r }: any) => r) }));
+}
 if (!weather) throw new Error('public/research/weather-skill.json missing — run the benchmark first.');
 const doc = buildReport(weather, read<PriceSkill>('public/research/price-skill.json'), read<WeatherSkill>('public/research/archive/weather-dev-period.json'), read<WeatherSkill>('public/research/archive/weather-run1-preregistered.json'));
 const byId = new Map(RESEARCH_LIBRARY.map((r) => [r.id, r]));

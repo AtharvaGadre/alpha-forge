@@ -9,7 +9,7 @@
 
 ## Abstract
 
-We verify daily forecasts from seven global weather prediction systems — ECMWF IFS and the machine-learning AIFS, NOAA GFS, DWD ICON, the UK Met Office Unified Model, JMA GSM and ECCC GEM — at 16 commodity-producing and demand regions against ERA5 reanalysis, and develop a post-processing scheme for the weather layer of the Astraeus commodity platform. Candidate methods were compared on a development period (test days from October 2025 to 2026-03-31); the selected scheme, Astraeus v2 — bias-corrected, skill-weighted non-homogeneous Gaussian regression for temperature and a skill-weighted multi-model ensemble for precipitation, trained on trailing 90-day windows — was frozen and scored once on a later confirmation period (209 days, 38,420 forecast–observation pairs). Relative to the raw multi-model ensemble, Astraeus v2 reduced the continuous ranked probability score (CRPS) by 17.2% at day 1 and 8.7% at day 7 for daily maximum temperature, 16.9% to 6.9% for daily mean temperature and 2.3% to 1.1% for daily precipitation; every difference was significant (Diebold–Mariano, p < 0.01). A pre-registered first run showed that classical EMOS fitted on 40-day windows was under-dispersive and degraded precipitation forecasts, which motivated the final design. In a walk-forward study of weekly futures returns for 6 weather-sensitive commodities, weather information improved out-of-sample forecasts over a market-only model in 6 of 34 commodity–information–horizon cells; after Benjamini–Hochberg correction the surviving evidence is Natural gas (Henry Hub) with NWP forecasts known at origin at 1 week (out-of-sample R² gain +6.7%, q = 0.004). We conclude that calibrated weather information is a reliable physical input, but that weekly price predictability from weather is narrow and should be claimed only where it survives out-of-sample testing.
+We verify daily forecasts from seven global weather prediction systems — ECMWF IFS and the machine-learning AIFS, NOAA GFS, DWD ICON, the UK Met Office Unified Model, JMA GSM and ECCC GEM — at 16 commodity-producing and demand regions against ERA5 reanalysis, and develop a post-processing scheme for the weather layer of the Astraeus commodity platform. Candidate methods were compared on a development period (test days from October 2025 to 2026-03-31); the selected scheme, Astraeus v2 — bias-corrected, skill-weighted non-homogeneous Gaussian regression for temperature and a skill-weighted multi-model ensemble for precipitation, trained on trailing 90-day windows — was frozen and scored once on a later confirmation period (209 days, 38,420 forecast–observation pairs). Relative to the raw multi-model ensemble, Astraeus v2 reduced the continuous ranked probability score (CRPS) by 17.2% at day 1 and 8.7% at day 7 for daily maximum temperature, 16.9% to 6.9% for daily mean temperature and 2.3% to 1.1% for daily precipitation; every difference was significant (Diebold–Mariano, p < 0.01). A pre-registered first run showed that classical EMOS fitted on 40-day windows was under-dispersive and degraded precipitation forecasts, which motivated the final design. In a walk-forward study of weekly futures returns for 6 weather-sensitive commodities, weather information improved out-of-sample forecasts over a market-only model in 6 of 34 commodity–information–horizon cells; after Benjamini–Hochberg correction the only surviving cell is Natural gas (Henry Hub) with NWP forecasts known at origin at 1 week (R² gain over the market-only model +6.7%, Clark–West q = 0.004), which nevertheless did not significantly beat a no-change forecast (Diebold–Mariano p = 0.210; out-of-sample R² +7.1%, 95% CI -3.3% to +22.2%) and rests on 88 weeks. We conclude that calibrated weather information is a reliable physical input, but that weekly price predictability from weather is narrow and should be claimed only where it survives out-of-sample testing.
 
 **Keywords:** ensemble post-processing · EMOS · CRPS · ERA5 · AIFS · commodity futures · out-of-sample predictability
 
@@ -90,7 +90,7 @@ w_i ∝ (1 − λ)·MSE_i⁻¹ / Σ_j MSE_j⁻¹ + λ/K,   λ = 0.25;   Y | x ~ 
 
 3.4 Inference. Differences are tested with the Diebold–Mariano statistic (Diebold and Mariano, 1995) on the daily cross-region mean CRPS differential, with a Newey–West variance (lag = lead) and the Harvey–Leybourne–Newbold small-sample correction (Harvey et al., 1997). Confidence intervals for CRPSS come from a 7-day moving-block bootstrap. Regions are not independent, so the effective sample size is the number of days.
 
-3.5 Price study. Weekly log returns at 1- and 4-week horizons are forecast with expanding-window ridge regressions: a market-only model (recent returns and realised volatility) and a nested model adding weather features — season-gated extreme degree days and precipitation in production regions (Schlenker and Roberts, 2009), frost indicators for coffee, and heating/cooling degree-day anomalies for natural gas (Mu, 2007). Three information sets are tested: realised weather with a publication lag, an oracle using realised weather inside the target window (an upper bound, not a tradable signal), and NWP forecasts known at the origin (2024–2026). Out-of-sample R² follows Campbell and Thompson (Campbell and Thompson, 2008); nested models are compared with the Clark–West test (Clark and West, 2007), direction with Pesaran–Timmermann (Pesaran and Timmermann, 1992), and p-values are controlled for false discovery with Benjamini–Hochberg (Benjamini and Hochberg, 1995).
+3.5 Price study. Weekly log returns at 1- and 4-week horizons are forecast with expanding-window ridge regressions: a market-only model (recent returns and realised volatility) and a nested model adding weather features — season-gated extreme degree days and precipitation in production regions (Schlenker and Roberts, 2009), frost indicators for coffee, and heating/cooling degree-day anomalies for natural gas (Mu, 2007). Three information sets are tested: realised weather with a publication lag, a look-ahead diagnostic using realised weather inside the holding period (not tradable, and not an upper bound, because the forecastable part of that weather is already priced at the origin), and NWP forecasts known at the origin (2024–2026). Out-of-sample R² follows Campbell and Thompson (Campbell and Thompson, 2008); nested models are compared with the Clark–West test (Clark and West, 2007), direction with Pesaran–Timmermann (Pesaran and Timmermann, 1992), and p-values are controlled for false discovery with Benjamini–Hochberg (Benjamini and Hochberg, 1995).
 
 ## 4. Results
 
@@ -148,48 +148,48 @@ w_i ∝ (1 − λ)·MSE_i⁻¹ / Σ_j MSE_j⁻¹ + λ/K,   λ = 0.25;   Y | x ~ 
 
 > Figure 3. Single-model mean absolute error, day-3 maximum temperature, confirmation period. — interactive version in the app (`#report`).
 
-4.7 Weather information and futures returns. In a walk-forward study of weekly futures returns for 6 weather-sensitive commodities, weather information improved out-of-sample forecasts over a market-only model in 6 of 34 commodity–information–horizon cells; after Benjamini–Hochberg correction the surviving evidence is Natural gas (Henry Hub) with NWP forecasts known at origin at 1 week (out-of-sample R² gain +6.7%, q = 0.004).
+4.7 Weather information and futures returns. In a walk-forward study of weekly futures returns for 6 weather-sensitive commodities, weather information improved out-of-sample forecasts over a market-only model in 6 of 34 commodity–information–horizon cells; after Benjamini–Hochberg correction the only surviving cell is Natural gas (Henry Hub) with NWP forecasts known at origin at 1 week (R² gain over the market-only model +6.7%, Clark–West q = 0.004), which nevertheless did not significantly beat a no-change forecast (Diebold–Mariano p = 0.210; out-of-sample R² +7.1%, 95% CI -3.3% to +22.2%) and rests on 88 weeks.
 
-**Table 4. Walk-forward price study: out-of-sample R² of the weather model vs the historical-mean benchmark, R² gain over the nested market-only model, Clark–West p-value, Benjamini–Hochberg q-value and directional hit rate.**
+**Table 4. Walk-forward price study: out-of-sample R² of the weather model vs the historical-mean benchmark, R² gain over the nested market-only model, Clark–West p-value and its Benjamini–Hochberg q-value, Diebold–Mariano p-value against a no-change forecast, and directional hit rate.**
 
-| Commodity | Information | Horizon | N weeks | R² (weather) | R² gain vs market | p (CW) | q (BH) | Hit rate |
-|---|---|---|---|---|---|---|---|---|
-| Corn | realised weather, lagged | 1 wk | 980 | -2.63% | -1.22% | 0.447 | 0.951 | 52.6% |
-| Corn | realised weather, lagged | 4 wk | 974 | -6.42% | -4.55% | 0.626 | 0.951 | 53.9% |
-| Corn | oracle weather in the target window | 1 wk | 983 | -1.79% | -0.47% | 0.223 | 0.383 | 52.9% |
-| Corn | oracle weather in the target window | 4 wk | 977 | -1.06% | +0.62% | 0.108 | 0.223 | 53.8% |
-| Corn | NWP forecasts known at origin | 1 wk | 87 | -17.65% | -11.24% | 0.802 | 0.951 | 46.0% |
-| Corn | NWP forecasts known at origin | 4 wk | 81 | -29.00% | -7.23% | 0.661 | 0.951 | 32.1% |
-| Soybeans | realised weather, lagged | 1 wk | 980 | -3.49% | -3.23% | 0.884 | 0.973 | 51.2% |
-| Soybeans | realised weather, lagged | 4 wk | 974 | -13.83% | -9.20% | 0.821 | 0.951 | 51.5% |
-| Soybeans | oracle weather in the target window | 1 wk | 983 | +0.13% | +0.50% | 0.015 | 0.113 | 55.4% |
-| Soybeans | oracle weather in the target window | 4 wk | 977 | -3.92% | +0.09% | 0.026 | 0.113 | 53.1% |
-| Soybeans | NWP forecasts known at origin | 1 wk | 87 | -17.53% | -15.00% | 0.715 | 0.951 | 44.8% |
-| Soybeans | NWP forecasts known at origin | 4 wk | 81 | -27.08% | -27.87% | 0.819 | 0.951 | 49.4% |
-| Wheat (Chicago SRW) | realised weather, lagged | 1 wk | 980 | -1.69% | -0.63% | 0.511 | 0.951 | 48.9% |
-| Wheat (Chicago SRW) | realised weather, lagged | 4 wk | 974 | -6.10% | -2.85% | 0.955 | 0.981 | 49.1% |
-| Wheat (Chicago SRW) | oracle weather in the target window | 1 wk | 983 | -1.34% | -0.21% | 0.111 | 0.223 | 49.5% |
-| Wheat (Chicago SRW) | oracle weather in the target window | 4 wk | 977 | -5.81% | -2.52% | 0.618 | 0.742 | 48.6% |
-| Wheat (Chicago SRW) | NWP forecasts known at origin | 1 wk | 87 | -24.17% | -21.96% | 0.386 | 0.951 | 46.0% |
-| Wheat (Chicago SRW) | NWP forecasts known at origin | 4 wk | 81 | -14.87% | -16.09% | 0.318 | 0.951 | 53.1% |
-| Arabica coffee | realised weather, lagged | 1 wk | 980 | -1.20% | -1.36% | 0.278 | 0.951 | 51.1% |
-| Arabica coffee | realised weather, lagged | 4 wk | 974 | -1.44% | -1.90% | 0.981 | 0.981 | 50.1% |
-| Arabica coffee | oracle weather in the target window | 1 wk | 983 | -1.85% | -2.00% | 0.917 | 0.917 | 49.5% |
-| Arabica coffee | oracle weather in the target window | 4 wk | 977 | -1.52% | -2.09% | 0.597 | 0.742 | 51.4% |
-| Arabica coffee | NWP forecasts known at origin | 1 wk | 87 | -4.21% | -1.83% | 0.624 | 0.951 | 54.0% |
-| Arabica coffee | NWP forecasts known at origin | 4 wk | 81 | -16.66% | -3.38% | 0.379 | 0.951 | 44.4% |
-| Natural gas (Henry Hub) | realised weather, lagged | 1 wk | 983 | -0.29% | -0.06% | 0.375 | 0.951 | 51.1% |
-| Natural gas (Henry Hub) | realised weather, lagged | 4 wk | 977 | -0.38% | -0.22% | 0.808 | 0.951 | 50.3% |
-| Natural gas (Henry Hub) | oracle weather in the target window | 1 wk | 983 | -0.70% | -0.47% | 0.904 | 0.917 | 50.9% |
-| Natural gas (Henry Hub) | oracle weather in the target window | 4 wk | 977 | -1.07% | -0.90% | 0.028 | 0.113 | 53.5% |
-| Natural gas (Henry Hub) | NWP forecasts known at origin | 1 wk | 88 | +7.13% | +6.71% | <0.001 | 0.004 | 58.0% |
-| Natural gas (Henry Hub) | NWP forecasts known at origin | 4 wk | 82 | +9.80% | +5.01% | 0.034 | 0.374 | 53.7% |
-| Cocoa | realised weather, lagged | 1 wk | 980 | -2.26% | -0.29% | 0.540 | 0.951 | 53.5% |
-| Cocoa | realised weather, lagged | 4 wk | 974 | -4.46% | -0.47% | 0.674 | 0.951 | 52.2% |
-| Cocoa | oracle weather in the target window | 1 wk | 983 | -1.92% | -0.00% | 0.416 | 0.624 | 53.7% |
-| Cocoa | oracle weather in the target window | 4 wk | 977 | -3.58% | +0.50% | 0.111 | 0.223 | 53.4% |
+| Commodity | Information | Horizon | N weeks | R² (weather) | R² gain vs market | p (CW) | q (BH) | p (DM vs no-change) | Hit rate |
+|---|---|---|---|---|---|---|---|---|---|
+| Corn | realised weather, lagged | 1 wk | 980 | -2.63% | -1.22% | 0.447 | 0.951 | 0.972 | 52.6% |
+| Corn | realised weather, lagged | 4 wk | 974 | -6.42% | -4.55% | 0.626 | 0.951 | 0.947 | 53.9% |
+| Corn | look-ahead diagnostic (realised holding-period weather) | 1 wk | 983 | -1.79% | -0.47% | 0.223 | 0.383 | 0.962 | 52.9% |
+| Corn | look-ahead diagnostic (realised holding-period weather) | 4 wk | 977 | -1.06% | +0.62% | 0.108 | 0.223 | 0.807 | 53.8% |
+| Corn | NWP forecasts known at origin | 1 wk | 87 | -17.65% | -11.24% | 0.802 | 0.951 | 0.984 | 46.0% |
+| Corn | NWP forecasts known at origin | 4 wk | 81 | -29.00% | -7.23% | 0.661 | 0.951 | 0.989 | 32.1% |
+| Soybeans | realised weather, lagged | 1 wk | 980 | -3.49% | -3.23% | 0.884 | 0.973 | 0.886 | 51.2% |
+| Soybeans | realised weather, lagged | 4 wk | 974 | -13.83% | -9.20% | 0.821 | 0.951 | 0.947 | 51.5% |
+| Soybeans | look-ahead diagnostic (realised holding-period weather) | 1 wk | 983 | +0.13% | +0.50% | 0.015 | 0.113 | 0.587 | 55.4% |
+| Soybeans | look-ahead diagnostic (realised holding-period weather) | 4 wk | 977 | -3.92% | +0.09% | 0.026 | 0.113 | 0.951 | 53.1% |
+| Soybeans | NWP forecasts known at origin | 1 wk | 87 | -17.53% | -15.00% | 0.715 | 0.951 | 0.950 | 44.8% |
+| Soybeans | NWP forecasts known at origin | 4 wk | 81 | -27.08% | -27.87% | 0.819 | 0.951 | 0.974 | 49.4% |
+| Wheat (Chicago SRW) | realised weather, lagged | 1 wk | 980 | -1.69% | -0.63% | 0.511 | 0.951 | 0.993 | 48.9% |
+| Wheat (Chicago SRW) | realised weather, lagged | 4 wk | 974 | -6.10% | -2.85% | 0.955 | 0.981 | 0.998 | 49.1% |
+| Wheat (Chicago SRW) | look-ahead diagnostic (realised holding-period weather) | 1 wk | 983 | -1.34% | -0.21% | 0.111 | 0.223 | 0.959 | 49.5% |
+| Wheat (Chicago SRW) | look-ahead diagnostic (realised holding-period weather) | 4 wk | 977 | -5.81% | -2.52% | 0.618 | 0.742 | 0.989 | 48.6% |
+| Wheat (Chicago SRW) | NWP forecasts known at origin | 1 wk | 87 | -24.17% | -21.96% | 0.386 | 0.951 | 0.994 | 46.0% |
+| Wheat (Chicago SRW) | NWP forecasts known at origin | 4 wk | 81 | -14.87% | -16.09% | 0.318 | 0.951 | 0.897 | 53.1% |
+| Arabica coffee | realised weather, lagged | 1 wk | 980 | -1.20% | -1.36% | 0.278 | 0.951 | 0.850 | 51.1% |
+| Arabica coffee | realised weather, lagged | 4 wk | 974 | -1.44% | -1.90% | 0.981 | 0.981 | 0.843 | 50.1% |
+| Arabica coffee | look-ahead diagnostic (realised holding-period weather) | 1 wk | 983 | -1.85% | -2.00% | 0.917 | 0.917 | 0.939 | 49.5% |
+| Arabica coffee | look-ahead diagnostic (realised holding-period weather) | 4 wk | 977 | -1.52% | -2.09% | 0.597 | 0.742 | 0.836 | 51.4% |
+| Arabica coffee | NWP forecasts known at origin | 1 wk | 87 | -4.21% | -1.83% | 0.624 | 0.951 | 0.926 | 54.0% |
+| Arabica coffee | NWP forecasts known at origin | 4 wk | 81 | -16.66% | -3.38% | 0.379 | 0.951 | 0.983 | 44.4% |
+| Natural gas (Henry Hub) | realised weather, lagged | 1 wk | 983 | -0.29% | -0.06% | 0.375 | 0.951 | 0.817 | 51.1% |
+| Natural gas (Henry Hub) | realised weather, lagged | 4 wk | 977 | -0.38% | -0.22% | 0.808 | 0.951 | 0.807 | 50.3% |
+| Natural gas (Henry Hub) | look-ahead diagnostic (realised holding-period weather) | 1 wk | 983 | -0.70% | -0.47% | 0.904 | 0.917 | 0.938 | 50.9% |
+| Natural gas (Henry Hub) | look-ahead diagnostic (realised holding-period weather) | 4 wk | 977 | -1.07% | -0.90% | 0.028 | 0.113 | 0.779 | 53.5% |
+| Natural gas (Henry Hub) | NWP forecasts known at origin | 1 wk | 88 | +7.13% | +6.71% | <0.001 | 0.004 | 0.210 | 58.0% |
+| Natural gas (Henry Hub) | NWP forecasts known at origin | 4 wk | 82 | +9.80% | +5.01% | 0.034 | 0.374 | 0.499 | 53.7% |
+| Cocoa | realised weather, lagged | 1 wk | 980 | -2.26% | -0.29% | 0.540 | 0.951 | 0.996 | 53.5% |
+| Cocoa | realised weather, lagged | 4 wk | 974 | -4.46% | -0.47% | 0.674 | 0.951 | 0.972 | 52.2% |
+| Cocoa | look-ahead diagnostic (realised holding-period weather) | 1 wk | 983 | -1.92% | -0.00% | 0.416 | 0.624 | 0.988 | 53.7% |
+| Cocoa | look-ahead diagnostic (realised holding-period weather) | 4 wk | 977 | -3.58% | +0.50% | 0.111 | 0.223 | 0.942 | 53.4% |
 
-*Negative out-of-sample R² means the model forecast worse than the benchmark. The oracle tier uses weather that would not have been known at the forecast origin and is shown only as an upper bound.*
+*Out-of-sample R² is measured against the expanding historical mean (Campbell and Thompson); negative values mean the model forecast worse than that benchmark. The look-ahead diagnostic uses weather that was not known at the forecast origin and is not a tradable signal.*
 
 > Figure 4. R² gain of weather-augmented over market-only models (● = BH q < 0.10). — interactive version in the app (`#report`).
 
@@ -199,7 +199,7 @@ Temperature benefits most from post-processing because its errors are dominated 
 
 Precipitation is harder: it is intermittent and skewed, and parametric censored models need longer or spatially pooled training to beat a good raw ensemble (Scheuerer and Hamill, 2015; Lerch and Baran, 2017). The small but reliable gains from skill weighting are the honest ceiling of single-site, 90-day calibration; semi-local pooling across regions is the natural next step.
 
-Price predictability from weather is narrow. Markets incorporate realised weather quickly (Roll, 1984), so lagged realised weather adds little to weekly return forecasts. Where evidence exists in the literature it concerns forecast information and revisions — especially for natural gas (Hsu et al., 2026; Monteux et al., 2025) — and the oracle tier shows that even perfect knowledge of the coming week’s weather explains only a small fraction of return variance. Astraeus therefore presents weather as conditional physical pressure with explicit invalidation criteria, and reports price predictability only where it survives the tests in Table 4.
+Price predictability from weather is narrow. Markets incorporate realised weather quickly (Roll, 1984), so lagged realised weather adds little to weekly return forecasts. Where evidence exists in the literature it concerns forecast information and revisions — especially for natural gas (Hsu et al., 2026; Monteux et al., 2025) — and even the look-ahead diagnostic, which uses the weather that actually occurred over the holding period, did not forecast returns in a linear model, consistent with the forecastable part of weather being priced at the origin. The natural-gas forecast result is suggestive rather than established: it beats a market-only model but not a no-change forecast, on 88 weeks of a short archive, and must be re-tested as the archive grows. Astraeus therefore presents weather as conditional physical pressure with explicit invalidation criteria, and reports price predictability only where it survives the tests in Table 4.
 
 Limitations. ERA5 is a ~31 km reanalysis rather than station truth and favours smooth models; single grid points stand in for production regions; one confirmation period covers a single realisation of each season; the forecast-tier price sample is short (2024–2026); continuous futures contain roll jumps; and the free data sources used are licensed for non-commercial research.
 

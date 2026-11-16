@@ -29,7 +29,7 @@ Held-out confirmation period (April–November 2026), 16 commodity regions, 7 mo
 
 All differences are significant (Diebold–Mariano with HAC/HLN correction, p < 0.01); 95% block-bootstrap intervals are in `public/research/weather-skill.json`. The pre-registered first run and the development comparison are archived in `docs/results/archive/`.
 
-A companion walk-forward study (`docs/results/PRICE_STUDY.md`) finds that weather information rarely improves out-of-sample weekly futures-return forecasts beyond market-only models; see the report for the cells that survive multiple-testing control.
+A companion walk-forward study (`docs/results/PRICE_STUDY.md`, 6 commodities, 2008–2026) finds that weather information almost never improves out-of-sample weekly futures-return forecasts. The single cell surviving Benjamini–Hochberg correction — natural-gas weather forecasts at a 1-week horizon — beats a market-only model (Clark–West q = 0.004) but not a no-change forecast (Diebold–Mariano p = 0.21) on 88 weeks, so it is reported as a hypothesis to monitor, not a signal.
 
 ## The weather engine
 

@@ -49,7 +49,7 @@ export function useResearchData() {
   useEffect(() => {
     let live = true;
     void loadJson<WeatherSkill>('/research/weather-skill.json').then((d) => live && setWeather(d));
-    void loadJson<PriceSkill>('/research/price-skill.json').then((d) => live && setPrice(d));
+    void loadJson<PriceSkill>('/research/price-summary.json').then((d) => (d ? d : loadJson<PriceSkill>('/research/price-skill.json'))).then((d) => live && setPrice(d));
     return () => { live = false; };
   }, []);
   return { weather, price };

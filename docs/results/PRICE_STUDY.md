@@ -1,6 +1,6 @@
 # Does weather information predict commodity futures returns?
 
-*Astraeus price study (`astraeus-weather-price-walkforward-v1`). Generated 2026-11-15T23:53:54.093Z from `npx tsx research/price-study.ts`. Machine-readable results: `public/research/price-skill.json`.*
+*Astraeus price study (`astraeus-weather-price-walkforward-v1`). Generated 2026-11-16T00:22:18.678Z from `npx tsx research/price-study.ts`. Machine-readable results: `public/research/price-skill.json`.*
 
 ## Question
 
@@ -12,7 +12,7 @@ Weather shocks move agricultural and energy supply and demand, and futures price
 - **Weather:** ERA5 reanalysis (Hersbach et al. 2020) daily values via Open-Meteo at representative production or demand coordinates (equal-weighted). Extreme degree-days use single-sine within-day interpolation (Baskerville & Emin 1969) above 29 °C (corn) / 30 °C (soybeans, wheat), following the non-linear yield response in Schlenker & Roberts (2009). Natural gas uses heating + cooling degree-days at base 18 °C. Anomalies are standardised against the same calendar window in up to 10 **prior** years (minimum 5). Crop features are season-gated (zero outside the stated months).
 - **Three information sets (tiers):**
   1. **Realised, lagged** (2005-01-07 onward): ERA5 windows ending 7 days before the origin (ERA5 publication latency is about five days). Tradable information.
-  2. **ORACLE** (same period): realised ERA5 over the *target* window (origin + 1 … origin + 7h days). This is look-ahead **by design**: it measures how much of the return a perfect weather forecast could explain, an upper bound for any forecast-based signal. It is not a forecast and is never mixed into the forecastable family.
+  2. **ORACLE** (same period): realised ERA5 over the *target* window (origin + 1 … origin + 7h days). This is look-ahead **by design**: it asks whether knowing the realised weather anomaly over the holding period, inside the same linear design, would explain returns. It is a diagnostic, not a forecast, and it is never mixed into the forecastable family. It is not a strict upper bound: markets already price the part of that anomaly that was forecast at the origin, so only the unforecast remainder should move prices.
   3. **NWP forecast** (2024-03-08 onward): ECMWF IFS (and GFS for natural gas) archived forecasts from the Open-Meteo Previous Runs API. Features are the anomaly of days +1…+6 taken from runs initialised at least one day before the origin (lead k+1 for day k), and the forecast revision (newest admissible lead minus the lead-7 forecast for the same target days).
 - **Models:** RW (zero return); HM (expanding historical mean); MKT (ridge on 1-week return, 4-week return and 12-week realised volatility); WX (MKT + tier weather features, nesting MKT). Ridge penalty λ = 0.1 × n_train on standardised predictors, fixed ex ante. Predictors are standardised with training-window statistics only.
 - **Walk-forward:** expanding window refit every week; a training example is admissible only once its target return is fully realised before the origin, so overlapping 4-week targets cannot leak. Minimum training: 156 weeks (long tiers), 52 weeks (NWP tier).
@@ -45,7 +45,7 @@ Weather shocks move agricultural and energy supply and demand, and futures price
 | Cocoa | Realised ERA5, 7-day lag | 1 | 980 | 2008-02-01…2026-11-06 | -2.26% | [-3.9, -0.5]% | -1.96% | 1.012 | 0.996 | 0.998 | 0.540 | 0.951 | 53.5% | 52.6% | 0.028 |
 | Cocoa | Realised ERA5, 7-day lag | 4 | 974 | 2008-02-22…2026-10-16 | -4.46% | [-9.4, 0.5]% | -3.97% | 1.026 | 0.972 | 0.998 | 0.674 | 0.951 | 52.2% | 52.2% | 0.121 |
 
-## Results — ORACLE upper bound (not a forecast)
+## Results — ORACLE diagnostic (look-ahead by design, not a forecast)
 
 | Commodity | Tier | h (wk) | OOS n | OOS window | R²os wx | 95% CI | R²os mkt | RMSE wx/RW | DM p (wx<RW) | q | CW p (wx>mkt) | q | Hit wx | Up-rate | PT p |
 |---|---|---:|---:|---|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
@@ -62,61 +62,79 @@ Weather shocks move agricultural and energy supply and demand, and futures price
 | Cocoa | ORACLE (future weather) | 1 | 983 | 2008-01-04…2026-10-30 | -1.92% | [-3.5, -0.3]% | -1.92% | 1.010 | 0.988 | 0.989 | 0.416 | 0.624 | 53.7% | 52.7% | 0.021 |
 | Cocoa | ORACLE (future weather) | 4 | 977 | 2008-01-25…2026-10-09 | -3.58% | [-8.8, 1.4]% | -4.10% | 1.021 | 0.942 | 0.989 | 0.111 | 0.223 | 53.4% | 52.4% | 0.028 |
 
-## Contemporaneous and lagged sensitivity (in-sample, descriptive, 1-week horizon)
+## In-sample sensitivity (descriptive, 1-week horizon)
 
 Full-sample OLS of weekly log returns on season-gated, standardised weather features, with Newey–West HAC t-statistics. Coefficients are % return per one-standard-deviation anomaly. This describes association, not forecast skill.
 
 | Commodity | Tier | Feature | % return per SD | HAC t | p (two-sided) |
 |---|---|---|---:|---:|---:|
-| Corn | Realised ERA5, 7-day lag | Extreme degree-days >29 °C (7-day) | 0.193 | 0.98 | 0.328 |
-| Corn | Realised ERA5, 7-day lag | Precipitation (28-day) | 0.221 | 1.55 | 0.121 |
-| Corn | ORACLE (future weather) | Extreme degree-days >29 °C (7-day) | 0.092 | 0.65 | 0.518 |
-| Corn | ORACLE (future weather) | Precipitation (28-day) | -0.233 | -1.80 | 0.073 |
+| Corn | Realised ERA5, 7-day lag | Extreme degree-days >29 °C (7-day window ending 7 days before origin) | 0.193 | 0.98 | 0.328 |
+| Corn | Realised ERA5, 7-day lag | Precipitation (28-day window ending 7 days before origin) | 0.221 | 1.55 | 0.121 |
+| Corn | ORACLE (future weather) | Extreme degree-days >29 °C (realised over the 7-day holding period) | 0.092 | 0.65 | 0.518 |
+| Corn | ORACLE (future weather) | Precipitation (realised over the 7-day holding period) | -0.233 | -1.80 | 0.073 |
 | Corn | NWP forecast + revision | Extreme degree-days >29 °C: forecast anomaly (days +1…+6) | -0.468 | -1.23 | 0.218 |
 | Corn | NWP forecast + revision | Extreme degree-days >29 °C: forecast revision (lead k+1 minus lead 7) | 0.342 | 0.73 | 0.466 |
 | Corn | NWP forecast + revision | Precipitation: forecast anomaly (days +1…+6) | -0.057 | -0.20 | 0.844 |
 | Corn | NWP forecast + revision | Precipitation: forecast revision (lead k+1 minus lead 7) | -0.013 | -0.03 | 0.977 |
-| Soybeans | Realised ERA5, 7-day lag | Extreme degree-days >30 °C (7-day, US) | 0.126 | 1.22 | 0.221 |
-| Soybeans | Realised ERA5, 7-day lag | Precipitation (28-day, US) | 0.073 | 0.58 | 0.561 |
-| Soybeans | Realised ERA5, 7-day lag | Precipitation (28-day, Mato Grosso) | 0.100 | 1.24 | 0.216 |
-| Soybeans | ORACLE (future weather) | Extreme degree-days >30 °C (7-day, US) | 0.147 | 1.66 | 0.096 |
-| Soybeans | ORACLE (future weather) | Precipitation (28-day, US) | -0.264 | -2.39 | 0.017 |
-| Soybeans | ORACLE (future weather) | Precipitation (28-day, Mato Grosso) | 0.155 | 1.71 | 0.088 |
+| Soybeans | Realised ERA5, 7-day lag | Extreme degree-days >30 °C (7-day window ending 7 days before origin, US) | 0.126 | 1.22 | 0.221 |
+| Soybeans | Realised ERA5, 7-day lag | Precipitation (28-day window ending 7 days before origin, US) | 0.073 | 0.58 | 0.561 |
+| Soybeans | Realised ERA5, 7-day lag | Precipitation (28-day window ending 7 days before origin, Mato Grosso) | 0.100 | 1.24 | 0.216 |
+| Soybeans | ORACLE (future weather) | Extreme degree-days >30 °C (realised over the 7-day holding period, US) | 0.147 | 1.66 | 0.096 |
+| Soybeans | ORACLE (future weather) | Precipitation (realised over the 7-day holding period, US) | -0.264 | -2.39 | 0.017 |
+| Soybeans | ORACLE (future weather) | Precipitation (realised over the 7-day holding period, Mato Grosso) | 0.155 | 1.71 | 0.088 |
 | Soybeans | NWP forecast + revision | Extreme degree-days >30 °C (US): forecast anomaly (days +1…+6) | 0.136 | 0.38 | 0.705 |
 | Soybeans | NWP forecast + revision | Extreme degree-days >30 °C (US): forecast revision (lead k+1 minus lead 7) | -0.271 | -1.57 | 0.116 |
 | Soybeans | NWP forecast + revision | Precipitation (US): forecast anomaly (days +1…+6) | -0.561 | -1.95 | 0.052 |
 | Soybeans | NWP forecast + revision | Precipitation (US): forecast revision (lead k+1 minus lead 7) | 0.538 | 1.38 | 0.168 |
-| Wheat (Chicago SRW) | Realised ERA5, 7-day lag | Precipitation (28-day, Kansas) | 0.035 | 0.24 | 0.809 |
-| Wheat (Chicago SRW) | Realised ERA5, 7-day lag | Extreme degree-days >30 °C (7-day, Kansas) | -0.233 | -1.84 | 0.066 |
-| Wheat (Chicago SRW) | Realised ERA5, 7-day lag | Precipitation (28-day, Beauce) | -0.059 | -0.37 | 0.713 |
-| Wheat (Chicago SRW) | ORACLE (future weather) | Precipitation (28-day, Kansas) | -0.192 | -1.60 | 0.110 |
-| Wheat (Chicago SRW) | ORACLE (future weather) | Extreme degree-days >30 °C (7-day, Kansas) | -0.375 | -2.21 | 0.027 |
-| Wheat (Chicago SRW) | ORACLE (future weather) | Precipitation (28-day, Beauce) | -0.048 | -0.39 | 0.698 |
+| Wheat (Chicago SRW) | Realised ERA5, 7-day lag | Precipitation (28-day window ending 7 days before origin, Kansas) | 0.035 | 0.24 | 0.809 |
+| Wheat (Chicago SRW) | Realised ERA5, 7-day lag | Extreme degree-days >30 °C (7-day window ending 7 days before origin, Kansas) | -0.233 | -1.84 | 0.066 |
+| Wheat (Chicago SRW) | Realised ERA5, 7-day lag | Precipitation (28-day window ending 7 days before origin, Beauce) | -0.059 | -0.37 | 0.713 |
+| Wheat (Chicago SRW) | ORACLE (future weather) | Precipitation (realised over the 7-day holding period, Kansas) | -0.192 | -1.60 | 0.110 |
+| Wheat (Chicago SRW) | ORACLE (future weather) | Extreme degree-days >30 °C (realised over the 7-day holding period, Kansas) | -0.375 | -2.21 | 0.027 |
+| Wheat (Chicago SRW) | ORACLE (future weather) | Precipitation (realised over the 7-day holding period, Beauce) | -0.048 | -0.39 | 0.698 |
 | Wheat (Chicago SRW) | NWP forecast + revision | Precipitation (Kansas): forecast anomaly (days +1…+6) | -0.574 | -1.34 | 0.179 |
 | Wheat (Chicago SRW) | NWP forecast + revision | Precipitation (Kansas): forecast revision (lead k+1 minus lead 7) | -0.588 | -1.58 | 0.115 |
 | Wheat (Chicago SRW) | NWP forecast + revision | Extreme degree-days >30 °C (Kansas): forecast anomaly (days +1…+6) | -0.136 | -0.69 | 0.492 |
 | Wheat (Chicago SRW) | NWP forecast + revision | Extreme degree-days >30 °C (Kansas): forecast revision (lead k+1 minus lead 7) | 0.126 | 0.38 | 0.705 |
-| Arabica coffee | Realised ERA5, 7-day lag | Cold degree-days below 6 °C Tmin (7-day) | -0.091 | -0.94 | 0.349 |
-| Arabica coffee | Realised ERA5, 7-day lag | Precipitation (28-day) | 0.021 | 0.14 | 0.891 |
-| Arabica coffee | ORACLE (future weather) | Cold degree-days below 6 °C Tmin (7-day) | 0.226 | 1.43 | 0.154 |
-| Arabica coffee | ORACLE (future weather) | Precipitation (28-day) | -0.011 | -0.09 | 0.931 |
+| Arabica coffee | Realised ERA5, 7-day lag | Cold degree-days below 6 °C Tmin (7-day window ending 7 days before origin) | -0.091 | -0.94 | 0.349 |
+| Arabica coffee | Realised ERA5, 7-day lag | Precipitation (28-day window ending 7 days before origin) | 0.021 | 0.14 | 0.891 |
+| Arabica coffee | ORACLE (future weather) | Cold degree-days below 6 °C Tmin (realised over the 7-day holding period) | 0.226 | 1.43 | 0.154 |
+| Arabica coffee | ORACLE (future weather) | Precipitation (realised over the 7-day holding period) | -0.011 | -0.09 | 0.931 |
 | Arabica coffee | NWP forecast + revision | Cold degree-days below 6 °C Tmin: forecast anomaly (days +1…+6) | -0.161 | -0.43 | 0.666 |
 | Arabica coffee | NWP forecast + revision | Precipitation: forecast anomaly (days +1…+6) | -0.419 | -1.14 | 0.254 |
 | Arabica coffee | NWP forecast + revision | Precipitation: forecast revision (lead k+1 minus lead 7) | -0.036 | -0.11 | 0.910 |
-| Natural gas (Henry Hub) | Realised ERA5, 7-day lag | HDD+CDD base 18 °C (7-day) | -0.184 | -0.87 | 0.383 |
-| Natural gas (Henry Hub) | ORACLE (future weather) | HDD+CDD base 18 °C (7-day) | -0.124 | -0.58 | 0.563 |
+| Natural gas (Henry Hub) | Realised ERA5, 7-day lag | HDD+CDD base 18 °C (7-day window ending 7 days before origin) | -0.184 | -0.87 | 0.383 |
+| Natural gas (Henry Hub) | ORACLE (future weather) | HDD+CDD base 18 °C (realised over the 7-day holding period) | -0.124 | -0.58 | 0.563 |
 | Natural gas (Henry Hub) | NWP forecast + revision | HDD+CDD base 18 °C: forecast anomaly (days +1…+6) | -2.571 | -3.11 | 0.002 |
 | Natural gas (Henry Hub) | NWP forecast + revision | HDD+CDD base 18 °C: forecast revision (lead k+1 minus lead 7) | 1.842 | 2.72 | 0.007 |
-| Cocoa | Realised ERA5, 7-day lag | Precipitation (28-day, Daloa + Kumasi) | -0.060 | -0.41 | 0.685 |
-| Cocoa | ORACLE (future weather) | Precipitation (28-day, Daloa + Kumasi) | -0.169 | -1.18 | 0.238 |
+| Cocoa | Realised ERA5, 7-day lag | Precipitation (28-day window ending 7 days before origin, Daloa + Kumasi) | -0.060 | -0.41 | 0.685 |
+| Cocoa | ORACLE (future weather) | Precipitation (realised over the 7-day holding period, Daloa + Kumasi) | -0.169 | -1.18 | 0.238 |
+
+## Robustness of rows that survive multiple-testing control
+
+Pre-declared variants, run only for forecastable rows with Clark–West q < 0.10. Headline numbers above keep the ex-ante configuration; these variants show fragility, not a search for a better result.
+
+| Row | Variant | OOS n | R²os wx vs HM | R²os wx vs MKT | CW p | DM p vs RW |
+|---|---|---:|---:|---:|---:|---:|
+| Natural gas (Henry Hub) / NWP forecast + revision / 1w | ridge λ = 0.03 × n | 88 | 6.56% | 6.61% | <0.001 | 0.255 |
+| Natural gas (Henry Hub) / NWP forecast + revision / 1w | ridge λ = 0.3 × n | 88 | 7.69% | 6.47% | <0.001 | 0.142 |
+| Natural gas (Henry Hub) / NWP forecast + revision / 1w | ridge λ = 1 × n | 88 | 6.59% | 4.82% | <0.001 | 0.100 |
+| Natural gas (Henry Hub) / NWP forecast + revision / 1w | drop the 5 largest |return| OOS weeks | 83 | 7.01% | 3.90% | <0.001 | 0.430 |
+| Natural gas (Henry Hub) / NWP forecast + revision / 1w | forecast-anomaly features only | 88 | 3.53% | 3.09% | 0.018 | 0.431 |
+| Natural gas (Henry Hub) / NWP forecast + revision / 1w | forecast-revision features only | 88 | 1.13% | 0.68% | 0.136 | 0.616 |
+| Natural gas (Henry Hub) / NWP forecast + revision / 1w | ecmwf_ifs025 only | 88 | 5.58% | 5.15% | 0.004 | 0.318 |
+| Natural gas (Henry Hub) / NWP forecast + revision / 1w | gfs_seamless only | 88 | 5.61% | 5.17% | <0.001 | 0.275 |
+| Natural gas (Henry Hub) / NWP forecast + revision / 1w | first half of OOS window | 44 | 11.79% | 10.65% | 0.005 | 0.141 |
+| Natural gas (Henry Hub) / NWP forecast + revision / 1w | second half of OOS window | 44 | 3.46% | 3.64% | <0.001 | 0.389 |
 
 ## Interpretation
 
-- Forecastable rows with positive out-of-sample R² for the weather model: **2 of 22**.
-- Rows where weather adds information over the market-only model after Benjamini–Hochberg control (Clark–West q < 0.10): Natural gas (Henry Hub) / NWP forecast + revision / 1w (q = 0.004).
-- ORACLE rows with the highest R²os: Soybeans 1w 0.13%, Natural gas (Henry Hub) 1w -0.70%, Corn 4w -1.06%. The gap between the oracle and the forecastable tiers bounds what better weather forecasts could add under this linear, equal-weighted design.
-- Realised weather that is already a week old is public information when it is used; an efficient market should already price it, so a null result in that tier is the expected outcome rather than a failure of the method.
-- The NWP tier covers only about 2.7 years, so its confidence intervals are wide. Treat its point estimates as exploratory until more archived forecasts accumulate.
+- **Realised weather that is a week old does not forecast returns.** 0 of 12 lagged-ERA5 rows have positive out-of-sample R², and none is significant after Benjamini–Hochberg control. This is the expected outcome in an informationally efficient futures market: the weather is public when it is used.
+- Across all forecastable rows, 2 of 22 rows have positive out-of-sample R² for the weather model.
+- Rows where weather adds information over the market-only model after Benjamini–Hochberg control (q < 0.10):
+  - Natural gas (Henry Hub) / NWP forecast + revision / 1w: Clark–West q = 0.004, R²os 7.13% (95% CI -3.3 to 22.2%), Diebold–Mariano vs the random walk p = 0.210, n = 88. The weather model adds information relative to the market-only model, but its accuracy gain over a no-change forecast is not statistically significant, and the bootstrap interval for R²os includes zero. Robustness variants give R²os from 1.1% to 11.8%. In-sample coefficients over the NWP sample: HDD+CDD base 18 °C: forecast anomaly (days +1…+6) -2.57% per SD (HAC t -3.11); HDD+CDD base 18 °C: forecast revision (lead k+1 minus lead 7) +1.84% per SD (HAC t 2.72). These signs are a hypothesis for further testing, not an established mechanism.
+- **ORACLE diagnostic:** 1 of 12 oracle rows has positive out-of-sample R². Knowing the realised weather *level* over the holding period does not, by itself, forecast returns in this linear design. A likely reason is that most of that anomaly was already in the forecast at the origin and was priced; the in-sample sensitivity table shows where realised holding-period weather is still contemporaneously associated with returns. Prices respond to weather *news* (forecast changes), which is why the NWP tier includes forecast revisions.
+- The NWP tier covers only about 2.7 years (out-of-sample from March 2025), so confidence intervals are wide and crop features are active in only one or two growing seasons. Crop NWP rows have strongly negative R²os: with about 52–140 training weeks, the extra predictors add estimation noise faster than signal. Treat every NWP point estimate as exploratory until more archived forecasts accumulate, and re-run this study as the archive grows (the code and cache make it a one-command update).
 
 ## Limitations
 
@@ -134,7 +152,7 @@ Full-sample OLS of weekly log returns on season-gated, standardised weather feat
 
 ```bash
 npx tsx research/price-study.ts            # fetches missing data into research/cache/ (gitignored)
-npx tsx research/price-study.ts --offline  # reruns from cache only
+npx tsx research/price-study.ts --offline --end=2026-11-14  # reruns this exact study from cache
 npx tsx --test src/engine/priceSkill.test.ts
 ```
 
