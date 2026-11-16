@@ -20,7 +20,7 @@ const LinkedMarkets = lazy(() => import('./components/ForecastLab').then((m) => 
 const CommodityResearchWorkbench = lazy(() => import('./components/CommodityResearchWorkbench').then((m) => ({ default: m.CommodityResearchWorkbench })));
 const ForecastSkill = lazy(() => import('./components/ForecastSkill').then((m) => ({ default: m.ForecastSkill })));
 const TechnicalReport = lazy(() => import('./components/TechnicalReport').then((m) => ({ default: m.TechnicalReport })));
-const ViewLoading = () => <div className="sk-loading" role="status" aria-live="polite">Loading view…</div>;
+const ViewLoading = () => <div className="sk-loading" role="status">Loading view…</div>;
 import { CalibratedOutlookPanel } from './components/CalibratedOutlookPanel';
 import { DataAttribution } from './components/DataAttribution';
 import './landing.css';
@@ -58,10 +58,16 @@ export function App() {
   const [view, setView] = useState<WorkspaceView>(() => workspaceViewFromHash(typeof window === 'undefined' ? '' : window.location.hash));
   /** Cross-fades between views with the View Transitions API where available (reduced motion: instant). */
   const transitionTo = (next: WorkspaceView) => {
-    const doc = typeof document !== 'undefined' ? (document as Document & { startViewTransition?: (cb: () => void) => unknown }) : null;
+    type Transition = { ready: Promise<void>; finished: Promise<void>; updateCallbackDone: Promise<void> };
+    const doc = typeof document !== 'undefined' ? (document as Document & { startViewTransition?: (cb: () => void) => Transition }) : null;
     const reduce = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const apply = () => { flushSync(() => setView(next)); window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior }); };
-    if (doc?.startViewTransition && !reduce) doc.startViewTransition(apply); else apply();
+    if (doc?.startViewTransition && !reduce) {
+      // A newer navigation (fast clicks, back/forward) skips the running transition and rejects its promises
+      // with AbortError; the view still updates, so the rejection is expected and must not surface as an error.
+      const vt = doc.startViewTransition(apply);
+      for (const p of [vt?.ready, vt?.finished, vt?.updateCallbackDone]) p?.catch(() => {});
+    } else apply();
   };
   const navigate = (next: WorkspaceView) => {
     if (typeof window === 'undefined') { setView(next); return; }

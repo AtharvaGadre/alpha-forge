@@ -55,7 +55,7 @@
 .af-app .af-label{font:500 10px/1.5 var(--as-font-mono);letter-spacing:.16em;text-transform:uppercase;color:var(--as-gold)}
 .af-app :is(.af-page-heading,.af-earth-heading,.af-learning-heading){display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin:0 0 32px}
 .af-app :is(.af-page-heading,.af-earth-heading,.af-learning-heading)>div:first-child{max-width:980px}
-.af-app :is(.af-page-heading h1,.af-earth-heading h1,.af-learning-heading h2){font:500 clamp(36px,4vw,58px)/1.05 var(--as-font-display);letter-spacing:-.01em;margin:14px 0 14px;color:var(--as-ink)}
+.af-app :is(.af-page-heading h1,.af-earth-heading h1,.af-learning-heading h1){font:500 clamp(36px,4vw,58px)/1.05 var(--as-font-display);letter-spacing:-.01em;margin:14px 0 14px;color:var(--as-ink)}
 .af-app :is(.af-page-heading p,.af-earth-heading p,.af-learning-heading p){font-size:14px;line-height:1.85;color:var(--as-muted);max-width:760px;margin:0}
 .af-app :is(.af-page-heading,.af-earth-heading,.af-learning-heading)>.af-button{flex-shrink:0}
 
@@ -340,7 +340,7 @@
   .af-app .af-topbar{height:auto;min-height:56px;padding:10px 16px;position:static}
   .af-app .af-content{padding:28px 16px 20px}
   .af-app :is(.af-page-heading,.af-earth-heading,.af-learning-heading){margin-bottom:24px;gap:16px}
-  .af-app :is(.af-page-heading h1,.af-earth-heading h1,.af-learning-heading h2){font-size:36px}
+  .af-app :is(.af-page-heading h1,.af-earth-heading h1,.af-learning-heading h1){font-size:36px}
   .af-app .af-stats{gap:10px}
   .af-app .af-stats>div{padding:16px}
   .af-app .af-stats strong{font-size:36px}
