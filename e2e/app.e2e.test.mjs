@@ -123,6 +123,20 @@ test('with the weather budget at zero the UI degrades gracefully', async () => {
   await page.close();
 });
 
+test('the first-visit tour opens as a centred modal and closes', async () => {
+  const { page, problems } = await openPage(browser, server.base, { tour: true });
+  await page.goto(`${server.base}/#globe`, { waitUntil: 'domcontentloaded' });
+  const dialog = await page.waitForSelector('dialog.as-tour[open]', WAIT);
+  const box = await dialog.boundingBox();
+  assert.ok(Math.abs(box.x + box.width / 2 - 720) < 4, `dialog is horizontally centred (left ${box.x}, width ${box.width})`);
+  assert.ok(box.y > 0, 'dialog is not pinned to the top edge');
+  await page.click('.as-tour-close');
+  await page.waitForFunction(() => !document.querySelector('dialog.as-tour[open]'), WAIT);
+  assert.equal(await page.evaluate(() => localStorage.getItem('astraeus-tour-v1')), 'done');
+  assert.deepEqual(problems, []);
+  await page.close();
+});
+
 test('every interactive control has an accessible name', async () => {
   for (const view of VIEWS) {
     const { page } = await load(view);

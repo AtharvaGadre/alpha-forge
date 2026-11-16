@@ -80,7 +80,7 @@ const EXPECTED_FAILURES = [
  * Opens a page with the tour dismissed and a fixed theme, recording uncaught errors, console errors and failed
  * same-origin requests (minus the expected budget-related ones above).
  */
-export async function openPage(browser, base, { width = 1440, height = 900, theme = 'dark' } = {}) {
+export async function openPage(browser, base, { width = 1440, height = 900, theme = 'dark', tour = false } = {}) {
   const page = await browser.newPage();
   await page.setViewport({ width, height, deviceScaleFactor: 1 });
   const problems = [];
@@ -98,9 +98,9 @@ export async function openPage(browser, base, { width = 1440, height = 900, them
     if (EXPECTED_FAILURES.some((f) => f.status === r.status() && f.path.test(url.pathname))) return;
     problems.push(`HTTP ${r.status()} ${url.pathname}`);
   });
-  await page.evaluateOnNewDocument((t) => {
-    try { localStorage.setItem('astraeus-theme', t); localStorage.setItem('astraeus-tour-v1', 'done'); } catch { /* storage blocked */ }
-  }, theme);
+  await page.evaluateOnNewDocument((t, showTour) => {
+    try { localStorage.setItem('astraeus-theme', t); if (showTour) localStorage.removeItem('astraeus-tour-v1'); else localStorage.setItem('astraeus-tour-v1', 'done'); } catch { /* storage blocked */ }
+  }, theme, tour);
   return { page, problems };
 }
 

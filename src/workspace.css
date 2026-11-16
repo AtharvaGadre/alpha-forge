@@ -307,11 +307,13 @@
 .as-attribution h2{grid-column:1/-1;margin:0;font:500 10px/1.5 var(--as-font-mono);letter-spacing:.2em;text-transform:uppercase;color:var(--as-gold)}
 .as-attribution p{margin:0}
 .as-attribution strong{color:var(--as-ink);font-weight:600}
-.as-attribution a{color:var(--as-ink);text-decoration:underline;text-decoration-color:var(--as-line-strong);text-underline-offset:3px;transition:color .25s,text-decoration-color .25s}
-.as-attribution a:hover{color:var(--as-gold);text-decoration-color:currentColor}
+/* links stay underlined (not colour-only), including inside .lp where links are otherwise undecorated */
+:is(.lp,.af-app) .as-attribution a{color:var(--as-ink);text-decoration:underline;text-decoration-color:var(--as-line-strong);text-underline-offset:3px;transition:color .25s,text-decoration-color .25s}
+:is(.lp,.af-app) .as-attribution a:hover{color:var(--as-gold);text-decoration-color:currentColor}
 
 /* ── tour dialog ── */
-.as-tour{border-radius:var(--as-radius-lg)}
+/* Tailwind's preflight zeroes margins, which pinned the modal to the top-left corner; margin:auto re-centres it */
+.as-tour{margin:auto;border-radius:var(--as-radius-lg)}
 .as-tour .as-tour-actions button{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:10px 18px;border-radius:999px;border:1px solid var(--as-line-strong);background:transparent;color:var(--as-ink);font-size:13px;font-weight:500;cursor:pointer}
 .as-tour .as-tour-actions button.af-primary{background:var(--as-gold);border-color:var(--as-gold);color:var(--as-on-gold)}
 .as-tour .as-tour-close{display:grid;place-items:center;width:36px;height:36px;border-radius:999px;border:1px solid var(--as-line);background:transparent;color:var(--as-muted);cursor:pointer}
