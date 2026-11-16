@@ -1,109 +1,699 @@
 openapi: 3.1.0
 info:
-  title: AlphaForge Atmosphere Shared Cross-Platform API
-  version: 4.0.0
+  title: Astraeus API
+  version: 1.0.0
+  summary: Calibrated weather intelligence for commodity markets.
   description: >
-    Shared REST and WebSocket API contracts consumed by the AlphaForge Atmosphere
-    Web platform (React/TypeScript + CesiumJS) and Native Mobile applications
-    (Flutter + Dart for iOS and Android).
+    The JSON API served by the Astraeus server (server.ts). All routes are same-origin and need no key. Errors are
+    `{"error": "..."}`; live-data failures add `"dataMode": "LIVE_UNAVAILABLE"`. Every /api route is rate-limited per
+    client IP (120/min); routes tagged `expensive` share a stricter bucket (8/min, burst 12) and answer 429 with
+    Retry-After when it is empty. Weather calls are metered against a daily Open-Meteo budget; when it is spent, live
+    analyses fall back to the precomputed outlook or answer 503. Legacy routes (ARGON, WorldPulse, quant labs,
+    trade-idea decks) were removed and answer 404 Unknown API route, or 410 where noted. See API_CONTRACTS.md.
 servers:
   - url: http://localhost:3000
-    description: Local / Cloud Run Unified Express + Vite + WebSocket Gateway
-  - url: http://localhost:8000
-    description: Python FastAPI Scientific Verification Companion Service
+    description: Local server (npm run dev / npm start)
+tags:
+  - name: service
+  - name: commodities
+  - name: weather
+  - name: research
+  - name: evaluation
+  - name: track-record
+  - name: expensive
+    description: Shares the stricter live-analysis rate limit.
+  - name: retired
+
 paths:
+  /api/v1/health:
+    get:
+      tags: [service]
+      summary: Service status, precompute state, track-record head and Open-Meteo budget
+      operationId: getHealth
+      responses:
+        '200':
+          description: Healthy
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Health' }
   /api/health:
     get:
-      summary: Platform health and dataset provenance check
+      tags: [service]
+      summary: Legacy alias of /api/v1/health
+      operationId: getHealthLegacy
       responses:
         '200':
-          description: Nominal health response
-  /api/v1/weather/current:
+          description: Healthy
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Health' }
+
+  /api/v1/models/skill:
     get:
-      summary: Current weather observations and anomaly telemetry for coordinates
-      parameters:
-        - in: query
-          name: lat
-          schema:
-            type: number
-        - in: query
-          name: lng
-          schema:
-            type: number
-        - in: query
-          name: country
-          schema:
-            type: string
+      tags: [research]
+      summary: Summary of the published weather benchmark (full results at /research/weather-skill.json)
+      operationId: getModelSkill
       responses:
         '200':
-          description: Current weather telemetry
-  /api/v1/forecasts/compare:
+          description: Benchmark summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  version: { type: string }
+                  period: { type: string }
+                  generatedAt: { type: string }
+                  headlineMethod: { type: string }
+                  sites: { type: integer }
+                  summary: { type: array, items: { type: object } }
+                  singleModels: { type: array, items: { type: object } }
+                  provenance: { type: object }
+                  caveats: { type: array, items: { type: string } }
+                  fullResults: { type: string, const: /research/weather-skill.json }
+        '503': { $ref: '#/components/responses/Error' }
+
+  /api/v1/commodities:
     get:
-      summary: Multi-model forecast comparison (ECMWF, GFS, GraphCast, WeatherNext, JMA, CPTEC)
-      parameters:
-        - in: query
-          name: region
-          schema:
-            type: string
+      tags: [commodities]
+      summary: The commodity catalogue (28 commodities with regions, mechanism rules and fundamentals)
+      operationId: listCommodities
       responses:
         '200':
-          description: Skill-weighted consensus and per-model forecasts
+          description: Catalogue
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Catalogue' }
   /api/v1/trade-ideas:
     get:
-      summary: Research-backed weather-to-market trade ideas and prediction market contracts
-      parameters:
-        - in: query
-          name: country
-          schema:
-            type: string
-        - in: query
-          name: offsetHours
-          schema:
-            type: number
+      tags: [commodities]
+      summary: Alias of /api/v1/commodities kept for older clients (returns the catalogue, not trade ideas)
+      operationId: listCommoditiesLegacy
+      deprecated: true
       responses:
         '200':
-          description: List of research-backed trade ideas and prediction market probabilities
+          description: Catalogue
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Catalogue' }
+
+  /api/v1/commodities/{id}/forecast:
+    get:
+      tags: [commodities, expensive]
+      summary: Live regional analysis - conditional price pressure, drivers, calibrated 7-day outlook and evidence
+      description: >
+        Cached 15 minutes per commodity and region; identical concurrent requests share one run; each issued result
+        is appended to the server's forecast ledger. Over the Open-Meteo budget the day's precomputed outlook is
+        returned with a `notice`, or 503 when none exists.
+      operationId: getCommodityForecast
+      parameters:
+        - $ref: '#/components/parameters/CommodityId'
+        - name: region
+          in: query
+          description: Region id from the commodity's catalogue entry (default its first region).
+          schema: { type: string }
+      responses:
+        '200':
+          description: Issued forecast
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CommodityForecast' }
+        '400': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '502': { $ref: '#/components/responses/LiveUnavailable' }
+        '503': { $ref: '#/components/responses/LiveUnavailable' }
+
+  /api/v1/outlooks/latest:
+    get:
+      tags: [commodities]
+      summary: Today's precomputed outlooks for the default regions (issued daily after 06:30 UTC; gzip when accepted)
+      operationId: getLatestOutlooks
+      responses:
+        '200':
+          description: Outlook file
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OutlookFile' }
+        '404': { $ref: '#/components/responses/Error' }
+
+  /api/v1/weather/globe:
+    get:
+      tags: [weather]
+      summary: 144-point NOAA GFS wind and precipitation field (via Open-Meteo) for the globe
+      description: Cached for GLOBE_TTL_MIN (default 180 min); the last good field is served with `stale` when a refresh fails.
+      operationId: getGlobeWeather
+      responses:
+        '200':
+          description: Weather field
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/GlobeWeatherField' }
+        '502': { $ref: '#/components/responses/LiveUnavailable' }
+        '503': { $ref: '#/components/responses/LiveUnavailable' }
+
+  /api/v2/atmosphere/investigate:
+    get:
+      tags: [weather, expensive]
+      summary: Full live pipeline output for any place or question
+      operationId: investigateGet
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string, maxLength: 300 }
+      responses:
+        '200': { $ref: '#/components/responses/Investigation' }
+        '400': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '502': { $ref: '#/components/responses/LiveUnavailable' }
+        '503': { $ref: '#/components/responses/LiveUnavailable' }
+    post:
+      tags: [weather, expensive]
+      summary: Full live pipeline output for any place or question (JSON body)
+      operationId: investigatePost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [query]
+              properties:
+                query: { type: string, maxLength: 300 }
+      responses:
+        '200': { $ref: '#/components/responses/Investigation' }
+        '400': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '502': { $ref: '#/components/responses/LiveUnavailable' }
+        '503': { $ref: '#/components/responses/LiveUnavailable' }
+
+  /api/v1/commodities/{id}/research:
+    get:
+      tags: [research]
+      summary: Reviewed research profile and papers for a commodity
+      operationId: getCommodityResearch
+      parameters:
+        - $ref: '#/components/parameters/CommodityId'
+      responses:
+        '200':
+          description: Research profile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  commodityId: { type: string }
+                  profile: { type: object }
+                  papers: { type: array, items: { type: object } }
+                  reviewedAt: { type: string, format: date }
+                  note: { type: string }
+        '404': { $ref: '#/components/responses/Error' }
+
+  /api/v1/research/papers:
+    get:
+      tags: [research, expensive]
+      summary: Crossref paper search (cached one hour)
+      operationId: searchPapers
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema: { type: string, minLength: 3, maxLength: 180 }
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  provider: { type: string, const: Crossref }
+                  papers: { type: array, items: { type: object } }
+                  cached: { type: boolean }
+        '400': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '502': { $ref: '#/components/responses/Error' }
+
+  /api/v1/commodities/transmission:
+    get:
+      tags: [research]
+      summary: Economic transmission graph (nodes, links, mechanisms, sources)
+      operationId: getTransmission
+      responses:
+        '200':
+          description: Graph
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  version: { type: string }
+                  nodes: { type: array, items: { type: object } }
+                  links: { type: array, items: { type: object } }
+                  evidence: { type: string, const: MECHANISM_ONLY }
+
+  /api/v1/commodities/transmission/scenario:
+    get:
+      tags: [research]
+      summary: Trace a manual up/down price shock through the transmission graph (no price targets)
+      operationId: traceScenario
+      parameters:
+        - name: source
+          in: query
+          required: true
+          description: Catalogue commodity id.
+          schema: { type: string }
+        - name: direction
+          in: query
+          schema: { type: string, enum: [UP, DOWN], default: UP }
+        - name: hops
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 3, default: 2 }
+      responses:
+        '200':
+          description: Paths
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  version: { type: string }
+                  origin: { type: string, const: MANUAL_HYPOTHESIS }
+                  source: { type: string }
+                  direction: { type: string, enum: [UP, DOWN] }
+                  hops: { type: integer }
+                  paths: { type: array, items: { type: object } }
+                  note: { type: string }
+        '400': { $ref: '#/components/responses/Error' }
+
+  /api/v1/commodities/{id}/backtest:
+    get:
+      tags: [evaluation, expensive]
+      summary: Forecast direction against subsequent futures moves (historical replay or issued forecasts)
+      description: >
+        Cached five minutes; at most two backtests run at once (429 otherwise). Invalid parameters are currently
+        reported as 502 with the validation message.
+      operationId: runBacktest
+      parameters:
+        - $ref: '#/components/parameters/CommodityId'
+        - name: region
+          in: query
+          required: true
+          schema: { type: string }
+        - name: mode
+          in: query
+          schema: { type: string, enum: [REPLAY, ISSUED], default: REPLAY }
+          description: REPLAY uses archived GFS runs (corn and natural gas only); ISSUED uses forecasts this server recorded.
+        - name: start
+          in: query
+          required: true
+          schema: { type: string, format: date }
+        - name: end
+          in: query
+          required: true
+          schema: { type: string, format: date }
+        - name: horizon
+          in: query
+          description: Holding period in trading sessions.
+          schema: { type: integer, default: 5 }
+        - name: costBps
+          in: query
+          description: Round-trip cost scenario in basis points.
+          schema: { type: number, default: 0 }
+        - name: cadence
+          in: query
+          schema: { type: string, enum: [DAILY, WEEKLY], default: DAILY }
+      responses:
+        '200':
+          description: Backtest
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  version: { type: string, const: forecast-price-backtest-v1 }
+                  commodityId: { type: string }
+                  regionId: { type: string }
+                  mode: { type: string }
+                  symbol: { type: string }
+                  currency: { type: string }
+                  forecastOrigins: { type: array, items: { type: object } }
+                  prices: { type: array, items: { type: object } }
+                  evaluation: { type: object }
+                  numerical: { type: object }
+                  failures: { type: array, items: { type: object } }
+                  sourceUrls: { type: array, items: { type: string } }
+                  priceHash: { type: string }
+                  inputHash: { type: string }
+                  cached: { type: boolean }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '502': { $ref: '#/components/responses/Error' }
+
+  /api/v1/commodities/{id}/context:
+    get:
+      tags: [evaluation, expensive]
+      summary: Timestamped headlines and documents for a date range (GDELT, Google News RSS, Federal Register)
+      operationId: getMarketContext
+      parameters:
+        - $ref: '#/components/parameters/CommodityId'
+        - name: start
+          in: query
+          required: true
+          schema: { type: string, format: date }
+        - name: end
+          in: query
+          required: true
+          description: At most one year after start.
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: Context
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  articles: { type: array, items: { type: object } }
+                  sources: { type: array, items: { type: object } }
+                  notes: { type: array, items: { type: string } }
+        '404': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '502': { $ref: '#/components/responses/Error' }
+
+  /api/v1/track-record:
+    get:
+      tags: [track-record]
+      summary: Live track record summary (snapshots, hash-chain head, scored cells)
+      operationId: getTrackRecord
+      responses:
+        '200':
+          description: Summary
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TrackRecordSummary' }
+        '500': { $ref: '#/components/responses/Error' }
+  /api/v1/track-record/ledger:
+    get:
+      tags: [track-record]
+      summary: The hash-chained ledger, byte-for-byte (JSON lines)
+      operationId: getTrackRecordLedger
+      responses:
+        '200':
+          description: Ledger
+          content:
+            text/plain:
+              schema: { type: string }
+        '404':
+          description: No ledger yet (empty body)
+  /api/v1/track-record/snapshots/{date}:
+    get:
+      tags: [track-record]
+      summary: One daily snapshot, byte-for-byte so its sha256 can be checked against the ledger
+      operationId: getTrackRecordSnapshot
+      parameters:
+        - name: date
+          in: path
+          required: true
+          schema: { type: string, pattern: '^\d{4}-\d{2}-\d{2}(\.json)?$' }
+      responses:
+        '200':
+          description: Snapshot
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  schema: { type: string }
+                  issueDate: { type: string, format: date }
+                  issuedAtUtc: { type: string, format: date-time }
+                  engineVersion: { type: string }
+                  methodVersions: { type: array, items: { type: string } }
+                  regions: { type: array, items: { type: object } }
+                  missing: { type: array, items: { type: object } }
+                  notes: { type: array, items: { type: string } }
+        '400': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+
+  /api/v1/prediction-markets:
+    get:
+      tags: [retired]
+      summary: Retired (prediction markets removed)
+      operationId: retiredPredictionMarkets
+      deprecated: true
+      responses:
+        '410': { $ref: '#/components/responses/Error' }
   /api/v1/news-trade-ideas:
     get:
-      summary: Verified regional meteorological/macro news and derived trade ideas
-      parameters:
-        - in: query
-          name: country
-          schema:
-            type: string
+      tags: [retired]
+      summary: Retired fixture trade decks
+      operationId: retiredNewsTradeIdeas
+      deprecated: true
       responses:
-        '200':
-          description: News items mapped to conditional trade ideas
+        '410': { $ref: '#/components/responses/Error' }
   /api/v1/ai-summary:
     get:
-      summary: Bottom AI executive synthesis of predicted weather effects on financial markets
-      parameters:
-        - in: query
-          name: country
-          schema:
-            type: string
-        - in: query
-          name: locationName
-          schema:
-            type: string
+      tags: [retired]
+      summary: Retired fixture summary
+      operationId: retiredAiSummary
+      deprecated: true
       responses:
-        '200':
-          description: Structured AI executive synthesis with provenance hash
-  /api/v1/demo-presets:
-    get:
-      summary: Instant Demo Access workspace presets (Guest Explorer, Commodity Analyst, Weather Researcher, Global Macro Analyst)
-      responses:
-        '200':
-          description: Preset demo profiles
-  /api/v1/argon/query:
-    post:
-      summary: Execute ARGON autonomous weather-to-market research workflow
-      responses:
-        '200':
-          description: Full ArgonInvestigationResult and 28-section scientific report
-  /api/v1/argon/tts:
-    post:
-      summary: Synthesize spoken audio briefing via Gemini TTS
-      responses:
-        '200':
-          description: Base64 audio stream or fallback status
+        '410': { $ref: '#/components/responses/Error' }
+
+components:
+  parameters:
+    CommodityId:
+      name: id
+      in: path
+      required: true
+      description: Catalogue commodity id, e.g. corn, natural-gas, coffee.
+      schema: { type: string }
+
+  responses:
+    Error:
+      description: Error
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    LiveUnavailable:
+      description: Live data unavailable (budget spent, provider cooling down or failing); nothing is substituted.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    RateLimited:
+      description: Rate limit exceeded
+      headers:
+        Retry-After:
+          schema: { type: integer }
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Investigation:
+      description: Live pipeline output (raw inputs, model forecasts, verification, signals, consequences, data log)
+      content:
+        application/json:
+          schema: { type: object, additionalProperties: true }
+
+  schemas:
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error: { type: string }
+        dataMode: { type: string, const: LIVE_UNAVAILABLE }
+
+    Health:
+      type: object
+      properties:
+        status: { type: string, const: ok }
+        service: { type: string, const: astraeus }
+        version: { type: string }
+        environment: { type: string, enum: [production, development] }
+        startedAtUtc: { type: string, format: date-time }
+        uptimeSeconds: { type: integer }
+        precompute:
+          type: object
+          properties:
+            enabled: { type: boolean }
+            issuedAtUtc: { type: [string, 'null'], format: date-time }
+            results: { type: integer }
+            openMeteoWeight: { type: [number, 'null'] }
+        trackRecord:
+          type: object
+          properties:
+            enabled: { type: boolean }
+            snapshots: { type: integer }
+            ledgerHead: { type: [string, 'null'] }
+            ledgerOk: { type: [boolean, 'null'] }
+        openMeteo:
+          type: object
+          description: Today's weighted usage against the daily budget.
+          properties:
+            date: { type: string, format: date }
+            used: { type: number }
+            scheduled: { type: number }
+            interactive: { type: number }
+            blocked: { type: number }
+            daily: { type: number }
+            reserve: { type: number }
+            remaining: { type: number }
+            commercialKey: { type: boolean }
+            coolingDownUntil: { type: [string, 'null'] }
+
+    Catalogue:
+      type: object
+      properties:
+        commodities:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: string }
+              name: { type: string }
+              symbol: { type: string }
+              sector: { type: string }
+              unit: { type: string }
+              weatherRole: { type: string }
+              horizon: { type: string }
+              regions: { type: array, items: { type: object } }
+              rules: { type: array, items: { type: object } }
+              fundamentals: { type: array, items: { type: string } }
+        count: { type: integer }
+
+    DriverReading:
+      type: object
+      properties:
+        label: { type: string }
+        signalId: { type: string }
+        value: { type: [number, 'null'] }
+        normal: { type: [number, 'null'] }
+        anomaly: { type: [number, 'null'] }
+        zScore: { type: [number, 'null'] }
+        unit: { type: string }
+        sourceType: { type: string, enum: [FORECAST, REANALYSIS] }
+        pressure: { type: string, enum: [UP, DOWN, NEUTRAL, UNKNOWN] }
+        mechanism: { type: string }
+        caveat: { type: string }
+
+    CommodityForecast:
+      type: object
+      description: Conditional physical pressure with its evidence; not a price forecast (see src/engine/commodityForecastEngine.ts).
+      required: [commodityId, regionId, status, drivers, evidence]
+      properties:
+        commodityId: { type: string }
+        regionId: { type: string }
+        generatedAtUtc: { type: string, format: date-time }
+        sourceGeneratedAtUtc: { type: string, format: date-time }
+        status: { type: string, enum: [UPWARD_PRESSURE, DOWNWARD_PRESSURE, MIXED, NO_MATERIAL_SIGNAL, INSUFFICIENT_EVIDENCE] }
+        headline: { type: string }
+        weatherWindow: { type: string }
+        seasonActive: { type: boolean }
+        drivers: { type: array, items: { $ref: '#/components/schemas/DriverReading' } }
+        outlook:
+          type: object
+          description: Calibrated daily outlook (80% intervals, event probabilities, local held-out check); absent when calibration inputs were unavailable.
+        market:
+          type: [object, 'null']
+          description: Last observed futures close and 5-session return (Yahoo Finance; indicative, not for trading).
+        evidence:
+          type: object
+          properties:
+            modelCount: { type: integer }
+            climateYears: { type: integer }
+            weatherVerification: { type: boolean }
+            priceModelValidated: { type: boolean, const: false }
+            inputHash: { type: string }
+            experimentId: { type: string }
+            engineVersion: { type: string }
+            parametersSha256: { type: string }
+        diagnostics: { type: object, description: Per-model forecasts, verification, signals and provenance. }
+        sources: { type: array, items: { type: object }, description: Data log of every source request. }
+        limitations: { type: array, items: { type: string } }
+        fundamentals: { type: array, items: { type: string } }
+        target: { type: object }
+        precomputed:
+          type: object
+          properties:
+            issuedAtUtc: { type: string, format: date-time }
+            issueDate: { type: string, format: date }
+            job: { type: string }
+            carriedOver: { type: boolean }
+        cached: { type: boolean }
+        notice: { type: string, description: Set when the budget forced a fallback to the precomputed outlook. }
+
+    OutlookFile:
+      type: object
+      properties:
+        schema: { type: string, const: astraeus-outlooks-v1 }
+        job: { type: string }
+        issueDate: { type: string, format: date }
+        issuedAtUtc: { type: string, format: date-time }
+        completedAtUtc: { type: string, format: date-time }
+        engineVersion: { type: string }
+        methodVersions: { type: array, items: { type: string } }
+        openMeteo: { type: object }
+        regions: { type: array, items: { type: object } }
+        results:
+          type: object
+          description: Keyed "<commodityId>:<regionId>".
+          additionalProperties: { $ref: '#/components/schemas/CommodityForecast' }
+
+    GlobeWeatherField:
+      type: object
+      properties:
+        version: { type: string, const: live-globe-weather-v1 }
+        provider: { type: string }
+        model: { type: string }
+        fetchedAtUtc: { type: string, format: date-time }
+        modelInitializedAtUtc: { type: [string, 'null'], format: date-time }
+        inputSha256: { type: string }
+        spacingDeg: { type: number }
+        latitudeRange: { type: array, items: { type: number }, minItems: 2, maxItems: 2 }
+        frames: { type: array, items: { type: object }, description: 3-hourly precipitation and 10 m wind samples. }
+        sourceUrls: { type: array, items: { type: string } }
+        availablePoints: { type: integer }
+        totalPoints: { type: integer }
+        warnings: { type: array, items: { type: string } }
+        cached: { type: boolean }
+        stale: { type: boolean }
+
+    TrackRecordSummary:
+      type: object
+      properties:
+        schema: { type: string }
+        generatedAtUtc: { type: string, format: date-time }
+        startDate: { type: [string, 'null'], format: date }
+        latestSnapshot: { type: [string, 'null'], format: date }
+        snapshots: { type: integer }
+        regionsLatest: { type: integer }
+        ledger:
+          type: object
+          properties:
+            head: { type: string }
+            length: { type: integer }
+            ok: { type: boolean }
+            problems: { type: array, items: { type: string } }
+        cases:
+          type: object
+          properties:
+            total: { type: integer }
+            scored: { type: integer }
+            pending: { type: integer }
+        nextScoresExpected: { type: [string, 'null'], format: date }
+        methodVersions: { type: object, additionalProperties: { type: integer } }
+        cells:
+          type: array
+          items:
+            type: object
+            properties:
+              variable: { type: string }
+              lead: { type: integer }
+              n: { type: integer }
+              metric: { type: string, enum: [crps, qs] }
+              outlook: { type: object }
+              gaussian: { type: object }
+              raw: { type: object }
+              skillVsGaussian: { type: [number, 'null'] }
+              skillVsRaw: { type: [number, 'null'] }
+        verify: { type: string }
+        enabled: { type: boolean }
