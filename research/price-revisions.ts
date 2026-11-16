@@ -274,6 +274,15 @@ Weekly return regressed on the weather surprise that arrives during the holding 
 ### Reading
 
 - ${sig.length} of ${fam.length} family members show weather information adding to the market-only model at Benjamini–Hochberg q < 0.10 (Clark–West); ${fam.filter((r) => r.qDm !== null && r.qDm < 0.1).length} beat the no-change forecast at q < 0.10 (Diebold–Mariano).
+${(() => {
+    const best = [...fam].filter((r) => r.metrics?.cwWxVsMkt).sort((a, b) => a.metrics!.cwWxVsMkt!.p - b.metrics!.cwWxVsMkt!.p)[0];
+    if (!best) return '';
+    const m = best.metrics!;
+    return `- Lowest raw Clark–West p: ${best.key} (p ${fmtP(m.cwWxVsMkt!.p)}, q ${fmtP(best.qCw)}; R²os ${fmt(m.oosR2Wx * 100)}%, 95% CI ${fmt(m.oosR2WxCi95.lo * 100, 1)} to ${fmt(m.oosR2WxCi95.hi * 100, 1)}%; DM vs no-change p ${fmtP(m.dmWxVsRw?.p)}). After multiple-testing control it is not evidence. Its in-sample sign (${fmt(best.inSample?.coefPctPerSd)}% per SD, HAC t ${fmt(best.inSample?.t, 1)}) is also the opposite of the naive fundamental reading for H5 (a larger-than-normal weather-implied build preceding *higher* returns), so treat it as noise or a reversal effect to re-test, not a mechanism.`;
+  })()}
+- Forecast *changes* (H1, H2), the weather news to be revealed by the next storage report (H3, H4) and the storage-scaled forecast level (H6) do not predict next-week returns out of sample. That is what an efficient market implies: the information is public at the Friday close and is priced.
+- Contemporaneous diagnostic: the weather surprise arriving *during* the holding week has a positive but statistically weak association with that week's return (${fmt(c.pctReturnPerSd)}% per SD, HAC t ${fmt(c.t)}). Weekly returns are dominated by non-weather news, so even same-week weather news explains only ~${fmt(c.r2 * 100, 1)}% of their variance.
+- Taken with \`STORAGE_STUDY.md\`: weather forecasts strongly predict the physical storage change, but that predictability does not transfer to next-week futures returns.
 - ${json.leadLimitation}
 `;
 }

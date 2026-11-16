@@ -370,6 +370,31 @@ function ddVerification(rows: WeekRow[]) {
   return out;
 }
 
+/**
+ * Daily CONUS HDD error vs CPC by forecast lead (Dec–Feb days of each window). Each day uses the
+ * bias estimate a week forecast would have used (issue = day − (lead − 1)). Error must grow with
+ * lead if the archive's previous_dayN values are genuine N-day forecasts.
+ */
+function leadVerification(d: Data, rows: WeekRow[]) {
+  const out: Array<{ window: string; models: string; lead: number; n: number; hddRmse: number; hddBias: number }> = [];
+  for (const [window, models] of [['multi', C.models.multi], ['multi', C.models.ifs], ['gfs', C.models.gfs]] as const) {
+    const w = windowRows(rows, window);
+    const first = addDaysIso(w[0].weekEnd, -7);
+    const last = addDaysIso(w.at(-1)!.weekEnd, -1);
+    for (let lead = 1; lead <= 7; lead++) {
+      const e: number[] = [];
+      for (let day = first; day <= last; day = addDaysIso(day, 1)) {
+        if (![12, 1, 2].includes(monthOf(day))) continue;
+        const f = d.ctx.forecastDay([...models], lead, day, addDaysIso(day, -(lead - 1)), true);
+        const t = d.ctx.truthDay(day);
+        if (f && t) e.push(f.hdd - t.hdd);
+      }
+      out.push({ window, models: models.join('+'), lead, n: e.length, hddRmse: rmse(e), hddBias: mean(e) });
+    }
+  }
+  return out;
+}
+
 function bySeason(rows: WeekRow[]) {
   const keys: PredKey[] = ['fiveYr', 'seasonal', 'oracle', 'fcMulti', 'fcGfs'];
   const out: Array<{ window: string; season: string; n: number; rmse: Record<string, number> }> = [];
@@ -385,6 +410,55 @@ function bySeason(rows: WeekRow[]) {
     }
   }
   return out;
+}
+
+/**
+ * Post-hoc validation (not pre-specified): compares the recomputed five-year average with EIA's
+ * published values (research/tools/eia_ngsstats.py → research/cache/eia-ngsstats-l48.json), and
+ * re-scores the confirmatory forecast comparisons against the PUBLISHED five-year-average change
+ * (difference of consecutive published levels within the same report year).
+ */
+async function publishedFiveYearCheck(d: Data, rows: WeekRow[]) {
+  let raw: { source: string; extractedAt: string; rows: Array<{ reportYear: number; weekEnd: string; fiveYearAvgL48: number }> };
+  try {
+    raw = JSON.parse(await readFile(path.join(ROOT, 'research', 'cache', 'eia-ngsstats-l48.json'), 'utf8'));
+  } catch {
+    console.log('No research/cache/eia-ngsstats-l48.json (run research/tools/eia_ngsstats.py); skipping the published five-year check.');
+    return null;
+  }
+  const pub = new Map(raw.rows.map((r) => [r.weekEnd, r]));
+  const pubChange = (w: string) => {
+    const a = pub.get(w), b = pub.get(addDaysIso(w, -7));
+    return a && b && a.reportYear === b.reportYear ? a.fiveYearAvgL48 - b.fiveYearAvgL48 : null;
+  };
+  const lv: number[] = [];
+  const ch: number[] = [];
+  for (const r of rows) {
+    const p = pub.get(r.weekEnd);
+    const mine = d.fiveYrLevel.get(r.weekEnd);
+    if (p && mine !== undefined) lv.push(Math.abs(mine - p.fiveYearAvgL48));
+    const pc = pubChange(r.weekEnd);
+    if (pc !== null) ch.push(Math.abs(r.fiveYr - pc));
+  }
+  const rescored = (['multi', 'gfs'] as const).map((window) => {
+    const w = windowRows(rows, window).filter((r) => pubChange(r.weekEnd) !== null);
+    const fc = window === 'multi' ? 'fcMulti' : 'fcGfs';
+    const res = compareForecasts(w.map((r) => r.y), w.map((r) => pubChange(r.weekEnd)!), w.map((r) => r[fc] as number), { resamples: C.bootstrap.resamples, seed: C.bootstrap.seed + 100 });
+    const recomputed = rmse(w.map((r) => r.y - r.fiveYr));
+    return { window, model: fc, n: res.n, rmsePublishedFiveYr: res.rmseRef, rmseRecomputedFiveYrSameWeeks: recomputed, rmseModel: res.rmseModel, skillMse: res.skillMse, skillMseCi95: res.skillMseCi95, dmP: res.dmSquared?.p ?? null };
+  });
+  return {
+    source: raw.source,
+    extractedAt: raw.extractedAt,
+    note: 'Post-hoc validation, not part of the pre-specified family. Published change = difference of consecutive published five-year-average levels in the same report year (the first report week of each year is skipped).',
+    nLevels: lv.length,
+    levelAbsDiffMean: lv.length ? mean(lv) : null,
+    levelAbsDiffMax: lv.length ? Math.max(...lv) : null,
+    nChanges: ch.length,
+    changeAbsDiffMean: ch.length ? mean(ch) : null,
+    changeAbsDiffMax: ch.length ? Math.max(...ch) : null,
+    rescored,
+  };
 }
 
 // ----------------------------------------------------------------------------
@@ -436,6 +510,9 @@ async function main() {
   for (const c of comps) console.log(`${c.id} [${c.window}] ${c.model} vs ${c.ref}: n ${c.result.n}, RMSE ${fmt(c.result.rmseModel)} vs ${fmt(c.result.rmseRef)}, skill ${pct(c.result.skillMse)} [${pct(c.result.skillMseCi95.lo)}, ${pct(c.result.skillMseCi95.hi)}], DM p ${fmtP(c.result.dmSquared?.p)}${c.q !== null ? ` q ${fmtP(c.q)}` : ''}`);
   const ddv = ddVerification(rows);
   const seasons = bySeason(rows);
+  const leads = leadVerification(d, rows);
+  const published = await publishedFiveYearCheck(d, rows);
+  if (published) console.log(`EIA published five-year average (post-hoc check): level |diff| mean ${fmt(published.levelAbsDiffMean, 2)} max ${fmt(published.levelAbsDiffMax, 1)} Bcf (n ${published.nLevels}); change |diff| mean ${fmt(published.changeAbsDiffMean, 2)} (n ${published.nChanges})`);
   const winterSens = rows.filter((r) => [12, 1, 2].includes(monthOf(r.weekEnd)) && r.dYdHdd !== null).map((r) => r.dYdHdd!);
 
   const inputsSha256 = createHash('sha256')
@@ -469,6 +546,8 @@ async function main() {
     comparisons: comps.map((c) => ({ ...c, refLabel: PRED_LABEL[c.ref], modelLabel: PRED_LABEL[c.model] })),
     degreeDayVerification: ddv,
     bySeason: seasons,
+    leadVerification: leads,
+    publishedFiveYearCheck: published,
     weeks: rows.map((r) => ({
       weekEnd: r.weekEnd, y: r.y, netChange: r.netChange, fiveYr: +r.fiveYr.toFixed(2), seasonal: +r.seasonal.toFixed(2), oracle: +r.oracle.toFixed(2),
       oracleEra5City: r.oracleEra5City === null ? null : +r.oracleEra5City.toFixed(2),
@@ -569,15 +648,34 @@ Share of the oracle's MSE gain over the seasonal model captured by the issued fo
 |---|---|---:|---:|---:|---:|---:|---:|
 ${json.degreeDayVerification.map((v: any) => `| ${v.window === 'multi' ? 'IFS+GFS' : 'GFS long'} | ${v.source} | ${v.n} | ${fmt(v.hddRmse)} | ${fmt(v.hddBias)} | ${fmt(v.hddCorr, 3)} | ${fmt(v.cddRmse)} | ${fmt(v.cddBias)} |`).join('\n')}
 
+Correlations include the seasonal cycle and are therefore high for every source; RMSE is the informative column.
+
+### Daily CONUS HDD error vs CPC by lead (Dec–Feb days, bias-corrected, °F·day)
+
+| Window | Models | ${[1, 2, 3, 4, 5, 6, 7].map((l) => `Lead ${l}`).join(' | ')} | n per lead |
+|---|---|${[1, 2, 3, 4, 5, 6, 7].map(() => '---:').join('|')}|---:|
+${[...new Set(json.leadVerification.map((v: any) => `${v.window}|${v.models}`))].map((key: any) => {
+    const vs = json.leadVerification.filter((v: any) => `${v.window}|${v.models}` === key);
+    return `| ${vs[0].window === 'multi' ? 'IFS+GFS' : 'GFS long'} | ${vs[0].models} | ${vs.map((v: any) => fmt(v.hddRmse, 2)).join(' | ')} | ${vs[0].n} |`;
+  }).join('\n')}
+
 ### RMSE by season (Bcf)
 
 | Window | Season | n | Five-year avg | Seasonal | Oracle | Forecast IFS+GFS | Forecast GFS |
 |---|---|---:|---:|---:|---:|---:|---:|
 ${json.bySeason.map((s: any) => `| ${s.window === 'multi' ? 'IFS+GFS' : 'GFS long'} | ${s.season} | ${s.n} | ${fmt(s.rmse.fiveYr)} | ${fmt(s.rmse.seasonal)} | ${fmt(s.rmse.oracle)} | ${fmt(s.rmse.fcMulti)} | ${fmt(s.rmse.fcGfs)} |`).join('\n')}
 
+### Post-hoc check: EIA's published five-year average (not pre-specified)
+
+${json.publishedFiveYearCheck ? `Source \`${json.publishedFiveYearCheck.source}\` (extracted ${json.publishedFiveYearCheck.extractedAt} by \`research/tools/eia_ngsstats.py\`). On the test weeks, the recomputed five-year-average **level** differs from EIA's published value by ${fmt(json.publishedFiveYearCheck.levelAbsDiffMean, 2)} Bcf on average (max ${fmt(json.publishedFiveYearCheck.levelAbsDiffMax, 1)}, n ${json.publishedFiveYearCheck.nLevels}), and the five-year-average **change** by ${fmt(json.publishedFiveYearCheck.changeAbsDiffMean, 2)} Bcf on average (max ${fmt(json.publishedFiveYearCheck.changeAbsDiffMax, 1)}, n ${json.publishedFiveYearCheck.nChanges}). Re-scoring against the published benchmark:
+
+| Window | Forecast | n | RMSE published five-year avg | RMSE recomputed (same weeks) | RMSE forecast | MSE skill vs published | 95% CI | DM p |
+|---|---|---:|---:|---:|---:|---:|---|---:|
+${json.publishedFiveYearCheck.rescored.map((r: any) => `| ${r.window === 'multi' ? 'IFS+GFS' : 'GFS long'} | ${r.model === 'fcMulti' ? 'IFS+GFS' : 'GFS'} | ${r.n} | ${fmt(r.rmsePublishedFiveYr)} | ${fmt(r.rmseRecomputedFiveYrSameWeeks)} | ${fmt(r.rmseModel)} | ${pct(r.skillMse)} | [${pct(r.skillMseCi95.lo)}, ${pct(r.skillMseCi95.hi)}] | ${fmtP(r.dmP)} |`).join('\n')}` : '_Not run: research/cache/eia-ngsstats-l48.json is missing._'}
+
 ### Reading
 
-${interpretation(comps, sigConf)}
+${interpretation(comps, sigConf, json.bySeason)}
 
 ### Caveats
 
@@ -586,25 +684,35 @@ ${json.caveats.map((c: string) => `- ${c}`).join('\n')}
 ### Reproduce
 
 \`\`\`bash
+npx tsx research/storage-study.ts --phase=data  # fetch EIA, CPC, ERA5 and Previous Runs into research/cache/ (~1,650 Open-Meteo weighted calls)
+curl -L -o /tmp/ngsstats.xls https://ir.eia.gov/ngs/ngsstats.xls && python3 -I research/tools/eia_ngsstats.py /tmp/ngsstats.xls research/cache/eia-ngsstats-l48.json  # optional post-hoc check
 npx tsx research/storage-study.ts --offline     # reruns this exact study from research/cache/
 npx tsx --test src/engine/storageSkill.test.ts
 \`\`\`
 `;
 }
 
-function interpretation(comps: Comparison[], sigConf: Comparison[]): string {
+function interpretation(comps: Comparison[], sigConf: Comparison[], seasons: ReturnType<typeof bySeason>): string {
   const get = (id: string) => comps.find((c) => c.id === id)!.result;
   const line = (id: string, what: string) => {
     const r = get(id);
     return `${what}: MSE skill ${pct(r.skillMse)} (95% CI ${pct(r.skillMseCi95.lo)} to ${pct(r.skillMseCi95.hi)}), RMSE ${fmt(r.rmseModel)} vs ${fmt(r.rmseRef)} Bcf, DM p ${fmtP(r.dmSquared?.p)}, n ${r.n}`;
   };
+  const s = (window: string, season: string) => seasons.find((x) => x.window === window && x.season.startsWith(season))!;
+  const heat = s('gfs', 'Heating');
+  const inj = s('gfs', 'Injection');
   return [
-    `- ${sigConf.length} of 4 confirmatory comparisons are significant at BH q < 0.05.`,
+    `- **${sigConf.length} of 4 confirmatory comparisons are significant at BH q < 0.05.** Unlike futures returns, the physical storage change is strongly forecastable from weather information issued before the week starts.`,
     `- ${line('C1', 'Issued IFS+GFS weather forecast vs the EIA five-year average')}.`,
     `- ${line('C2', 'Issued IFS+GFS weather forecast vs the seasonal model')}.`,
     `- ${line('C3', 'Issued GFS forecast vs the five-year average (long window)')}.`,
     `- ${line('C4', 'Issued GFS forecast vs the seasonal model (long window)')}.`,
-    `- ${line('D2', 'Oracle (actual CPC weather) vs the seasonal model, IFS+GFS window')}; ${line('D3', 'oracle vs the issued IFS+GFS forecast')}.`,
+    `- Oracle bound: ${line('D2', 'actual CPC weather vs the seasonal model (IFS+GFS window)')}. The issued forecast is worse than the oracle (${line('D3', 'oracle vs forecast')}), but it keeps about ${pct(get('C2').skillMse / get('D2').skillMse, 0)} (IFS+GFS) and ${pct(get('C4').skillMse / get('D10').skillMse, 0)} (GFS) of the oracle's MSE gain over the seasonal model. The weekly forecast degree-day error against CPC is close to the error of the nine-city ERA5 index itself (verification table above), and daily error grows with lead as expected (lead table).`,
+    `- The gain is concentrated in the heating season. In the GFS window, Nov–Mar RMSE is ${fmt(heat.rmse.fiveYr)} Bcf for the five-year average, ${fmt(heat.rmse.fcGfs)} for the GFS forecast model and ${fmt(heat.rmse.oracle)} for the oracle (n ${heat.n}). Apr–Oct it is ${fmt(inj.rmse.fiveYr)}, ${fmt(inj.rmse.fcGfs)} and ${fmt(inj.rmse.oracle)} (n ${inj.n}): summer weather moves injections far less than winter weather moves withdrawals.`,
+    `- The seasonal model alone does not beat the five-year average (${line('D4', 'IFS+GFS window')}; ${line('D12', 'GFS window')}). All of the skill comes from weather.`,
+    `- Bias correction mattered for GFS alone (${line('D13', 'raw GFS vs seasonal')}, against ${pct(get('C4').skillMse)} corrected). For the IFS+GFS mean, the uncorrected variant was marginally better in this window (${line('D7', 'raw IFS+GFS vs seasonal')}, against ${pct(get('C2').skillMse)} corrected). The pre-specified corrected version is the headline.`,
+    `- Representing CPC's national index by nine cities costs little: ${line('D8', 'CPC oracle vs nine-city ERA5 oracle (IFS+GFS window)')}.`,
+    '- Scope: this compares weather-driven forecasts with the five-year average and a seasonal model. It does **not** compare them with analyst or survey consensus, which uses pipeline-flow data and was not available here, so no claim is made about beating market expectations.',
   ].join('\n');
 }
 

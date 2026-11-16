@@ -1,0 +1,426 @@
+{
+ "study": "astraeus-ng-forecast-revisions-v1",
+ "generatedAt": "2026-11-16T10:01:08.116Z",
+ "preSpecification": "docs/results/PRICE_STUDY_REVISIONS.md (pre-specification section, committed before scoring)",
+ "config": {
+  "study": "astraeus-ng-forecast-revisions-v1",
+  "symbol": "NG=F",
+  "priceStart": "2004-06-01",
+  "priceEnd": "2026-11-14",
+  "firstOrigin": "2021-04-30",
+  "lastOrigin": "2026-11-06",
+  "primaryModels": [
+   "gfs_global"
+  ],
+  "robustnessModels": [
+   "gfs_global",
+   "ecmwf_ifs025"
+  ],
+  "minTrain": 52,
+  "lambdaPerObs": 0.1,
+  "bootstrap": {
+   "resamples": 1000,
+   "seed": 20261117
+  }
+ },
+ "storageModel": {
+  "harmonics": 3,
+  "window": "expanding",
+  "rollingWeeks": 260,
+  "weather": "quadratic"
+ },
+ "provenance": {
+  "prices": "https://query1.finance.yahoo.com/v8/finance/chart/NG%3DF?period1={unix}&period2={unix}&interval=1d (unofficial endpoint; same cached series as public/research/price-skill.json)",
+  "weather": "See public/research/storage-skill.json provenance (CPC truth, Open-Meteo Previous Runs + ERA5).",
+  "inputsSha256": "e36ab84ed21cca581ff1eb0f2b9bd7466c05d4b9e9446aa336e5e970342d77ab",
+  "openMeteoWeightFetchedThisRun": 0,
+  "dropped": {
+   "notFriday": 8,
+   "missingInputs": 10
+  }
+ },
+ "leadLimitation": "The Previous Runs API exposes previous_day1…previous_day7 only. A week-on-week revision of a fixed target window (issue t vs t − 7) needs leads 8–14 and is impossible; H1/H2 are the longest revisions the archive supports (1 day, and lead k+1 vs lead 7 for days 0…+5).",
+ "models": {
+  "rw": "Zero-return random walk (no-change price forecast).",
+  "hm": "Expanding historical mean of realised training returns.",
+  "mkt": "Ridge on 1-week return, 4-week return and 12-week realised volatility.",
+  "wx": "Ridge on market features + one family feature (nests mkt)."
+ },
+ "family": [
+  {
+   "key": "H1_REV1D",
+   "label": "H1 1-day revision of the gas-weighted HDD+CDD forecast for days 0…+5 (lead k+1 minus lead k+2)",
+   "kind": "change",
+   "nRows": 271,
+   "metrics": {
+    "n": 219,
+    "horizonWeeks": 1,
+    "oosStart": "2022-05-20",
+    "oosEnd": "2026-11-06",
+    "nTrainFirst": 52,
+    "oosR2Wx": -0.061029957020682035,
+    "oosR2Mkt": -0.01162024804357964,
+    "oosR2WxVsMkt": -0.04884215106672496,
+    "rmseRatioWxVsRw": 1.0391299425262088,
+    "rmseRatioMktVsRw": 1.0146465731429022,
+    "rmseRatioHmVsRw": 1.008802236160591,
+    "dmWxVsRw": {
+     "stat": -1.8188553136337007,
+     "p": 0.9648472071956802,
+     "n": 219
+    },
+    "dmWxVsHm": {
+     "stat": -1.5458779622501881,
+     "p": 0.9382077658277926,
+     "n": 219
+    },
+    "cwWxVsMkt": {
+     "stat": -1.5817754101018648,
+     "p": 0.9431495754679234,
+     "n": 219
+    },
+    "ptWx": {
+     "stat": 0.40899694509344614,
+     "p": 0.34127094195135543,
+     "n": 219,
+     "hitRate": 0.502283105022831
+    },
+    "hitRateWx": 0.502283105022831,
+    "hitRateMkt": 0.5114155251141552,
+    "baseRateUp": 0.4337899543378995,
+    "oosR2WxCi95": {
+     "lo": -0.1384877622551819,
+     "hi": 0.007241974373924709,
+     "median": -0.058806982804316954
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 6,
+     "seed": 20261117
+    }
+   },
+   "qCw": 0.9437604647842943,
+   "qDm": 0.9648472071956803,
+   "inSample": {
+    "coefPctPerSd": -0.49375199704150263,
+    "t": -0.5169050881107335,
+    "p": 0.6052223698384864,
+    "n": 271
+   }
+  },
+  {
+   "key": "H2_REVACC",
+   "label": "H2 Accumulated revision for days 0…+5 (lead k+1 minus lead 7)",
+   "kind": "change",
+   "nRows": 271,
+   "metrics": {
+    "n": 219,
+    "horizonWeeks": 1,
+    "oosStart": "2022-05-20",
+    "oosEnd": "2026-11-06",
+    "nTrainFirst": 52,
+    "oosR2Wx": -0.023300110117909778,
+    "oosR2Mkt": -0.01162024804357964,
+    "oosR2WxVsMkt": -0.011545698197439558,
+    "rmseRatioWxVsRw": 1.0204871646531488,
+    "rmseRatioMktVsRw": 1.0146465731429022,
+    "rmseRatioHmVsRw": 1.008802236160591,
+    "dmWxVsRw": {
+     "stat": -1.3050774973705144,
+     "p": 0.9033788487931218,
+     "n": 219
+    },
+    "dmWxVsHm": {
+     "stat": -0.8413982270743251,
+     "p": 0.7994765580919571,
+     "n": 219
+    },
+    "cwWxVsMkt": {
+     "stat": 0.034775726882603206,
+     "p": 0.48612925243514316,
+     "n": 219
+    },
+    "ptWx": {
+     "stat": 0.09468424911024953,
+     "p": 0.4622827844076901,
+     "n": 219,
+     "hitRate": 0.4931506849315068
+    },
+    "hitRateWx": 0.4931506849315068,
+    "hitRateMkt": 0.5114155251141552,
+    "baseRateUp": 0.4337899543378995,
+    "oosR2WxCi95": {
+     "lo": -0.07271640158397119,
+     "hi": 0.030593005884539393,
+     "median": -0.023393488311910238
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 6,
+     "seed": 20261117
+    }
+   },
+   "qCw": 0.7291938786527148,
+   "qDm": 0.9648472071956803,
+   "inSample": {
+    "coefPctPerSd": 0.7822716990704199,
+    "t": 1.0723483487953787,
+    "p": 0.2835636156721937,
+    "n": 271
+   }
+  },
+  {
+   "key": "H3_WKSURP_DD",
+   "label": "H3 Weather surprise of the storage week just ended: realised minus week-start forecast HDD+CDD",
+   "kind": "news",
+   "nRows": 271,
+   "metrics": {
+    "n": 219,
+    "horizonWeeks": 1,
+    "oosStart": "2022-05-20",
+    "oosEnd": "2026-11-06",
+    "nTrainFirst": 52,
+    "oosR2Wx": -0.007443253179312048,
+    "oosR2Mkt": -0.01162024804357964,
+    "oosR2WxVsMkt": 0.004129014689401078,
+    "rmseRatioWxVsRw": 1.012549661056187,
+    "rmseRatioMktVsRw": 1.0146465731429022,
+    "rmseRatioHmVsRw": 1.008802236160591,
+    "dmWxVsRw": {
+     "stat": -1.0269152245199402,
+     "p": 0.8472007647406177,
+     "n": 219
+    },
+    "dmWxVsHm": {
+     "stat": -0.33354375843195516,
+     "p": 0.6304777701226698,
+     "n": 219
+    },
+    "cwWxVsMkt": {
+     "stat": 1.2003353571670896,
+     "p": 0.11500456945351467,
+     "n": 219
+    },
+    "ptWx": {
+     "stat": 1.2049800854577757,
+     "p": 0.11410550266604369,
+     "n": 219,
+     "hitRate": 0.5251141552511416
+    },
+    "hitRateWx": 0.5251141552511416,
+    "hitRateMkt": 0.5114155251141552,
+    "baseRateUp": 0.4337899543378995,
+    "oosR2WxCi95": {
+     "lo": -0.053973608971685794,
+     "hi": 0.03350252949884791,
+     "median": -0.007364696023338446
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 6,
+     "seed": 20261117
+    }
+   },
+   "qCw": 0.345013708360544,
+   "qDm": 0.9648472071956803,
+   "inSample": {
+    "coefPctPerSd": 0.35884883226777015,
+    "t": 0.6503984571645323,
+    "p": 0.5154348336130314,
+    "n": 271
+   }
+  },
+  {
+   "key": "H4_WKSURP_STOR",
+   "label": "H4 Storage-model surprise of that week: model(realised DD) minus model(forecast DD), Bcf",
+   "kind": "news",
+   "nRows": 271,
+   "metrics": {
+    "n": 219,
+    "horizonWeeks": 1,
+    "oosStart": "2022-05-20",
+    "oosEnd": "2026-11-06",
+    "nTrainFirst": 52,
+    "oosR2Wx": -0.01580268451137723,
+    "oosR2Mkt": -0.01162024804357964,
+    "oosR2WxVsMkt": -0.0041343937864888325,
+    "rmseRatioWxVsRw": 1.0167418839105486,
+    "rmseRatioMktVsRw": 1.0146465731429022,
+    "rmseRatioHmVsRw": 1.008802236160591,
+    "dmWxVsRw": {
+     "stat": -1.3950260465698363,
+     "p": 0.9177861851726172,
+     "n": 219
+    },
+    "dmWxVsHm": {
+     "stat": -0.7346871721720992,
+     "p": 0.7683402080919679,
+     "n": 219
+    },
+    "cwWxVsMkt": {
+     "stat": -1.5871482507369965,
+     "p": 0.9437604647842943,
+     "n": 219
+    },
+    "ptWx": {
+     "stat": 0.8054377973937742,
+     "p": 0.21028353870213568,
+     "n": 219,
+     "hitRate": 0.5114155251141552
+    },
+    "hitRateWx": 0.5114155251141552,
+    "hitRateMkt": 0.5114155251141552,
+    "baseRateUp": 0.4337899543378995,
+    "oosR2WxCi95": {
+     "lo": -0.06107070154200822,
+     "hi": 0.023543939514145573,
+     "median": -0.01647393549226983
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 6,
+     "seed": 20261117
+    }
+   },
+   "qCw": 0.9437604647842943,
+   "qDm": 0.9648472071956803,
+   "inSample": {
+    "coefPctPerSd": 0.0758329445393446,
+    "t": 0.13053737086564624,
+    "p": 0.8961412659168309,
+    "n": 271
+   }
+  },
+  {
+   "key": "H5_WKANOM_5Y",
+   "label": "H5 Weather-implied storage anomaly of that week vs the EIA five-year average, Bcf",
+   "kind": "level",
+   "nRows": 271,
+   "metrics": {
+    "n": 219,
+    "horizonWeeks": 1,
+    "oosStart": "2022-05-20",
+    "oosEnd": "2026-11-06",
+    "nTrainFirst": 52,
+    "oosR2Wx": 0.03303465536537964,
+    "oosR2Mkt": -0.01162024804357964,
+    "oosR2WxVsMkt": 0.04414196285149441,
+    "rmseRatioWxVsRw": 0.9919995862585866,
+    "rmseRatioMktVsRw": 1.0146465731429022,
+    "rmseRatioHmVsRw": 1.008802236160591,
+    "dmWxVsRw": {
+     "stat": 0.3806552082517809,
+     "p": 0.3519148851659203,
+     "n": 219
+    },
+    "dmWxVsHm": {
+     "stat": 0.8107106590650884,
+     "p": 0.2092080074898376,
+     "n": 219
+    },
+    "cwWxVsMkt": {
+     "stat": 1.7634408175271956,
+     "p": 0.038913083097540824,
+     "n": 219
+    },
+    "ptWx": {
+     "stat": 0.36125216227814955,
+     "p": 0.358955475849278,
+     "n": 219,
+     "hitRate": 0.4931506849315068
+    },
+    "hitRateWx": 0.4931506849315068,
+    "hitRateMkt": 0.5114155251141552,
+    "baseRateUp": 0.4337899543378995,
+    "oosR2WxCi95": {
+     "lo": -0.042307619215226966,
+     "hi": 0.09591336497496139,
+     "median": 0.029748943002318007
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 6,
+     "seed": 20261117
+    }
+   },
+   "qCw": 0.23347849858524494,
+   "qDm": 0.9648472071956803,
+   "inSample": {
+    "coefPctPerSd": 2.1757768154754524,
+    "t": 2.649063869493935,
+    "p": 0.008071507349286966,
+    "n": 271
+   }
+  },
+  {
+   "key": "H6_NEXTWK_ANOM",
+   "label": "H6 Forecast-implied storage anomaly of the coming week vs the five-year average, Bcf",
+   "kind": "level",
+   "nRows": 271,
+   "metrics": {
+    "n": 219,
+    "horizonWeeks": 1,
+    "oosStart": "2022-05-20",
+    "oosEnd": "2026-11-06",
+    "nTrainFirst": 52,
+    "oosR2Wx": -0.019075878210641495,
+    "oosR2Mkt": -0.01162024804357964,
+    "oosR2WxVsMkt": -0.00736998906603592,
+    "rmseRatioWxVsRw": 1.018378676450992,
+    "rmseRatioMktVsRw": 1.0146465731429022,
+    "rmseRatioHmVsRw": 1.008802236160591,
+    "dmWxVsRw": {
+     "stat": -1.1558239216790693,
+     "p": 0.8754908242160803,
+     "n": 219
+    },
+    "dmWxVsHm": {
+     "stat": -0.6675424469292776,
+     "p": 0.7474341305170145,
+     "n": 219
+    },
+    "cwWxVsMkt": {
+     "stat": 0.12122877159081633,
+     "p": 0.45175490132247076,
+     "n": 219
+    },
+    "ptWx": {
+     "stat": 1.0858684454529737,
+     "p": 0.13876860840037963,
+     "n": 219,
+     "hitRate": 0.5205479452054794
+    },
+    "hitRateWx": 0.5205479452054794,
+    "hitRateMkt": 0.5114155251141552,
+    "baseRateUp": 0.4337899543378995,
+    "oosR2WxCi95": {
+     "lo": -0.08063379481012989,
+     "hi": 0.03236276044070252,
+     "median": -0.020209851924871014
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 6,
+     "seed": 20261117
+    }
+   },
+   "qCw": 0.7291938786527148,
+   "qDm": 0.9648472071956803,
+   "inSample": {
+    "coefPctPerSd": 1.0767597665654844,
+    "t": 1.3907511720692118,
+    "p": 0.16430090066082226,
+    "n": 271
+   }
+  }
+ ],
+ "contemporaneousDiagnostic": {
+  "n": 271,
+  "pctReturnPerSd": 1.0929560037494335,
+  "t": 1.6216956736391206,
+  "p": 0.10486852319330575,
+  "r2": 0.012274830360773592,
+  "first": "2021-05-07",
+  "last": "2026-11-06"
+ }
+}
