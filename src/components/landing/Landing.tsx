@@ -2,7 +2,8 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowRight, ArrowUpRight, BookOpen, FileText, Gauge, Layers, ShieldCheck, Sparkles, Waves } from 'lucide-react';
 import { HeroGlobe, type HeroSite } from './HeroGlobe';
 import { BarList, FanChart, LineChart, type FanDay } from '../charts/Charts';
-import { useResearchData, type WeatherSkill, type PriceSkill } from '../../engine/researchData';
+import { loadJson, useResearchData, type WeatherSkill, type PriceSkill } from '../../engine/researchData';
+import type { StorageSummary } from '../../engine/technicalReport';
 import type { WorkspaceView } from '../../engine/workspaceNavigation';
 
 /** Adds `is-in` once an element scrolls into view (once); respects reduced motion via CSS. */
@@ -12,8 +13,13 @@ function useReveal<T extends HTMLElement>() {
     const el = ref.current;
     if (!el) return;
     const io = new IntersectionObserver((entries) => entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } }), { threshold: 0.18, rootMargin: '0px 0px -8% 0px' });
-    el.querySelectorAll('[data-reveal]').forEach((n) => io.observe(n));
-    return () => io.disconnect();
+    // Also pick up blocks that render later (e.g. once their data file has loaded).
+    const seen = new WeakSet<Element>();
+    const watch = () => el.querySelectorAll('[data-reveal]').forEach((n) => { if (!seen.has(n)) { seen.add(n); io.observe(n); } });
+    watch();
+    const mo = new MutationObserver(watch);
+    mo.observe(el, { childList: true, subtree: true });
+    return () => { io.disconnect(); mo.disconnect(); };
   }, []);
   return ref;
 }
@@ -111,6 +117,10 @@ export function PriceEvidence({ p }: { p: PriceSkill | null }) {
 
 export function Landing({ onEnter }: { onEnter: (view: WorkspaceView) => void }) {
   const { weather, price } = useResearchData();
+  const [storage, setStorage] = useState<StorageSummary | null>(null);
+  useEffect(() => { let live = true; void loadJson<StorageSummary>('/research/storage-summary.json').then((d) => live && setStorage(d)); return () => { live = false; }; }, []);
+  const ng = storage?.comparisons.find((x) => x.id === 'C1');
+  const ngGfs = storage?.comparisons.find((x) => x.id === 'C3');
   const h = headline(weather);
   const root = useReveal<HTMLDivElement>();
   const [wind, setWind] = useState<{ live: boolean; model?: string; validAt?: string } | null>(null);
@@ -218,6 +228,14 @@ export function Landing({ onEnter }: { onEnter: (view: WorkspaceView) => void })
       </header>
       <div data-reveal><PriceEvidence p={price} /></div>
       <p className="lp-footnote" data-reveal>Cells show out-of-sample R² gained over a market-only model; ● marks Benjamini–Hochberg q &lt; 0.10 (Clark–West test). Hover a cell for the test against a no-change forecast. Continuous front-month contracts contain roll jumps; results are research evidence, not trading advice.</p>
+      {ng ? <div className="lp-storage" data-reveal>
+        <div className="lp-storage-num"><strong><CountUp value={ng.skillMse * 100} decimals={0} suffix="%" /></strong><span>lower squared error, weekly US gas-storage change</span></div>
+        <div className="lp-storage-copy">
+          <h3>Where weather does forecast: the physical balance.</h3>
+          <p>The same forecasts, issued before each week begins, predict the weekly change in US natural-gas storage with {pct(ng.skillMse, 0)} lower squared error than the EIA five-year average over {ng.n} weeks (95% CI {pct(ng.ci[0], 0)} to {pct(ng.ci[1], 0)}){ngGfs ? `, and ${pct(ngGfs.skillMse, 0)} over ${ngGfs.n} weeks with GFS alone` : ''}. Most of the gain comes in winter. The study was pre-specified; analysts’ consensus forecasts were not available, so this is skill against naive benchmarks, not against the market.</p>
+          <a href="#report" onClick={go('report')}>Read Section 4.11 <ArrowUpRight size={12} /></a>
+        </div>
+      </div> : null}
     </section>
 
     <section className="lp-section lp-research">

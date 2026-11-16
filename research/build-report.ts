@@ -59,6 +59,7 @@ const extras: ReportExtras = {
   })(),
 };
 writeFileSync(path.join(ROOT, 'public', 'research', 'report-extras.json'), JSON.stringify(extras));
+if (extras.storage) writeFileSync(path.join(ROOT, 'public', 'research', 'storage-summary.json'), JSON.stringify(extras.storage)); // ~12 KB, for the landing page
 const track = read<TrackSummary>('data/track-record/summary.json');
 const doc = buildReport(weather, read<PriceSkill>('public/research/price-skill.json'), read<WeatherSkill>('public/research/archive/weather-dev-period.json'), read<WeatherSkill>('public/research/archive/weather-run1-devonly.json'), { ...extras, track });
 const byId = new Map(RESEARCH_LIBRARY.map((r) => [r.id, r]));

@@ -36,7 +36,9 @@ Significance: Diebold–Mariano on case-weighted daily losses, largest p across 
 
 **Against weather stations the picture is weaker.** At the 7 regions with a usable GHCN-Daily or Meteostat station, the ERA5-trained forecasts gain only 1–5% over the no-training Gaussian for max temperature and their 80% intervals hold just 50–70% of station values; training the same method on the station's own record restores ~11% at day 1 and ~80% coverage. Production-weighted area means keep the day-1 gain but lose about 4 points at days 3–7. Skill figures above are for ~30 km grid boxes, not points (`docs/results/STATION_VERIFICATION.md`, `AREA_VERIFICATION.md`).
 
-A companion walk-forward study (`docs/results/PRICE_STUDY.md`, 6 commodities, 2008–2026) finds that weather information almost never improves out-of-sample weekly futures-return forecasts. The single cell surviving Benjamini–Hochberg correction — natural-gas weather forecasts at a 1-week horizon — beats a market-only model (Clark–West q = 0.004) but not a no-change forecast (Diebold–Mariano p = 0.21) on 88 weeks, so it is reported as a hypothesis to monitor, not a signal.
+**Weather forecasts do predict the physical balance.** A pre-specified study (`docs/results/STORAGE_STUDY.md`) forecasts the EIA weekly US natural-gas storage change from gas-weighted degree-day forecasts issued before each week begins. The forecasts have 74% lower squared error than the EIA five-year average over 139 weeks (95% CI 57–83%; 74% over 280 weeks with GFS alone), with most of the gain in winter. The benchmarks are naive: analysts' consensus forecasts were not available.
+
+A companion walk-forward study (`docs/results/PRICE_STUDY.md`, 6 commodities, 2008–2026) finds that weather information almost never improves out-of-sample weekly futures-return forecasts. The single cell surviving Benjamini–Hochberg correction — natural-gas weather forecasts at a 1-week horizon — beats a market-only model (Clark–West q = 0.004) but not a no-change forecast (Diebold–Mariano p = 0.21) on 88 weeks, so it is reported as a hypothesis to monitor, not a signal. Six pre-specified measures of forecast *changes* also fail to predict natural-gas returns (`docs/results/PRICE_STUDY_REVISIONS.md`).
 
 ## The weather engine
 
@@ -78,6 +80,7 @@ npx tsx research/weather-benchmark.ts --suite final --period prospective        
 npx tsx research/weather-benchmark.ts --suite final --period confirm --offline --truth stations --train era5   # station truth
 npx tsx research/verification-report.ts                                 # station + area summaries
 npx tsx research/price-study.ts                                         # price study
+npx tsx research/storage-study.ts && npx tsx research/price-revisions.ts # gas storage + forecast revisions
 npx tsx research/build-report.ts                                        # docs/TECHNICAL_REPORT.md
 ```
 

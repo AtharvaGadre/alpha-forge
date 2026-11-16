@@ -150,3 +150,14 @@
 /* in-app fallback when the API is unavailable */
 .as-view-enter{animation:as-vt-in .5s cubic-bezier(.2,.7,.15,1) both}
 @media (prefers-reduced-motion:reduce){.as-view-enter{animation:none}}
+
+/* Storage callout (price section) */
+.lp-storage{display:grid;grid-template-columns:minmax(180px,1fr) 2.2fr;gap:clamp(20px,4vw,56px);align-items:start;margin-top:clamp(28px,4vw,48px);padding-top:clamp(22px,3vw,32px);border-top:1px solid var(--as-line)}
+.lp-storage-num{display:grid;gap:8px}
+.lp-storage-num strong{font:500 clamp(48px,6vw,84px)/1 'Cormorant Garamond',Georgia,serif;color:var(--as-gold);font-variant-numeric:tabular-nums}
+.lp-storage-num>span{font-size:12px;line-height:1.5;color:var(--as-muted);max-width:22ch}
+.lp-storage-copy h3{font:500 clamp(22px,2.2vw,30px)/1.15 'Cormorant Garamond',Georgia,serif;margin:0 0 10px}
+.lp-storage-copy p{margin:0 0 12px;color:var(--as-muted);line-height:1.7;max-width:68ch}
+.lp-storage-copy a{display:inline-flex;align-items:center;gap:4px;color:var(--as-gold);font-size:13px;font-weight:600;text-decoration:none}
+.lp-storage-copy a:hover{text-decoration:underline}
+@media (max-width:720px){.lp-storage{grid-template-columns:1fr}}
