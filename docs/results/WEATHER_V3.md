@@ -87,6 +87,67 @@ The live 7-day outlook (`src/engine/calibratedOutlook.ts`) switches from v2 to v
 
 Otherwise the live outlook stays on v2. v3 is still kept in the `final` suite for the prospective test, and the outlook's `version` field always names the method actually used. `headlineMethod` in the benchmark output stays `astraeus-v2`; the integrator decides the headline.
 
+---
+
+*Everything below was added after the pre-specification commit (54d569e, 2026-11-16T09:27:07Z).*
+
+## 6. Development-period results and selection
+
+**Run.** `npx tsx research/weather-benchmark.ts --suite v3dev --period dev --offline`, archived as `public/research/archive/weather-v3-dev.json` (generated 2026-11-16T09:33:19Z). v2 reproduces Section 2 exactly (0.79382 °C). No confirmation-period number of any candidate was computed.
+
+**Pooled temperature, development period (22,144 cases):**
+
+| Candidate | Pooled CRPS (°C) | Δ vs v2 | 80% coverage | below p10 | above p90 | bias (°C) |
+|---|---|---|---|---|---|---|
+| v2 (`astraeus-v2`) | 0.79382 | — | 74.3% | 13.4% | 12.3% | +0.025 |
+| C1 `v3c1-crossfit` | 0.80514 | +0.01131 (+1.43%) | 74.3% | 13.3% | 12.4% | +0.028 |
+| C2 `v3c2-kappa-cv` | 0.79260 | −0.00122 (−0.15%) | 76.3% | 12.4% | 11.2% | +0.025 |
+| C3 `v3c3-kappa-trail` | 0.79987 | +0.00604 (+0.76%) | **78.0%** | 11.3% | 10.7% | +0.025 |
+| C4 `v3c4-recency` | 0.78983 | −0.00399 (−0.50%) | 74.2% | 13.5% | 12.3% | +0.032 |
+| C5 `v3c5-logistic` | 0.79347 | −0.00036 (−0.04%) | 74.6% | 13.3% | 12.1% | +0.027 |
+| **C6 `v3c6-combo`** | **0.78946** | **−0.00437 (−0.55%)** | **77.4%** | 11.6% | 11.0% | +0.033 |
+| Zero-training Gaussian (reference) | 0.84939 | +0.05556 (+7.00%) | 80.0% | 8.8% | 11.1% | −0.060 |
+
+**Per cell (CRPS °C / 80% coverage %):**
+
+| Method | Tmean d1 | Tmean d3 | Tmean d5 | Tmean d7 | Tmax d1 | Tmax d3 | Tmax d5 | Tmax d7 |
+|---|---|---|---|---|---|---|---|---|
+| v2 | 0.339 / 76.3 | 0.474 / 74.1 | 0.692 / 73.7 | 1.055 / 72.2 | 0.594 / 76.0 | 0.782 / 73.9 | 1.021 / 74.0 | 1.422 / 73.8 |
+| C1 | 0.343 / 76.0 | 0.480 / 73.9 | 0.702 / 74.0 | 1.073 / 72.9 | 0.604 / 75.5 | 0.792 / 74.1 | 1.031 / 74.4 | 1.444 / 73.9 |
+| C2 | 0.339 / 77.9 | 0.474 / 75.8 | 0.691 / 76.1 | 1.052 / 75.3 | 0.593 / 77.6 | 0.782 / 75.7 | 1.020 / 76.2 | 1.420 / 75.8 |
+| C3 | 0.342 / 79.3 | 0.478 / 77.9 | 0.697 / 78.3 | 1.062 / 77.5 | 0.599 / 79.9 | 0.789 / 77.6 | 1.027 / 77.0 | 1.434 / 76.6 |
+| C4 | 0.336 / 75.2 | 0.471 / 74.1 | 0.692 / 74.4 | 1.061 / 72.9 | 0.580 / 75.5 | 0.775 / 74.2 | 1.016 / 73.4 | 1.417 / 73.5 |
+| C5 | 0.339 / 76.6 | 0.474 / 74.3 | 0.692 / 73.9 | 1.054 / 72.6 | 0.594 / 76.4 | 0.782 / 74.4 | 1.020 / 74.4 | 1.421 / 74.1 |
+| C6 | 0.337 / 78.6 | 0.472 / 76.9 | 0.692 / 77.3 | 1.058 / 76.4 | 0.580 / 78.3 | 0.775 / 77.2 | 1.017 / 77.5 | 1.415 / 77.1 |
+
+**C6 composition (Section 3 rule, applied after C1–C5 were run).**
+
+- Qualifying components (pooled dev CRPS below v2's by more than 0.0001 °C): C5 logistic (−0.00036) and C4 recency (−0.00399).
+- Of the dispersion fixes, only C2 qualified (−0.00122); C1 (+0.01131) and C3 (+0.00604) were worse than v2.
+- So C6 = logistic law + 35-day recency weights + blocked-CV scale recalibration, run once with no other change.
+
+**Selection (Section 4 rule).**
+
+- Eligible on coverage (77–83%): C3 (78.0%) and C6 (77.4%).
+- C3's CRPS is above v2's, so it fails the improvement condition.
+- C6's pooled CRPS (0.78946 °C) is 0.00437 °C below v2's. **C6 is selected and frozen as `astraeus-v3`.**
+- Its precipitation component is v2's: no precipitation candidate was run.
+
+**What the dev numbers say, and do not say.**
+
+- **The improvement is small.** Pooled CRPS falls 0.55%. Per cell the change runs from −2.4% (Tmax day 1: 0.580 vs 0.594) to +0.3% (Tmean day 7: 1.058 vs 1.055); Tmean day 5 is unchanged.
+- **Where the gains come from.** The CRPS gain comes almost entirely from recency weighting (C4 alone: −0.50%). The coverage gain comes mostly from the scale factor (C2: +2.0 pp; C6: +3.1 pp).
+- **Coverage is still below 80%.** C6 covers 77.4% on dev, with 11.6% / 11.0% in the tails. A scale chosen by minimum CRPS does not widen enough to cover the heavy tails. The trailing replay (C3) widened more and reached 78.0%, but cost 0.76% CRPS, mostly at short leads.
+- **Cross-fitted weights (C1) made things worse (+1.4%).** We did not investigate why.
+- **Recency weighting helped on dev despite the prior.** The prior was negative (Lang et al., 2020). The dev period spans the October–March season transitions.
+- **Dev mean bias was not reduced** (+0.033 vs +0.025 °C), but dev had little bias to remove. Whether C6 reduces the April–November warm bias can only be answered on the confirmation and prospective periods.
+- **Implementation guards not stated in Section 3.** The trailing replay (C3) skips a segment with fewer than 30 training rows. Cross-fitting (C1) needs at least 10 rows. Both affect only windows with many missing days and do not touch C6.
+- **Benchmark check.** On dev, `astraeus-v3` reproduces C6 exactly for temperature and v2's precipitation CRPS exactly (0 differences across all summary and per-site cells; run `--suite raw-ensemble,astraeus-v2,v3c6-combo,astraeus-v3 --period dev`).
+
+## 7. Freeze
+
+`astraeus-v3` is implemented as `ASTRAEUS_V3_TEMPERATURE`, `fitAstraeusV3` and `predictAstraeusV3` in `src/engine/weatherPostprocessing.ts`, with unit tests in `weatherPostprocessing.test.ts`. It is registered as `astraeus-v3` in `research/weather-benchmark.ts` and appended to the `final` suite. It draws its randomised-PIT numbers from its own stream, so its presence leaves every other method's scores unchanged. The freeze commit's hash and UTC time are recorded below, in a follow-up commit.
+
 ## References
 
 - Bergmeir, C., Benítez, J. M. (2012). On the use of cross-validation for time series predictor evaluation. *Information Sciences* 191, 192–213. doi:10.1016/j.ins.2011.12.028 (verified via Crossref).

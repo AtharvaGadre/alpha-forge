@@ -257,9 +257,12 @@ export type PredictiveForecast =
   | { kind: 'censored-normal'; mu: number; sigma: number }
   | { kind: 'ensemble'; members: number[] }
   | { kind: 'weighted-ensemble'; members: number[]; weights: number[] }
-  | { kind: 'censored-power'; mu: number; sigma: number; power: number };
+  | { kind: 'censored-power'; mu: number; sigma: number; power: number }
+  /** Logistic law with location mu and scale `scale` (sd = scale·π/√3); heavier tails than the Gaussian. */
+  | { kind: 'logistic'; mu: number; scale: number };
 
 export function crpsOf(fc: PredictiveForecast, y: number): number {
+  if (fc.kind === 'logistic') return crpsLogistic(fc.mu, fc.scale, y);
   if (fc.kind === 'censored-power') return crpsCensoredPower(fc, y);
   if (fc.kind === 'weighted-ensemble') return crpsWeightedEnsemble(fc.members, fc.weights, y);
   if (fc.kind === 'normal') return crpsNormal(fc.mu, fc.sigma, y);
@@ -269,6 +272,7 @@ export function crpsOf(fc: PredictiveForecast, y: number): number {
 
 /** Point forecast: mean for Gaussians, censored mean for zero-censored laws, ensemble mean. */
 export function pointOf(fc: PredictiveForecast): number {
+  if (fc.kind === 'logistic') return fc.mu;
   if (fc.kind === 'censored-power') return powerMean(fc);
   if (fc.kind === 'weighted-ensemble') return weightedMean(fc.members, fc.weights);
   if (fc.kind === 'normal') return fc.mu;
@@ -280,6 +284,7 @@ export function pointOf(fc: PredictiveForecast): number {
 }
 
 export function cdfOf(fc: PredictiveForecast, x: number): number {
+  if (fc.kind === 'logistic') return logisticCdf((x - fc.mu) / Math.max(fc.scale, 1e-9));
   if (fc.kind === 'censored-power') return powerCdf(fc, x);
   if (fc.kind === 'weighted-ensemble') return fc.members.reduce((a, v, i) => a + (v <= x ? fc.weights[i] : 0), 0);
   if (fc.kind === 'normal') return Phi((x - fc.mu) / fc.sigma);
@@ -300,6 +305,7 @@ export function exceedanceOf(fc: PredictiveForecast, threshold: number): number 
 }
 
 export function quantileOf(fc: PredictiveForecast, p: number): number {
+  if (fc.kind === 'logistic') return fc.mu + fc.scale * Math.log(p / (1 - p));
   if (fc.kind === 'censored-power') return powerQuantile(fc, p);
   if (fc.kind === 'weighted-ensemble') {
     const order = fc.members.map((v, i) => [v, fc.weights[i]] as const).sort((a, b) => a[0] - b[0]);
@@ -855,3 +861,240 @@ export function rawGaussian(f: number[], kind: VariableKind): PredictiveForecast
 
 /** Coverage of the central interval [α, 1−α] judged from the (randomised) PIT — consistent across forecast types. */
 export const insideCentral = (pit: number, alpha = 0.1) => pit >= alpha && pit <= 1 - alpha;
+
+// ---------------------------------------------------------------------------
+// 9. Astraeus v3 candidates (pre-specified in docs/results/WEATHER_V3.md; selected on the development period)
+// ---------------------------------------------------------------------------
+
+/** ln Λ(z) for the standard logistic CDF Λ, without overflow in either tail. */
+const logLogisticCdf = (z: number) => (z >= 0 ? -Math.log1p(Math.exp(-z)) : z - Math.log1p(Math.exp(z)));
+
+/** Standard logistic CDF Λ(z) = 1 / (1 + e^(−z)). */
+export const logisticCdf = (z: number) => (z >= 0 ? 1 / (1 + Math.exp(-z)) : Math.exp(z) / (1 + Math.exp(z)));
+
+/**
+ * CRPS of the logistic law L(mu, s): s·(z − 2 ln Λ(z) − 1) with z = (y − mu)/s — the closed form used by scoringRules'
+ * crps_logis (Jordan, Krüger & Lerch 2019). Unit-tested against numerical integration.
+ */
+export function crpsLogistic(mu: number, s: number, y: number): number {
+  const sc = Math.max(s, 1e-9);
+  const z = (y - mu) / sc;
+  return sc * (z - 2 * logLogisticCdf(z) - 1);
+}
+
+export type NgrFamily = 'normal' | 'logistic';
+
+/** Options of the generalised skill-weighted NGR. With every option at its default the fit is exactly v2's. */
+export interface NgrV3Options {
+  /** Predictive law: Gaussian (v2) or logistic (heavier tails; candidate C5). */
+  family?: NgrFamily;
+  /** Fit (a, b, c, d) on out-of-sample bias-corrected, skill-weighted predictors from K contiguous blocks (C1). */
+  crossFit?: boolean;
+  /** Rescale the predictive scale by κ estimated from out-of-sample standardized errors (C2 'cv', C3 'trailing'). */
+  recalibrate?: 'none' | 'cv' | 'trailing';
+  /** Exponential recency half-life in days for case weights 0.5^(age/h) (C4); omit for equal weights. */
+  halfLifeDays?: number;
+  /** Shrinkage of the inverse-MSE skill weights toward equal weights (v2: 0.25). */
+  shrink?: number;
+}
+
+export interface NgrV3Model {
+  method: 'ngr-v3';
+  family: NgrFamily;
+  bias: number[];
+  weights: number[];
+  params: { a: number; b: number; c: number; d: number };
+  /** Multiplier on the predictive scale (1 unless recalibrated). */
+  kappa: number;
+  n: number;
+  options: Required<Omit<NgrV3Options, 'halfLifeDays'>> & { halfLifeDays: number | null };
+}
+
+/**
+ * Training row with an optional age in days (0 = most recently verified day). Without `age`, rows are taken to be
+ * ordered newest first and a row's age is its position — the order the benchmark builds its trailing window in.
+ */
+export type AgedTrainingRow = TrainingRow & { age?: number };
+
+const NGR_V3_FOLDS = 5;
+const KAPPA_RANGE: [number, number] = [0.5, 2.5];
+/** Trailing replay (C3): three 10-day segments of the most recent 30 days, each forecast across a 7-day gap. */
+const TRAIL_SEGMENTS = 3;
+const TRAIL_SEGMENT_DAYS = 10;
+const TRAIL_GAP_DAYS = 7;
+
+const crpsFamily = (family: NgrFamily, mu: number, scale: number, y: number) => (family === 'logistic' ? crpsLogistic(mu, scale, y) : crpsNormal(mu, scale, y));
+
+/** Case-weighted per-member additive bias Σω(fᵢ − y)/Σω (equal weights reproduce additiveBias exactly). */
+function weightedAdditiveBias(rows: TrainingRow[], omega: number[]): number[] {
+  const k = rows[0]?.f.length ?? 0;
+  const sw = omega.reduce((a, b) => a + b, 0);
+  return Array.from({ length: k }, (_, i) => rows.reduce((a, r, j) => a + omega[j] * (r.f[i] - r.y), 0) / sw);
+}
+
+/** Case-weighted inverse-MSE skill weights on bias-corrected members (equal weights reproduce skillWeights exactly). */
+function weightedSkillWeights(rows: TrainingRow[], omega: number[], shrink: number, shift: number[]): number[] {
+  const k = rows[0]?.f.length ?? 0;
+  const sw = omega.reduce((a, b) => a + b, 0);
+  const mse = Array.from({ length: k }, (_, i) => rows.reduce((a, r, j) => a + omega[j] * (r.f[i] - shift[i] - r.y) ** 2, 0) / sw);
+  const inv = mse.map((v) => 1 / Math.max(1e-6, v));
+  const s = inv.reduce((a, b) => a + b, 0);
+  return inv.map((v) => (1 - shrink) * (v / s) + shrink / k);
+}
+
+function combine(f: number[], bias: number[], weights: number[]) {
+  const g = f.map((v, i) => v - bias[i]);
+  const m = weightedMean(g, weights);
+  let s2 = 0;
+  for (let i = 0; i < g.length; i++) s2 += weights[i] * (g[i] - m) ** 2;
+  return { m, s2 };
+}
+
+/**
+ * Minimum-CRPS fit of (a, b, c, d) for location a + b·m and scale √(c² + d²·s² + 10⁻⁶). The fifth coordinate is inert
+ * (v2's climatology slot) and is kept so that the default options follow v2's optimiser path exactly.
+ */
+function fitNgrCore(prepared: Array<{ m: number; s2: number; y: number }>, omega: number[], family: NgrFamily) {
+  const sd = Math.sqrt(variance(prepared.map((p) => p.y - p.m))) || 1;
+  const sw = omega.reduce((a, b) => a + b, 0);
+  const objective = (x: number[]) => {
+    const [a, b, c, d] = x;
+    let s = 0;
+    for (let j = 0; j < prepared.length; j++) {
+      const p = prepared[j];
+      s += omega[j] * crpsFamily(family, a + b * p.m + 0, Math.sqrt(c * c + d * d * p.s2 + 1e-6), p.y);
+    }
+    return s / sw + 1e-4 * ((b - 1) ** 2 + 0);
+  };
+  const x0 = family === 'logistic' ? [0, 1, 0.55 * sd, 0.55, 0] : [0, 1, sd, 1, 0];
+  const res = nelderMead(objective, x0, { maxIter: 1500 });
+  const [a, b, c, d] = res.x;
+  return { a, b, c: Math.abs(c), d: Math.abs(d) };
+}
+
+const scaleOf = (model: NgrV3Model, s2: number) => {
+  const { c, d } = model.params;
+  return model.kappa * Math.sqrt(c * c + d * d * s2 + 1e-6);
+};
+
+/** κ minimising Σ ω·CRPS(F(μⱼ, κ·scaleⱼ), yⱼ) over [0.5, 2.5] by golden-section search. */
+export function fitScaleFactor(held: Array<{ mu: number; scale: number; y: number; omega: number }>, family: NgrFamily): number {
+  if (!held.length) return 1;
+  const loss = (k: number) => held.reduce((a, h) => a + h.omega * crpsFamily(family, h.mu, k * h.scale, h.y), 0);
+  const g = (Math.sqrt(5) - 1) / 2;
+  let [lo, hi] = KAPPA_RANGE;
+  let x1 = hi - g * (hi - lo);
+  let x2 = lo + g * (hi - lo);
+  let f1 = loss(x1);
+  let f2 = loss(x2);
+  for (let it = 0; it < 60; it++) {
+    if (f1 <= f2) { hi = x2; x2 = x1; f2 = f1; x1 = hi - g * (hi - lo); f1 = loss(x1); }
+    else { lo = x1; x1 = x2; f1 = f2; x2 = lo + g * (hi - lo); f2 = loss(x2); }
+  }
+  return (lo + hi) / 2;
+}
+
+/**
+ * Generalised skill-weighted NGR behind the Astraeus v3 candidates (docs/results/WEATHER_V3.md, Section 3). Defaults
+ * reproduce v2's temperature fit (fitNgrSkill) exactly; options add cross-fitted predictors (C1), out-of-sample scale
+ * recalibration by blocked cross-validation (C2) or trailing replay (C3), recency weights (C4) and a logistic law (C5).
+ */
+export function fitNgrV3(input: AgedTrainingRow[], opts: NgrV3Options = {}): NgrV3Model | null {
+  if (input.length < 10) return null;
+  const options = {
+    family: opts.family ?? 'normal',
+    crossFit: !!opts.crossFit,
+    recalibrate: opts.recalibrate ?? 'none',
+    shrink: opts.shrink ?? 0.25,
+    halfLifeDays: opts.halfLifeDays && opts.halfLifeDays > 0 ? opts.halfLifeDays : null,
+  } as NgrV3Model['options'];
+  // newest first; a stable sort leaves rows that are already in that order untouched
+  const rows = input.map((r, j) => ({ f: r.f, y: r.y, age: Number.isFinite(r.age) ? (r.age as number) : j })).sort((p, q) => p.age - q.age);
+  const base = fitNgrV3Base(rows, options);
+  if (!base) return null;
+  if (options.recalibrate === 'none') return base;
+  const held: Array<{ mu: number; scale: number; y: number; omega: number }> = [];
+  const omegaOf = (age: number) => (options.halfLifeDays ? 0.5 ** (age / options.halfLifeDays) : 1);
+  const collect = (train: typeof rows, test: typeof rows) => {
+    const m = fitNgrV3Base(train, options);
+    if (!m) return;
+    for (const r of test) {
+      const { m: mm, s2 } = combine(r.f, m.bias, m.weights);
+      held.push({ mu: m.params.a + m.params.b * mm, scale: scaleOf(m, s2), y: r.y, omega: omegaOf(r.age) });
+    }
+  };
+  if (options.recalibrate === 'cv') {
+    const block = rows.map((_, j) => Math.floor((j * NGR_V3_FOLDS) / rows.length));
+    for (let k = 0; k < NGR_V3_FOLDS; k++) collect(rows.filter((_, j) => block[j] !== k), rows.filter((_, j) => block[j] === k));
+  } else {
+    for (let s = 0; s < TRAIL_SEGMENTS; s++) {
+      const start = s * TRAIL_SEGMENT_DAYS;
+      const test = rows.filter((r) => r.age >= start && r.age < start + TRAIL_SEGMENT_DAYS);
+      const train = rows.filter((r) => r.age >= start + TRAIL_SEGMENT_DAYS + TRAIL_GAP_DAYS);
+      if (test.length && train.length >= 30) collect(train, test);
+    }
+  }
+  return { ...base, kappa: fitScaleFactor(held, options.family) };
+}
+
+/** Bias, skill weights and (a, b, c, d) without scale recalibration (κ = 1). Rows must carry ages, newest first. */
+function fitNgrV3Base(rows: Array<TrainingRow & { age: number }>, options: NgrV3Model['options']): NgrV3Model | null {
+  if (rows.length < 10) return null;
+  const omega = rows.map((r) => (options.halfLifeDays ? 0.5 ** (r.age / options.halfLifeDays) : 1));
+  const bias = weightedAdditiveBias(rows, omega);
+  const weights = weightedSkillWeights(rows, omega, options.shrink, bias);
+  let prepared: Array<{ m: number; s2: number; y: number }>;
+  if (options.crossFit && rows.length >= 2 * NGR_V3_FOLDS) {
+    // C1: each row's predictors use bias and weights estimated without its own contiguous block
+    prepared = new Array(rows.length);
+    const block = rows.map((_, j) => Math.floor((j * NGR_V3_FOLDS) / rows.length));
+    for (let k = 0; k < NGR_V3_FOLDS; k++) {
+      const others = rows.filter((_, j) => block[j] !== k);
+      const om = omega.filter((_, j) => block[j] !== k);
+      const bk = weightedAdditiveBias(others, om);
+      const wk = weightedSkillWeights(others, om, options.shrink, bk);
+      rows.forEach((r, j) => { if (block[j] === k) prepared[j] = { ...combine(r.f, bk, wk), y: r.y }; });
+    }
+  } else {
+    prepared = rows.map((r) => ({ ...combine(r.f, bias, weights), y: r.y }));
+  }
+  const params = fitNgrCore(prepared, omega, options.family);
+  return { method: 'ngr-v3', family: options.family, bias, weights, params, kappa: 1, n: rows.length, options };
+}
+
+export function predictNgrV3(model: NgrV3Model, f: number[]): PredictiveForecast {
+  const { m, s2 } = combine(f, model.bias, model.weights);
+  const mu = model.params.a + model.params.b * m;
+  const scale = scaleOf(model, s2);
+  return model.family === 'logistic' ? { kind: 'logistic', mu, scale } : { kind: 'normal', mu, sigma: scale };
+}
+
+// ---------------------------------------------------------------------------
+// 10. Astraeus v3 — frozen 2026-11-16 from the development period only (docs/results/WEATHER_V3.md)
+// ---------------------------------------------------------------------------
+
+/**
+ * Astraeus v3 temperature component = candidate C6, selected by the pre-specified rule: skill-weighted logistic NGR with
+ * 35-day-half-life recency weights and its scale recalibrated by κ from blocked cross-validated standardized errors.
+ * Frozen: do not change without a new version and a new development-period selection.
+ */
+export const ASTRAEUS_V3_TEMPERATURE: Readonly<NgrV3Options> = Object.freeze({ family: 'logistic', halfLifeDays: 35, recalibrate: 'cv', shrink: 0.25 });
+/** Astraeus v3 trains on the same trailing window as v2. */
+export const ASTRAEUS_V3_WINDOW_DAYS = 90;
+
+export type AstraeusV3Model =
+  | { kind: 'temperature'; ngr: NgrV3Model }
+  /** Precipitation is unchanged from v2: the raw members with inverse-MSE skill weights shrunk 25 % toward equal. */
+  | { kind: 'precipitation'; weights: number[] };
+
+/** Fit Astraeus v3 on a trailing window (rows newest first, or with explicit ages). Null when the window is too short. */
+export function fitAstraeusV3(rows: AgedTrainingRow[], kind: VariableKind): AstraeusV3Model | null {
+  if (rows.length < 10) return null;
+  if (kind === 'precipitation') return { kind, weights: skillWeights(rows, 0.25) };
+  const ngr = fitNgrV3(rows, ASTRAEUS_V3_TEMPERATURE);
+  return ngr ? { kind, ngr } : null;
+}
+
+export function predictAstraeusV3(model: AstraeusV3Model, f: number[]): PredictiveForecast {
+  return model.kind === 'temperature' ? predictNgrV3(model.ngr, f) : { kind: 'weighted-ensemble', members: f, weights: model.weights };
+}
