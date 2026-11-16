@@ -182,7 +182,7 @@ async function loadForecasts(site: SiteLike, start = CONFIG.forecastStart): Prom
   const store = { tmean: {}, tmax: {}, precip: {} } as ForecastStore;
   for (const v of VARIABLES) for (const l of CONFIG.leads) store[v.id][l] = Object.fromEntries(MODELS.map((m) => [m.api, {}]));
   const hourly = CONFIG.leads.flatMap((l) => [`temperature_2m_previous_day${l}`, `precipitation_previous_day${l}`]).join(',');
-  for (const [a, b] of chunks(start, CONFIG.forecastEnd)) {
+  for (const [a, b] of [...chunks(start, CONFIG.forecastEnd), ...extensionChunks()]) {
     const url = `https://previous-runs-api.open-meteo.com/v1/forecast?latitude=${site.lat}&longitude=${site.lng}&start_date=${a}&end_date=${b}&hourly=${hourly}&models=${MODELS.map((m) => m.api).join(',')}&timezone=GMT`;
     const daily = await cachedDaily(`fc|${site.id}|${a}|${b}|${MODELS.map((m) => m.api).join(',')}|${CONFIG.leads}`, async () => {
       const raw = await fetchJson(url);
@@ -205,7 +205,7 @@ async function loadForecasts(site: SiteLike, start = CONFIG.forecastStart): Prom
 
 async function loadTruth(site: SiteLike, start = CONFIG.forecastStart): Promise<Record<Variable, Record<string, number>>> {
   const truth = { tmean: {}, tmax: {}, precip: {} } as Record<Variable, Record<string, number>>;
-  for (const [a, b] of chunks(start, CONFIG.forecastEnd, 6)) {
+  for (const [a, b] of [...chunks(start, CONFIG.forecastEnd, 6), ...extensionChunks()]) {
     const url = `https://archive-api.open-meteo.com/v1/archive?latitude=${site.lat}&longitude=${site.lng}&start_date=${a}&end_date=${b}&hourly=temperature_2m,precipitation&models=era5&timezone=GMT`;
     const daily = await cachedDaily(`era5|${site.id}|${a}|${b}`, async () => {
       const raw = await fetchJson(url);
@@ -364,6 +364,24 @@ const arg = (name: string, dflt: string) => {
 const PERIOD = arg('period', 'all') as 'dev' | 'confirm' | 'prospective' | 'all';
 /** Forecasts issued after this date had not been seen by anyone when Astraeus v2 was frozen. */
 const PROSPECTIVE_START = '2026-11-16';
+/**
+ * The prospective test needs data after CONFIG.forecastEnd. It is fetched in separate calendar-month chunks with their own
+ * cache keys, so the published development and confirmation inputs are never re-fetched or changed. `--through` sets the
+ * last day (default: yesterday, UTC); days without complete ERA5 yet simply drop out.
+ */
+const EXTEND_THROUGH = PERIOD === 'prospective' ? arg('through', addDays(new Date().toISOString().slice(0, 10), -1)) : '';
+function extensionChunks(): Array<[string, string]> {
+  const out: Array<[string, string]> = [];
+  let a = addDays(CONFIG.forecastEnd, 1);
+  while (EXTEND_THROUGH && a <= EXTEND_THROUGH) {
+    const d = new Date(`${a}T00:00:00Z`);
+    const monthEnd = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0)).toISOString().slice(0, 10);
+    const b = monthEnd < EXTEND_THROUGH ? monthEnd : EXTEND_THROUGH;
+    out.push([a, b]);
+    a = addDays(b, 1);
+  }
+  return out;
+}
 const DM_LAG = 14; // Newey–West bandwidth (days); robustness reported at lead, 7 and 21
 const BOOT_BLOCK = 7;
 const SUITE = arg('suite', PERIOD === 'prospective' ? 'final' : 'run1'); // the prospective test scores v2 and v3
@@ -734,7 +752,7 @@ async function main() {
     if (e.length) models.push({ variable: v.id, lead, model: m.api, name: m.name, kind: m.kind, cases: e.length, mae: r3(avg(e.map(Math.abs))), rmse: r3(Math.sqrt(avg(e.map((x) => x * x)))), bias: r3(avg(e)) });
   }
 
-  const periodLabel = PERIOD === 'dev' ? `development period (test days ≤ ${DEV_END})` : PERIOD === 'confirm' ? `confirmation period (test days > ${DEV_END}), scored once after the method was frozen` : 'full period';
+  const periodLabel = PERIOD === 'dev' ? `development period (test days ≤ ${DEV_END})` : PERIOD === 'confirm' ? `confirmation period (test days > ${DEV_END}), scored once after the method was frozen` : PERIOD === 'prospective' ? `prospective period (test days > ${PROSPECTIVE_START} through ${EXTEND_THROUGH}); v2 and v3 were frozen before any of these outcomes existed` : 'full period';
   const result = {
     version: CONFIG.version, suite: SUITE, period: PERIOD, periodLabel,
     generatedAt: new Date().toISOString(),
