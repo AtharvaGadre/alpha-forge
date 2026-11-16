@@ -4,6 +4,7 @@ import { HeroGlobe, type HeroSite } from './HeroGlobe';
 import { BarList, FanChart, LineChart, type FanDay } from '../charts/Charts';
 import { useResearchData, type WeatherSkill, type PriceSkill } from '../../engine/researchData';
 import type { WorkspaceView } from '../../engine/workspaceNavigation';
+import { DataAttribution } from '../DataAttribution';
 
 /** Adds `is-in` once an element scrolls into view (once); respects reduced motion via CSS. */
 function useReveal<T extends HTMLElement>() {
@@ -234,7 +235,7 @@ export function Landing({ onEnter }: { onEnter: (view: WorkspaceView) => void })
       <p>Open the terminal to explore calibrated outlooks for 28 commodities across 160+ production, processing and demand regions — every number with its source, timestamp and hash.</p>
       <div className="lp-actions"><a className="lp-btn primary" href="#globe" onClick={go('globe')}>Open the terminal <ArrowRight size={16} /></a><a className="lp-btn" href="#accuracy" onClick={go('accuracy')}><Gauge size={16} /> Forecast skill</a><a className="lp-btn" href="#report" onClick={go('report')}><BookOpen size={16} /> Technical report</a></div>
     </section>
-    <footer className="lp-footer"><span>ASTRAEUS · Forecast-driven commodity research</span><span>Weather data: ECMWF, NOAA, DWD, Met Office, JMA, ECCC via Open-Meteo · ERA5 © Copernicus · Natural Earth</span></footer>
+    <footer className="lp-footer"><DataAttribution id="lp-data-sources" /><div className="lp-footer-line"><span>ASTRAEUS · Forecast-driven commodity research</span><span>Research software, not investment advice</span></div></footer>
   </div>;
 }
 

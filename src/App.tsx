@@ -22,6 +22,7 @@ const ForecastSkill = lazy(() => import('./components/ForecastSkill').then((m) =
 const TechnicalReport = lazy(() => import('./components/TechnicalReport').then((m) => ({ default: m.TechnicalReport })));
 const ViewLoading = () => <div className="sk-loading" role="status" aria-live="polite">Loading view…</div>;
 import { CalibratedOutlookPanel } from './components/CalibratedOutlookPanel';
+import { DataAttribution } from './components/DataAttribution';
 import './landing.css';
 import './components/charts/charts.css';
 import './skill.css';
@@ -165,6 +166,7 @@ export function App() {
       </nav>
       <div className="af-sidebar-note"><span className="af-live-dot" /> FORECAST → FUNDAMENTALS<p>Understand the physical drivers behind commodity markets.</p><div>Weather. Supply. Demand.</div></div>
       <div className="af-sidebar-bottom"><ShieldCheck size={17} /><span>Evidence before conviction<small>No synthetic market signals</small></span></div>
+      <p className="af-sidebar-credit"><a href="https://open-meteo.com/" target="_blank" rel="noreferrer">Weather data by Open-Meteo.com</a> · <button type="button" onClick={() => document.getElementById('data-sources')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>All sources</button></p>
     </aside>
     <AstraeusGuide onNavigate={navigate} /><main className="af-main">
       <header className="af-topbar"><div className="af-breadcrumb">Workspace <ChevronRight size={13} /><strong>{view === 'watchlist' ? 'Watchlist' : view === 'accuracy' ? 'Forecast skill' : view === 'report' ? 'Technical report' : view === 'methodology' ? 'Research method' : view === 'advanced' ? 'Forecast lab' : view === 'globe' ? 'Global explorer' : view === 'research' ? 'Weather & evidence' : 'Market overview'}</strong></div><button className="af-top-home" onClick={() => navigate('globe')}><Globe2 size={12} /> Back to globe</button><AppearanceControls /><span className="af-top-label"><Globe2 size={14} /> Global coverage <span className="af-avatar">AS</span></span></header>
@@ -213,7 +215,7 @@ export function App() {
           </div>
           <section className="af-process"><div><span className="af-eyebrow">FROM FORECAST TO UNDERSTANDING</span><h2>Follow the whole chain.</h2></div>{[{ n: '01', title: 'Physical forecast', text: 'Fresh regional weather models' }, { n: '02', title: 'Economic mechanism', text: 'Supply, demand or disruption' }, { n: '03', title: 'Market evidence', text: 'Observed prices, not imagined returns' }, { n: '04', title: 'Challenge the thesis', text: 'Check offsets and invalidation' }].map(s => <article key={s.n}><span>{s.n}</span><strong>{s.title}</strong><p>{s.text}</p></article>)}</section>
         </>}</Suspense>
-        <footer className="af-footer"><div className="af-footer-line"><span>Astraeus · Forecast-driven commodity research</span><span>Data gaps stay visible. Evidence stays attached.</span></div></footer>
+        <footer className="af-footer"><DataAttribution id="data-sources" /><div className="af-footer-line"><span>Astraeus · Forecast-driven commodity research</span><span>Data gaps stay visible. Evidence stays attached.</span></div></footer>
       </div>
     </main>
   </div>;

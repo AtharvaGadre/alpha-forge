@@ -114,7 +114,8 @@
 .lp-final{display:grid;justify-items:center;text-align:center;gap:8px;padding:clamp(90px,14vh,170px) var(--lp-pad);border-top:1px solid var(--as-line);background:radial-gradient(50% 60% at 50% 100%,color-mix(in srgb,var(--as-gold) 10%,transparent),transparent)}
 .lp-final>svg{color:var(--as-gold)}.lp-final p{max-width:620px;color:var(--as-muted);line-height:1.8;margin:0 0 26px}
 .lp-final .lp-actions{justify-content:center}
-.lp-footer{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;padding:26px var(--lp-pad);border-top:1px solid var(--as-line);font:10px/1.6 'IBM Plex Mono',monospace;color:var(--as-muted)}
+.lp-footer{display:grid;gap:26px;padding:40px var(--lp-pad) 28px;border-top:1px solid var(--as-line);color:var(--as-muted)}
+.lp-footer-line{display:flex;justify-content:space-between;gap:12px 20px;flex-wrap:wrap;padding-top:20px;border-top:1px solid var(--as-line);font:10px/1.6 'IBM Plex Mono',monospace;letter-spacing:.12em;text-transform:uppercase}
 
 /* reveal choreography */
 .lp [data-reveal]{opacity:0;transform:translateY(26px);transition:opacity 1s var(--lp-ease),transform 1.1s var(--lp-ease)}
