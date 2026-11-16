@@ -1,0 +1,24 @@
+{
+ "schema": "astraeus-track-record-v1",
+ "startDate": "2026-11-16",
+ "latestSnapshot": "2026-11-16",
+ "snapshots": 1,
+ "regionsLatest": 12,
+ "ledger": {
+  "head": "138e207eb4113d12f49d7f1cef6ff28724f1957b56813110ea3b901f57f0b842",
+  "length": 1,
+  "ok": true,
+  "problems": []
+ },
+ "cases": {
+  "total": 252,
+  "scored": 0,
+  "pending": 252
+ },
+ "nextScoresExpected": "2026-11-22",
+ "methodVersions": {
+  "astraeus-v2": 12
+ },
+ "cells": [],
+ "verify": "npx tsx research/track-record.ts verify"
+}

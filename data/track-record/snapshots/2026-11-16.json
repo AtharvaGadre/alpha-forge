@@ -1,0 +1,6284 @@
+{
+ "schema": "astraeus-track-record-v1",
+ "issueDate": "2026-11-16",
+ "issuedAtUtc": "2026-11-16T09:42:07.126Z",
+ "methodVersions": [
+  "astraeus-v2"
+ ],
+ "engineVersion": "commodity-pressure-v5",
+ "regions": [
+  {
+   "key": "iowa",
+   "name": "Iowa · US Corn Belt",
+   "lat": 42.03,
+   "lng": -93.62,
+   "commodities": [
+    "corn:iowa",
+    "hogs:iowa"
+   ],
+   "generatedAtUtc": "2026-11-16T09:42:07.128Z",
+   "inputSha256": "23c81f94e8a9724750550c9a78ecc346983b85da70206dcd2885527d832bf694",
+   "outlook": {
+    "version": "astraeus-v2",
+    "trainingDates": {
+     "start": "2026-08-12",
+     "end": "2026-11-09"
+    },
+    "models": [
+     "ECMWF IFS 0.25°",
+     "ECMWF AIFS (AI model)",
+     "NOAA GFS",
+     "DWD ICON",
+     "UK Met Office UM",
+     "JMA GSM"
+    ]
+   },
+   "days": [
+    {
+     "date": "2026-11-16",
+     "lead": 0,
+     "trainingLead": 1,
+     "tmax": {
+      "band": {
+       "rawMean": 11.6,
+       "rawMin": 10.4,
+       "rawMax": 12.2,
+       "mean": 12.24,
+       "p10": 11.17,
+       "p50": 12.24,
+       "p90": 13.31,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 12,
+       "ECMWF AIFS (AI model)": 11.9,
+       "NOAA GFS": 11.8,
+       "DWD ICON": 12.2,
+       "UK Met Office UM": 10.4,
+       "JMA GSM": 11.3
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 3.63,
+       "rawMin": 2.3,
+       "rawMax": 5.3,
+       "mean": 3.94,
+       "p10": 3.54,
+       "p50": 3.94,
+       "p90": 4.34,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 3.8,
+       "ECMWF AIFS (AI model)": 3.4,
+       "NOAA GFS": 2.3,
+       "DWD ICON": 3,
+       "UK Met Office UM": 4,
+       "JMA GSM": 5.3
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0,
+       "rawMin": 0,
+       "rawMax": 0,
+       "mean": 0,
+       "p10": 0,
+       "p50": 0,
+       "p90": 0,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0,
+       "ECMWF AIFS (AI model)": 0,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-17",
+     "lead": 1,
+     "trainingLead": 1,
+     "tmax": {
+      "band": {
+       "rawMean": 13.42,
+       "rawMin": 12,
+       "rawMax": 13.9,
+       "mean": 13.93,
+       "p10": 12.9,
+       "p50": 13.93,
+       "p90": 14.97,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 13.4,
+       "ECMWF AIFS (AI model)": 13.9,
+       "NOAA GFS": 13.6,
+       "DWD ICON": 13.8,
+       "UK Met Office UM": 12,
+       "JMA GSM": 13.8
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 7.62,
+       "rawMin": 7,
+       "rawMax": 9.2,
+       "mean": 7.78,
+       "p10": 7.37,
+       "p50": 7.78,
+       "p90": 8.2,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 7.3,
+       "ECMWF AIFS (AI model)": 7.6,
+       "NOAA GFS": 7,
+       "DWD ICON": 7.4,
+       "UK Met Office UM": 7.2,
+       "JMA GSM": 9.2
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0,
+       "rawMin": 0,
+       "rawMax": 0,
+       "mean": 0,
+       "p10": 0,
+       "p50": 0,
+       "p90": 0,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0,
+       "ECMWF AIFS (AI model)": 0,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-18",
+     "lead": 2,
+     "trainingLead": 2,
+     "tmax": {
+      "band": {
+       "rawMean": 14.22,
+       "rawMin": 13.7,
+       "rawMax": 14.9,
+       "mean": 14.72,
+       "p10": 13.05,
+       "p50": 14.72,
+       "p90": 16.38,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 13.7,
+       "ECMWF AIFS (AI model)": 14.9,
+       "NOAA GFS": 14.3,
+       "DWD ICON": 14.5,
+       "UK Met Office UM": 13.8,
+       "JMA GSM": 14.1
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 9.07,
+       "rawMin": 8,
+       "rawMax": 10.2,
+       "mean": 9.06,
+       "p10": 8.39,
+       "p50": 9.06,
+       "p90": 9.73,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 9,
+       "ECMWF AIFS (AI model)": 9.3,
+       "NOAA GFS": 9.2,
+       "DWD ICON": 8,
+       "UK Met Office UM": 8.7,
+       "JMA GSM": 10.2
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0,
+       "rawMin": 0,
+       "rawMax": 0,
+       "mean": 0,
+       "p10": 0,
+       "p50": 0,
+       "p90": 0,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0,
+       "ECMWF AIFS (AI model)": 0,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-19",
+     "lead": 3,
+     "trainingLead": 3,
+     "tmax": {
+      "band": {
+       "rawMean": 15.8,
+       "rawMin": 13.6,
+       "rawMax": 16.9,
+       "mean": 16.26,
+       "p10": 14.46,
+       "p50": 16.26,
+       "p90": 18.06,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 15.7,
+       "ECMWF AIFS (AI model)": 16.2,
+       "NOAA GFS": 16.9,
+       "DWD ICON": 16.4,
+       "UK Met Office UM": 13.6,
+       "JMA GSM": 16
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 11.6,
+       "rawMin": 10,
+       "rawMax": 13,
+       "mean": 11.63,
+       "p10": 10.58,
+       "p50": 11.63,
+       "p90": 12.68,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 11.3,
+       "ECMWF AIFS (AI model)": 12.2,
+       "NOAA GFS": 12.2,
+       "DWD ICON": 10.9,
+       "UK Met Office UM": 10,
+       "JMA GSM": 13
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0.17,
+       "rawMin": 0,
+       "rawMax": 0.5,
+       "mean": 0.15,
+       "p10": 0,
+       "p50": 0,
+       "p90": 0.3,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0.2,
+       "ECMWF AIFS (AI model)": 0,
+       "NOAA GFS": 0.3,
+       "DWD ICON": 0.5,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-20",
+     "lead": 4,
+     "trainingLead": 4,
+     "tmax": {
+      "band": {
+       "rawMean": 17.32,
+       "rawMin": 16.2,
+       "rawMax": 18.5,
+       "mean": 17.68,
+       "p10": 15.59,
+       "p50": 17.68,
+       "p90": 19.76,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 17.3,
+       "ECMWF AIFS (AI model)": 17.3,
+       "NOAA GFS": 16.9,
+       "DWD ICON": 17.7,
+       "UK Met Office UM": 16.2,
+       "JMA GSM": 18.5
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 11.78,
+       "rawMin": 9.3,
+       "rawMax": 14.3,
+       "mean": 11.13,
+       "p10": 9.54,
+       "p50": 11.13,
+       "p90": 12.71,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 9.3,
+       "ECMWF AIFS (AI model)": 10.8,
+       "NOAA GFS": 13.4,
+       "DWD ICON": 11.8,
+       "UK Met Office UM": 11.1,
+       "JMA GSM": 14.3
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": -0.03,
+       "rawMin": -0.2,
+       "rawMax": 0,
+       "mean": -0.04,
+       "p10": -0.2,
+       "p50": 0,
+       "p90": 0,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": -0.2,
+       "ECMWF AIFS (AI model)": 0,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-21",
+     "lead": 5,
+     "trainingLead": 5,
+     "tmax": {
+      "band": {
+       "rawMean": 16.3,
+       "rawMin": 14.4,
+       "rawMax": 18,
+       "mean": 16.63,
+       "p10": 14.02,
+       "p50": 16.63,
+       "p90": 19.24,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 16.9,
+       "ECMWF AIFS (AI model)": 16.1,
+       "NOAA GFS": 16,
+       "DWD ICON": 16.4,
+       "UK Met Office UM": 14.4,
+       "JMA GSM": 18
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 13.78,
+       "rawMin": 11.6,
+       "rawMax": 15.9,
+       "mean": 13.59,
+       "p10": 11.6,
+       "p50": 13.59,
+       "p90": 15.59,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 14.9,
+       "ECMWF AIFS (AI model)": 14.9,
+       "NOAA GFS": 12.4,
+       "DWD ICON": 13,
+       "UK Met Office UM": 11.6,
+       "JMA GSM": 15.9
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 6.82,
+       "rawMin": 2.5,
+       "rawMax": 10.2,
+       "mean": 6.47,
+       "p10": 2.5,
+       "p50": 6.2,
+       "p90": 10.2,
+       "calibrated": true,
+       "members": 6,
+       "prob": 1
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 2.5,
+       "ECMWF AIFS (AI model)": 6,
+       "NOAA GFS": 7.5,
+       "DWD ICON": 10.2,
+       "UK Met Office UM": 6.2,
+       "JMA GSM": 8.5
+      }
+     }
+    },
+    {
+     "date": "2026-11-22",
+     "lead": 6,
+     "trainingLead": 6,
+     "tmax": {
+      "band": {
+       "rawMean": 9.15,
+       "rawMin": 6.7,
+       "rawMax": 9.9,
+       "mean": 11.23,
+       "p10": 8.14,
+       "p50": 11.23,
+       "p90": 14.31,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 9.8,
+       "ECMWF AIFS (AI model)": 9.3,
+       "NOAA GFS": 6.7,
+       "DWD ICON": 9.6,
+       "UK Met Office UM": 9.9,
+       "JMA GSM": 9.6
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 5.35,
+       "rawMin": 4.2,
+       "rawMax": 7.2,
+       "mean": 5.73,
+       "p10": 3.78,
+       "p50": 5.73,
+       "p90": 7.68,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 6.4,
+       "ECMWF AIFS (AI model)": 5.6,
+       "NOAA GFS": 4.4,
+       "DWD ICON": 4.3,
+       "UK Met Office UM": 4.2,
+       "JMA GSM": 7.2
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0.23,
+       "rawMin": 0,
+       "rawMax": 1,
+       "mean": 0.3,
+       "p10": 0,
+       "p50": 0,
+       "p90": 1,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.22
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0,
+       "ECMWF AIFS (AI model)": 1,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0.4,
+       "JMA GSM": 0
+      }
+     }
+    }
+   ]
+  },
+  {
+   "key": "kansas",
+   "name": "Kansas · US Plains",
+   "lat": 38.84,
+   "lng": -97.61,
+   "commodities": [
+    "wheat:kansas"
+   ],
+   "generatedAtUtc": "2026-11-16T09:42:09.863Z",
+   "inputSha256": "c87dd69ce8159947588bdf38a8c4ffbcc3661cc098891e1b877e97fd48c02b8f",
+   "outlook": {
+    "version": "astraeus-v2",
+    "trainingDates": {
+     "start": "2026-08-12",
+     "end": "2026-11-09"
+    },
+    "models": [
+     "ECMWF IFS 0.25°",
+     "ECMWF AIFS (AI model)",
+     "NOAA GFS",
+     "DWD ICON",
+     "UK Met Office UM",
+     "JMA GSM"
+    ]
+   },
+   "days": [
+    {
+     "date": "2026-11-16",
+     "lead": 0,
+     "trainingLead": 1,
+     "tmax": {
+      "band": {
+       "rawMean": 11.15,
+       "rawMin": 10.3,
+       "rawMax": 12.2,
+       "mean": 12.7,
+       "p10": 11.34,
+       "p50": 12.7,
+       "p90": 14.06,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 12.2,
+       "ECMWF AIFS (AI model)": 10.3,
+       "NOAA GFS": 10.4,
+       "DWD ICON": 12.2,
+       "UK Met Office UM": 11.2,
+       "JMA GSM": 10.6
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 7.43,
+       "rawMin": 7.1,
+       "rawMax": 8.1,
+       "mean": 7.73,
+       "p10": 7.22,
+       "p50": 7.73,
+       "p90": 8.23,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 8.1,
+       "ECMWF AIFS (AI model)": 7.1,
+       "NOAA GFS": 7.4,
+       "DWD ICON": 7.3,
+       "UK Met Office UM": 7.3,
+       "JMA GSM": 7.4
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0,
+       "rawMin": 0,
+       "rawMax": 0,
+       "mean": 0,
+       "p10": 0,
+       "p50": 0,
+       "p90": 0,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0,
+       "ECMWF AIFS (AI model)": 0,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-17",
+     "lead": 1,
+     "trainingLead": 1,
+     "tmax": {
+      "band": {
+       "rawMean": 14.27,
+       "rawMin": 12.4,
+       "rawMax": 15.4,
+       "mean": 15.72,
+       "p10": 14.16,
+       "p50": 15.72,
+       "p90": 17.28,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 15.4,
+       "ECMWF AIFS (AI model)": 14.5,
+       "NOAA GFS": 12.4,
+       "DWD ICON": 15.2,
+       "UK Met Office UM": 15.2,
+       "JMA GSM": 12.9
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 9.77,
+       "rawMin": 9.2,
+       "rawMax": 10.3,
+       "mean": 10.03,
+       "p10": 9.29,
+       "p50": 10.03,
+       "p90": 10.77,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 10.3,
+       "ECMWF AIFS (AI model)": 9.2,
+       "NOAA GFS": 9.3,
+       "DWD ICON": 10.3,
+       "UK Met Office UM": 10,
+       "JMA GSM": 9.5
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0,
+       "rawMin": 0,
+       "rawMax": 0,
+       "mean": 0,
+       "p10": 0,
+       "p50": 0,
+       "p90": 0,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0,
+       "ECMWF AIFS (AI model)": 0,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-18",
+     "lead": 2,
+     "trainingLead": 2,
+     "tmax": {
+      "band": {
+       "rawMean": 16.58,
+       "rawMin": 14.5,
+       "rawMax": 17.2,
+       "mean": 17.74,
+       "p10": 16.48,
+       "p50": 17.74,
+       "p90": 19,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 17,
+       "ECMWF AIFS (AI model)": 17,
+       "NOAA GFS": 17.2,
+       "DWD ICON": 17,
+       "UK Met Office UM": 16.8,
+       "JMA GSM": 14.5
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 11.38,
+       "rawMin": 10.9,
+       "rawMax": 11.9,
+       "mean": 11.53,
+       "p10": 10.61,
+       "p50": 11.53,
+       "p90": 12.44,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 11.4,
+       "ECMWF AIFS (AI model)": 11.8,
+       "NOAA GFS": 11.9,
+       "DWD ICON": 11,
+       "UK Met Office UM": 11.3,
+       "JMA GSM": 10.9
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0.05,
+       "rawMin": 0,
+       "rawMax": 0.3,
+       "mean": 0.05,
+       "p10": 0,
+       "p50": 0,
+       "p90": 0.3,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0,
+       "ECMWF AIFS (AI model)": 0,
+       "NOAA GFS": 0,
+       "DWD ICON": 0.3,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-19",
+     "lead": 3,
+     "trainingLead": 3,
+     "tmax": {
+      "band": {
+       "rawMean": 17.78,
+       "rawMin": 15.4,
+       "rawMax": 20.3,
+       "mean": 18.69,
+       "p10": 17.16,
+       "p50": 18.69,
+       "p90": 20.22,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 18.4,
+       "ECMWF AIFS (AI model)": 17.5,
+       "NOAA GFS": 20.3,
+       "DWD ICON": 18.2,
+       "UK Met Office UM": 16.9,
+       "JMA GSM": 15.4
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 12.57,
+       "rawMin": 11.9,
+       "rawMax": 13.8,
+       "mean": 12.65,
+       "p10": 11.53,
+       "p50": 12.65,
+       "p90": 13.77,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 12.7,
+       "ECMWF AIFS (AI model)": 12.8,
+       "NOAA GFS": 13.8,
+       "DWD ICON": 11.9,
+       "UK Met Office UM": 11.9,
+       "JMA GSM": 12.3
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0.45,
+       "rawMin": 0,
+       "rawMax": 2.7,
+       "mean": 0.3,
+       "p10": 0,
+       "p50": 0,
+       "p90": 2.7,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.11
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 2.7,
+       "ECMWF AIFS (AI model)": 0,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-20",
+     "lead": 4,
+     "trainingLead": 4,
+     "tmax": {
+      "band": {
+       "rawMean": 18.88,
+       "rawMin": 17.5,
+       "rawMax": 19.5,
+       "mean": 19.99,
+       "p10": 18.1,
+       "p50": 19.99,
+       "p90": 21.87,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 19.3,
+       "ECMWF AIFS (AI model)": 19.5,
+       "NOAA GFS": 19.4,
+       "DWD ICON": 19,
+       "UK Met Office UM": 17.5,
+       "JMA GSM": 18.6
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 15.05,
+       "rawMin": 14.1,
+       "rawMax": 16.8,
+       "mean": 14.99,
+       "p10": 13.56,
+       "p50": 14.99,
+       "p90": 16.42,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 14.1,
+       "ECMWF AIFS (AI model)": 14.6,
+       "NOAA GFS": 16.8,
+       "DWD ICON": 15.1,
+       "UK Met Office UM": 14.1,
+       "JMA GSM": 15.6
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0,
+       "rawMin": -0.2,
+       "rawMax": 0.2,
+       "mean": -0.03,
+       "p10": -0.2,
+       "p50": 0,
+       "p90": 0.2,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": -0.2,
+       "ECMWF AIFS (AI model)": 0,
+       "NOAA GFS": 0,
+       "DWD ICON": 0.2,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-21",
+     "lead": 5,
+     "trainingLead": 5,
+     "tmax": {
+      "band": {
+       "rawMean": 17.07,
+       "rawMin": 16,
+       "rawMax": 17.8,
+       "mean": 18.56,
+       "p10": 16.03,
+       "p50": 18.56,
+       "p90": 21.1,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 16.5,
+       "ECMWF AIFS (AI model)": 17.8,
+       "NOAA GFS": 16.8,
+       "DWD ICON": 17.5,
+       "UK Met Office UM": 16,
+       "JMA GSM": 17.8
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 14.5,
+       "rawMin": 13.3,
+       "rawMax": 16.4,
+       "mean": 14.7,
+       "p10": 12.47,
+       "p50": 14.7,
+       "p90": 16.94,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 14.5,
+       "ECMWF AIFS (AI model)": 16.4,
+       "NOAA GFS": 13.3,
+       "DWD ICON": 13.8,
+       "UK Met Office UM": 14.3,
+       "JMA GSM": 14.7
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 1.83,
+       "rawMin": 0,
+       "rawMax": 4.9,
+       "mean": 1.66,
+       "p10": 0,
+       "p50": 1.6,
+       "p90": 4.9,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.62
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0,
+       "ECMWF AIFS (AI model)": 1.6,
+       "NOAA GFS": 1.2,
+       "DWD ICON": 4.9,
+       "UK Met Office UM": 0.3,
+       "JMA GSM": 3
+      }
+     }
+    },
+    {
+     "date": "2026-11-22",
+     "lead": 6,
+     "trainingLead": 6,
+     "tmax": {
+      "band": {
+       "rawMean": 13.05,
+       "rawMin": 9.9,
+       "rawMax": 15,
+       "mean": 15.59,
+       "p10": 12.26,
+       "p50": 15.59,
+       "p90": 18.92,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 15,
+       "ECMWF AIFS (AI model)": 15,
+       "NOAA GFS": 13.1,
+       "DWD ICON": 13.6,
+       "UK Met Office UM": 9.9,
+       "JMA GSM": 11.7
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 7.15,
+       "rawMin": 6.1,
+       "rawMax": 8,
+       "mean": 7.77,
+       "p10": 6.39,
+       "p50": 7.77,
+       "p90": 9.16,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 8,
+       "ECMWF AIFS (AI model)": 7.5,
+       "NOAA GFS": 7.4,
+       "DWD ICON": 6.1,
+       "UK Met Office UM": 6.1,
+       "JMA GSM": 7.8
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0,
+       "rawMin": 0,
+       "rawMax": 0,
+       "mean": 0,
+       "p10": 0,
+       "p50": 0,
+       "p90": 0,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0,
+       "ECMWF AIFS (AI model)": 0,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    }
+   ]
+  },
+  {
+   "key": "mato-grosso",
+   "name": "Mato Grosso · Brazil",
+   "lat": -12.54,
+   "lng": -55.72,
+   "commodities": [
+    "soybeans:mato-grosso",
+    "soy-meal:mato-grosso"
+   ],
+   "generatedAtUtc": "2026-11-16T09:42:18.389Z",
+   "inputSha256": "378bea1604e55a852f335ba384ceedc5a7aeeff6317474efcb87f493b694c74a",
+   "outlook": {
+    "version": "astraeus-v2",
+    "trainingDates": {
+     "start": "2026-08-12",
+     "end": "2026-11-09"
+    },
+    "models": [
+     "ECMWF IFS 0.25°",
+     "ECMWF AIFS (AI model)",
+     "NOAA GFS",
+     "DWD ICON",
+     "UK Met Office UM",
+     "JMA GSM"
+    ]
+   },
+   "days": [
+    {
+     "date": "2026-11-16",
+     "lead": 0,
+     "trainingLead": 1,
+     "tmax": {
+      "band": {
+       "rawMean": 27.97,
+       "rawMin": 26.4,
+       "rawMax": 28.8,
+       "mean": 28.5,
+       "p10": 27.07,
+       "p50": 28.5,
+       "p90": 29.93,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 28.8,
+       "ECMWF AIFS (AI model)": 28.6,
+       "NOAA GFS": 28,
+       "DWD ICON": 26.4,
+       "UK Met Office UM": 28.6,
+       "JMA GSM": 27.4
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 24.8,
+       "rawMin": 24,
+       "rawMax": 25.2,
+       "mean": 24.77,
+       "p10": 23.72,
+       "p50": 24.77,
+       "p90": 25.82,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 25,
+       "ECMWF AIFS (AI model)": 25.1,
+       "NOAA GFS": 24,
+       "DWD ICON": 24.4,
+       "UK Met Office UM": 25.1,
+       "JMA GSM": 25.2
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 13.3,
+       "rawMin": 4.2,
+       "rawMax": 25.2,
+       "mean": 12.81,
+       "p10": 4.2,
+       "p50": 10.1,
+       "p90": 25.2,
+       "calibrated": true,
+       "members": 6,
+       "prob": 1
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 9.2,
+       "ECMWF AIFS (AI model)": 16.1,
+       "NOAA GFS": 4.2,
+       "DWD ICON": 25.2,
+       "UK Met Office UM": 10.1,
+       "JMA GSM": 15
+      }
+     }
+    },
+    {
+     "date": "2026-11-17",
+     "lead": 1,
+     "trainingLead": 1,
+     "tmax": {
+      "band": {
+       "rawMean": 29.35,
+       "rawMin": 26.5,
+       "rawMax": 35,
+       "mean": 29.33,
+       "p10": 28.27,
+       "p50": 29.33,
+       "p90": 30.39,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 28.5,
+       "ECMWF AIFS (AI model)": 28.8,
+       "NOAA GFS": 35,
+       "DWD ICON": 29.7,
+       "UK Met Office UM": 26.5,
+       "JMA GSM": 27.6
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 25.23,
+       "rawMin": 24.4,
+       "rawMax": 26.7,
+       "mean": 24.94,
+       "p10": 24.19,
+       "p50": 24.94,
+       "p90": 25.7,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 24.4,
+       "ECMWF AIFS (AI model)": 25,
+       "NOAA GFS": 26.7,
+       "DWD ICON": 25.7,
+       "UK Met Office UM": 24.4,
+       "JMA GSM": 25.2
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 18.57,
+       "rawMin": 6.1,
+       "rawMax": 36.2,
+       "mean": 20.4,
+       "p10": 6.1,
+       "p50": 19.6,
+       "p90": 36.2,
+       "calibrated": true,
+       "members": 6,
+       "prob": 1
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 26.1,
+       "ECMWF AIFS (AI model)": 19.6,
+       "NOAA GFS": 6.1,
+       "DWD ICON": 8.2,
+       "UK Met Office UM": 36.2,
+       "JMA GSM": 15.2
+      }
+     }
+    },
+    {
+     "date": "2026-11-18",
+     "lead": 2,
+     "trainingLead": 2,
+     "tmax": {
+      "band": {
+       "rawMean": 29.13,
+       "rawMin": 27.4,
+       "rawMax": 33.3,
+       "mean": 29.23,
+       "p10": 28.41,
+       "p50": 29.23,
+       "p90": 30.05,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 28.5,
+       "ECMWF AIFS (AI model)": 27.4,
+       "NOAA GFS": 33.3,
+       "DWD ICON": 30.1,
+       "UK Met Office UM": 28,
+       "JMA GSM": 27.5
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 25.25,
+       "rawMin": 24.3,
+       "rawMax": 26.1,
+       "mean": 25.11,
+       "p10": 24.2,
+       "p50": 25.11,
+       "p90": 26.02,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 24.3,
+       "ECMWF AIFS (AI model)": 25,
+       "NOAA GFS": 26.1,
+       "DWD ICON": 26,
+       "UK Met Office UM": 25,
+       "JMA GSM": 25.1
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 13.35,
+       "rawMin": 4.7,
+       "rawMax": 22.4,
+       "mean": 13.8,
+       "p10": 4.7,
+       "p50": 14.6,
+       "p90": 22.4,
+       "calibrated": true,
+       "members": 6,
+       "prob": 1
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 22.4,
+       "ECMWF AIFS (AI model)": 14.6,
+       "NOAA GFS": 4.7,
+       "DWD ICON": 9.4,
+       "UK Met Office UM": 9.3,
+       "JMA GSM": 19.7
+      }
+     }
+    },
+    {
+     "date": "2026-11-19",
+     "lead": 3,
+     "trainingLead": 3,
+     "tmax": {
+      "band": {
+       "rawMean": 28.25,
+       "rawMin": 25.6,
+       "rawMax": 30.3,
+       "mean": 29.41,
+       "p10": 27.04,
+       "p50": 29.41,
+       "p90": 31.79,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.08
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 30,
+       "ECMWF AIFS (AI model)": 30.3,
+       "NOAA GFS": 28,
+       "DWD ICON": 28.1,
+       "UK Met Office UM": 25.6,
+       "JMA GSM": 27.5
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 24.98,
+       "rawMin": 23.8,
+       "rawMax": 25.7,
+       "mean": 25.27,
+       "p10": 24.06,
+       "p50": 25.27,
+       "p90": 26.48,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 25.1,
+       "ECMWF AIFS (AI model)": 25.7,
+       "NOAA GFS": 23.8,
+       "DWD ICON": 25.6,
+       "UK Met Office UM": 24.4,
+       "JMA GSM": 25.3
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 16.05,
+       "rawMin": 7.6,
+       "rawMax": 27.3,
+       "mean": 15.06,
+       "p10": 7.6,
+       "p50": 13.7,
+       "p90": 27.3,
+       "calibrated": true,
+       "members": 6,
+       "prob": 1
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 18.5,
+       "ECMWF AIFS (AI model)": 7.6,
+       "NOAA GFS": 8.3,
+       "DWD ICON": 13.7,
+       "UK Met Office UM": 27.3,
+       "JMA GSM": 20.9
+      }
+     }
+    },
+    {
+     "date": "2026-11-20",
+     "lead": 4,
+     "trainingLead": 4,
+     "tmax": {
+      "band": {
+       "rawMean": 30.85,
+       "rawMin": 28.1,
+       "rawMax": 34.1,
+       "mean": 31.27,
+       "p10": 29.77,
+       "p50": 31.27,
+       "p90": 32.77,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.27
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 29.4,
+       "ECMWF AIFS (AI model)": 31.9,
+       "NOAA GFS": 34.1,
+       "DWD ICON": 30.9,
+       "UK Met Office UM": 30.7,
+       "JMA GSM": 28.1
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 25.88,
+       "rawMin": 25.1,
+       "rawMax": 27,
+       "mean": 26.2,
+       "p10": 24.74,
+       "p50": 26.2,
+       "p90": 27.66,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 25.1,
+       "ECMWF AIFS (AI model)": 27,
+       "NOAA GFS": 25.3,
+       "DWD ICON": 26.5,
+       "UK Met Office UM": 25.7,
+       "JMA GSM": 25.7
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 4.6,
+       "rawMin": 1,
+       "rawMax": 11.5,
+       "mean": 4.44,
+       "p10": 1,
+       "p50": 3.8,
+       "p90": 11.5,
+       "calibrated": true,
+       "members": 6,
+       "prob": 1
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 5.6,
+       "ECMWF AIFS (AI model)": 3.8,
+       "NOAA GFS": 1,
+       "DWD ICON": 3.6,
+       "UK Met Office UM": 2.1,
+       "JMA GSM": 11.5
+      }
+     }
+    },
+    {
+     "date": "2026-11-21",
+     "lead": 5,
+     "trainingLead": 5,
+     "tmax": {
+      "band": {
+       "rawMean": 31.63,
+       "rawMin": 28.2,
+       "rawMax": 35.4,
+       "mean": 31.87,
+       "p10": 30.25,
+       "p50": 31.87,
+       "p90": 33.48,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.46
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 30.6,
+       "ECMWF AIFS (AI model)": 29.8,
+       "NOAA GFS": 35.4,
+       "DWD ICON": 33.1,
+       "UK Met Office UM": 32.7,
+       "JMA GSM": 28.2
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 26.38,
+       "rawMin": 25.3,
+       "rawMax": 27.3,
+       "mean": 26.55,
+       "p10": 25.23,
+       "p50": 26.55,
+       "p90": 27.86,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 25.3,
+       "ECMWF AIFS (AI model)": 26.6,
+       "NOAA GFS": 26.3,
+       "DWD ICON": 27.3,
+       "UK Met Office UM": 27,
+       "JMA GSM": 25.8
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 5.78,
+       "rawMin": 0.6,
+       "rawMax": 12,
+       "mean": 5.78,
+       "p10": 0.6,
+       "p50": 7.4,
+       "p90": 12,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.63
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 7.4,
+       "ECMWF AIFS (AI model)": 9.4,
+       "NOAA GFS": 4.4,
+       "DWD ICON": 0.9,
+       "UK Met Office UM": 0.6,
+       "JMA GSM": 12
+      }
+     }
+    },
+    {
+     "date": "2026-11-22",
+     "lead": 6,
+     "trainingLead": 6,
+     "tmax": {
+      "band": {
+       "rawMean": 32.45,
+       "rawMin": 29.7,
+       "rawMax": 36.4,
+       "mean": 32.72,
+       "p10": 31.4,
+       "p50": 32.72,
+       "p90": 34.03,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.76
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 31.2,
+       "ECMWF AIFS (AI model)": 31.3,
+       "NOAA GFS": 36.4,
+       "DWD ICON": 32.7,
+       "UK Met Office UM": 33.4,
+       "JMA GSM": 29.7
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 26.78,
+       "rawMin": 25.7,
+       "rawMax": 28.1,
+       "mean": 26.78,
+       "p10": 25.48,
+       "p50": 26.78,
+       "p90": 28.07,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 26,
+       "ECMWF AIFS (AI model)": 26.3,
+       "NOAA GFS": 27,
+       "DWD ICON": 27.6,
+       "UK Met Office UM": 28.1,
+       "JMA GSM": 25.7
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 3.62,
+       "rawMin": 0,
+       "rawMax": 10.1,
+       "mean": 3.79,
+       "p10": 0,
+       "p50": 3.5,
+       "p90": 10.1,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.85
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 2,
+       "ECMWF AIFS (AI model)": 10.1,
+       "NOAA GFS": 1,
+       "DWD ICON": 5.1,
+       "UK Met Office UM": 0,
+       "JMA GSM": 3.5
+      }
+     }
+    }
+   ]
+  },
+  {
+   "key": "illinois",
+   "name": "Illinois · United States",
+   "lat": 40.11,
+   "lng": -88.24,
+   "commodities": [
+    "soy-oil:illinois"
+   ],
+   "generatedAtUtc": "2026-11-16T09:42:20.993Z",
+   "inputSha256": "48c11bc57e85c3106f840abeb16d7639a300028b6fdad73b666f33248d3ec925",
+   "outlook": {
+    "version": "astraeus-v2",
+    "trainingDates": {
+     "start": "2026-08-12",
+     "end": "2026-11-09"
+    },
+    "models": [
+     "ECMWF IFS 0.25°",
+     "ECMWF AIFS (AI model)",
+     "NOAA GFS",
+     "DWD ICON",
+     "UK Met Office UM",
+     "JMA GSM"
+    ]
+   },
+   "days": [
+    {
+     "date": "2026-11-16",
+     "lead": 0,
+     "trainingLead": 1,
+     "tmax": {
+      "band": {
+       "rawMean": 11.6,
+       "rawMin": 11,
+       "rawMax": 12,
+       "mean": 11.63,
+       "p10": 11.01,
+       "p50": 11.63,
+       "p90": 12.25,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 11.7,
+       "ECMWF AIFS (AI model)": 11.6,
+       "NOAA GFS": 11.4,
+       "DWD ICON": 12,
+       "UK Met Office UM": 11,
+       "JMA GSM": 11.9
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 4.17,
+       "rawMin": 3.3,
+       "rawMax": 5.6,
+       "mean": 4.3,
+       "p10": 3.73,
+       "p50": 4.3,
+       "p90": 4.86,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 4.9,
+       "ECMWF AIFS (AI model)": 3.8,
+       "NOAA GFS": 3.3,
+       "DWD ICON": 3.6,
+       "UK Met Office UM": 3.8,
+       "JMA GSM": 5.6
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0,
+       "rawMin": 0,
+       "rawMax": 0,
+       "mean": 0,
+       "p10": 0,
+       "p50": 0,
+       "p90": 0,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0,
+       "ECMWF AIFS (AI model)": 0,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-17",
+     "lead": 1,
+     "trainingLead": 1,
+     "tmax": {
+      "band": {
+       "rawMean": 13.28,
+       "rawMin": 11.8,
+       "rawMax": 13.9,
+       "mean": 13.36,
+       "p10": 12.72,
+       "p50": 13.36,
+       "p90": 14,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 13.5,
+       "ECMWF AIFS (AI model)": 13.4,
+       "NOAA GFS": 13.3,
+       "DWD ICON": 13.8,
+       "UK Met Office UM": 11.8,
+       "JMA GSM": 13.9
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 5.53,
+       "rawMin": 4.7,
+       "rawMax": 7.6,
+       "mean": 5.54,
+       "p10": 4.95,
+       "p50": 5.54,
+       "p90": 6.14,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 5.7,
+       "ECMWF AIFS (AI model)": 4.7,
+       "NOAA GFS": 4.9,
+       "DWD ICON": 4.9,
+       "UK Met Office UM": 5.4,
+       "JMA GSM": 7.6
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0,
+       "rawMin": 0,
+       "rawMax": 0,
+       "mean": 0,
+       "p10": 0,
+       "p50": 0,
+       "p90": 0,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0,
+       "ECMWF AIFS (AI model)": 0,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-18",
+     "lead": 2,
+     "trainingLead": 2,
+     "tmax": {
+      "band": {
+       "rawMean": 15.78,
+       "rawMin": 13.9,
+       "rawMax": 16.7,
+       "mean": 15.91,
+       "p10": 15.08,
+       "p50": 15.91,
+       "p90": 16.74,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 15.6,
+       "ECMWF AIFS (AI model)": 16.7,
+       "NOAA GFS": 16.2,
+       "DWD ICON": 15.7,
+       "UK Met Office UM": 13.9,
+       "JMA GSM": 16.6
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 7.98,
+       "rawMin": 6.9,
+       "rawMax": 9.9,
+       "mean": 7.68,
+       "p10": 6.95,
+       "p50": 7.68,
+       "p90": 8.41,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 7.7,
+       "ECMWF AIFS (AI model)": 7.3,
+       "NOAA GFS": 8.6,
+       "DWD ICON": 6.9,
+       "UK Met Office UM": 7.5,
+       "JMA GSM": 9.9
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0,
+       "rawMin": 0,
+       "rawMax": 0,
+       "mean": 0,
+       "p10": 0,
+       "p50": 0,
+       "p90": 0,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0,
+       "ECMWF AIFS (AI model)": 0,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-19",
+     "lead": 3,
+     "trainingLead": 3,
+     "tmax": {
+      "band": {
+       "rawMean": 18.48,
+       "rawMin": 17.1,
+       "rawMax": 19.5,
+       "mean": 18.84,
+       "p10": 17.6,
+       "p50": 18.84,
+       "p90": 20.08,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 18.3,
+       "ECMWF AIFS (AI model)": 19.5,
+       "NOAA GFS": 18.8,
+       "DWD ICON": 18.8,
+       "UK Met Office UM": 17.1,
+       "JMA GSM": 18.4
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 11,
+       "rawMin": 9.9,
+       "rawMax": 13.3,
+       "mean": 10.8,
+       "p10": 9.99,
+       "p50": 10.8,
+       "p90": 11.62,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 10.2,
+       "ECMWF AIFS (AI model)": 10.5,
+       "NOAA GFS": 11.7,
+       "DWD ICON": 10.4,
+       "UK Met Office UM": 9.9,
+       "JMA GSM": 13.3
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0,
+       "rawMin": 0,
+       "rawMax": 0,
+       "mean": 0,
+       "p10": 0,
+       "p50": 0,
+       "p90": 0,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0,
+       "ECMWF AIFS (AI model)": 0,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-20",
+     "lead": 4,
+     "trainingLead": 4,
+     "tmax": {
+      "band": {
+       "rawMean": 19.37,
+       "rawMin": 17.2,
+       "rawMax": 20.5,
+       "mean": 19.79,
+       "p10": 18.39,
+       "p50": 19.79,
+       "p90": 21.2,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 19.6,
+       "ECMWF AIFS (AI model)": 20.5,
+       "NOAA GFS": 18.8,
+       "DWD ICON": 19.8,
+       "UK Met Office UM": 17.2,
+       "JMA GSM": 20.3
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 12.35,
+       "rawMin": 10.8,
+       "rawMax": 14.5,
+       "mean": 12.32,
+       "p10": 11.14,
+       "p50": 12.32,
+       "p90": 13.49,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 11.7,
+       "ECMWF AIFS (AI model)": 12.6,
+       "NOAA GFS": 12.6,
+       "DWD ICON": 11.9,
+       "UK Met Office UM": 10.8,
+       "JMA GSM": 14.5
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0,
+       "rawMin": 0,
+       "rawMax": 0,
+       "mean": 0,
+       "p10": 0,
+       "p50": 0,
+       "p90": 0,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0,
+       "ECMWF AIFS (AI model)": 0,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-21",
+     "lead": 5,
+     "trainingLead": 5,
+     "tmax": {
+      "band": {
+       "rawMean": 18.7,
+       "rawMin": 15.4,
+       "rawMax": 20,
+       "mean": 19.14,
+       "p10": 17.13,
+       "p50": 19.14,
+       "p90": 21.14,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 18.2,
+       "ECMWF AIFS (AI model)": 19.6,
+       "NOAA GFS": 19.5,
+       "DWD ICON": 20,
+       "UK Met Office UM": 15.4,
+       "JMA GSM": 19.5
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 12.65,
+       "rawMin": 10.6,
+       "rawMax": 15.3,
+       "mean": 12.53,
+       "p10": 11.4,
+       "p50": 12.53,
+       "p90": 13.66,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 12.6,
+       "ECMWF AIFS (AI model)": 12.8,
+       "NOAA GFS": 12.6,
+       "DWD ICON": 12,
+       "UK Met Office UM": 10.6,
+       "JMA GSM": 15.3
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0.27,
+       "rawMin": 0,
+       "rawMax": 0.8,
+       "mean": 0.2,
+       "p10": 0,
+       "p50": 0,
+       "p90": 0.6,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0,
+       "ECMWF AIFS (AI model)": 0,
+       "NOAA GFS": 0.2,
+       "DWD ICON": 0.8,
+       "UK Met Office UM": 0.6,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-22",
+     "lead": 6,
+     "trainingLead": 6,
+     "tmax": {
+      "band": {
+       "rawMean": 16.13,
+       "rawMin": 14.2,
+       "rawMax": 17.5,
+       "mean": 17.05,
+       "p10": 14.23,
+       "p50": 17.05,
+       "p90": 19.87,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 16.2,
+       "ECMWF AIFS (AI model)": 17.5,
+       "NOAA GFS": 16.7,
+       "DWD ICON": 16.5,
+       "UK Met Office UM": 14.2,
+       "JMA GSM": 15.7
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 10.82,
+       "rawMin": 9.2,
+       "rawMax": 12.4,
+       "mean": 10.66,
+       "p10": 8.71,
+       "p50": 10.66,
+       "p90": 12.61,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 11.7,
+       "ECMWF AIFS (AI model)": 12.1,
+       "NOAA GFS": 9.2,
+       "DWD ICON": 9.5,
+       "UK Met Office UM": 10,
+       "JMA GSM": 12.4
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 4.42,
+       "rawMin": 2.5,
+       "rawMax": 10.4,
+       "mean": 4.79,
+       "p10": 2.5,
+       "p50": 3.5,
+       "p90": 10.4,
+       "calibrated": true,
+       "members": 6,
+       "prob": 1
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 10.4,
+       "ECMWF AIFS (AI model)": 2.8,
+       "NOAA GFS": 2.5,
+       "DWD ICON": 2.8,
+       "UK Met Office UM": 4.5,
+       "JMA GSM": 3.5
+      }
+     }
+    }
+   ]
+  },
+  {
+   "key": "arkansas",
+   "name": "Arkansas · United States",
+   "lat": 34.5,
+   "lng": -91.55,
+   "commodities": [
+    "rice:arkansas"
+   ],
+   "generatedAtUtc": "2026-11-16T09:42:23.202Z",
+   "inputSha256": "3956ad24aac5255abeb7376f53a479506f328938aa1982b21fab538ba11206bb",
+   "outlook": {
+    "version": "astraeus-v2",
+    "trainingDates": {
+     "start": "2026-08-12",
+     "end": "2026-11-09"
+    },
+    "models": [
+     "ECMWF IFS 0.25°",
+     "ECMWF AIFS (AI model)",
+     "NOAA GFS",
+     "DWD ICON",
+     "UK Met Office UM",
+     "JMA GSM"
+    ]
+   },
+   "days": [
+    {
+     "date": "2026-11-16",
+     "lead": 0,
+     "trainingLead": 1,
+     "tmax": {
+      "band": {
+       "rawMean": 15.27,
+       "rawMin": 14.8,
+       "rawMax": 15.8,
+       "mean": 15.8,
+       "p10": 15.23,
+       "p50": 15.8,
+       "p90": 16.37,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 15.3,
+       "ECMWF AIFS (AI model)": 14.8,
+       "NOAA GFS": 15.8,
+       "DWD ICON": 15.4,
+       "UK Met Office UM": 15.2,
+       "JMA GSM": 15.1
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 9.2,
+       "rawMin": 8.5,
+       "rawMax": 10.7,
+       "mean": 9.28,
+       "p10": 8.53,
+       "p50": 9.28,
+       "p90": 10.04,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 9,
+       "ECMWF AIFS (AI model)": 9.2,
+       "NOAA GFS": 8.5,
+       "DWD ICON": 8.8,
+       "UK Met Office UM": 9,
+       "JMA GSM": 10.7
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0,
+       "rawMin": 0,
+       "rawMax": 0,
+       "mean": 0,
+       "p10": 0,
+       "p50": 0,
+       "p90": 0,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0,
+       "ECMWF AIFS (AI model)": 0,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-17",
+     "lead": 1,
+     "trainingLead": 1,
+     "tmax": {
+      "band": {
+       "rawMean": 17.18,
+       "rawMin": 16.8,
+       "rawMax": 18,
+       "mean": 17.71,
+       "p10": 17.14,
+       "p50": 17.71,
+       "p90": 18.28,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 17.1,
+       "ECMWF AIFS (AI model)": 16.9,
+       "NOAA GFS": 18,
+       "DWD ICON": 17.3,
+       "UK Met Office UM": 16.8,
+       "JMA GSM": 17
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 9.3,
+       "rawMin": 8.5,
+       "rawMax": 11.3,
+       "mean": 9.35,
+       "p10": 8.61,
+       "p50": 9.35,
+       "p90": 10.09,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 9.3,
+       "ECMWF AIFS (AI model)": 9,
+       "NOAA GFS": 8.5,
+       "DWD ICON": 8.8,
+       "UK Met Office UM": 8.9,
+       "JMA GSM": 11.3
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0,
+       "rawMin": 0,
+       "rawMax": 0,
+       "mean": 0,
+       "p10": 0,
+       "p50": 0,
+       "p90": 0,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0,
+       "ECMWF AIFS (AI model)": 0,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-18",
+     "lead": 2,
+     "trainingLead": 2,
+     "tmax": {
+      "band": {
+       "rawMean": 20.05,
+       "rawMin": 19.3,
+       "rawMax": 20.6,
+       "mean": 20.67,
+       "p10": 19.74,
+       "p50": 20.67,
+       "p90": 21.6,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 20.1,
+       "ECMWF AIFS (AI model)": 20.1,
+       "NOAA GFS": 20.6,
+       "DWD ICON": 20.3,
+       "UK Met Office UM": 19.9,
+       "JMA GSM": 19.3
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 12.1,
+       "rawMin": 11,
+       "rawMax": 13.7,
+       "mean": 12.12,
+       "p10": 11.34,
+       "p50": 12.12,
+       "p90": 12.9,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 11.3,
+       "ECMWF AIFS (AI model)": 12,
+       "NOAA GFS": 12.5,
+       "DWD ICON": 12.1,
+       "UK Met Office UM": 11,
+       "JMA GSM": 13.7
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0,
+       "rawMin": 0,
+       "rawMax": 0,
+       "mean": 0,
+       "p10": 0,
+       "p50": 0,
+       "p90": 0,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0,
+       "ECMWF AIFS (AI model)": 0,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-19",
+     "lead": 3,
+     "trainingLead": 3,
+     "tmax": {
+      "band": {
+       "rawMean": 21.17,
+       "rawMin": 20.3,
+       "rawMax": 22.1,
+       "mean": 21.76,
+       "p10": 20.83,
+       "p50": 21.76,
+       "p90": 22.7,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 21.1,
+       "ECMWF AIFS (AI model)": 20.9,
+       "NOAA GFS": 22.1,
+       "DWD ICON": 21.5,
+       "UK Met Office UM": 20.3,
+       "JMA GSM": 21.1
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 15.27,
+       "rawMin": 13.7,
+       "rawMax": 16.5,
+       "mean": 15.5,
+       "p10": 14.21,
+       "p50": 15.5,
+       "p90": 16.8,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 14.2,
+       "ECMWF AIFS (AI model)": 15.8,
+       "NOAA GFS": 15.5,
+       "DWD ICON": 15.9,
+       "UK Met Office UM": 13.7,
+       "JMA GSM": 16.5
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0,
+       "rawMin": 0,
+       "rawMax": 0,
+       "mean": 0,
+       "p10": 0,
+       "p50": 0,
+       "p90": 0,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0,
+       "ECMWF AIFS (AI model)": 0,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-20",
+     "lead": 4,
+     "trainingLead": 4,
+     "tmax": {
+      "band": {
+       "rawMean": 22.43,
+       "rawMin": 21.1,
+       "rawMax": 23.5,
+       "mean": 23.01,
+       "p10": 21.53,
+       "p50": 23.01,
+       "p90": 24.49,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 22.9,
+       "ECMWF AIFS (AI model)": 22,
+       "NOAA GFS": 22.4,
+       "DWD ICON": 23.5,
+       "UK Met Office UM": 21.1,
+       "JMA GSM": 22.7
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 16.47,
+       "rawMin": 14.7,
+       "rawMax": 17.5,
+       "mean": 16.69,
+       "p10": 15.52,
+       "p50": 16.69,
+       "p90": 17.85,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 16,
+       "ECMWF AIFS (AI model)": 17,
+       "NOAA GFS": 16.2,
+       "DWD ICON": 17.4,
+       "UK Met Office UM": 14.7,
+       "JMA GSM": 17.5
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0,
+       "rawMin": 0,
+       "rawMax": 0,
+       "mean": 0,
+       "p10": 0,
+       "p50": 0,
+       "p90": 0,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0,
+       "ECMWF AIFS (AI model)": 0,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-21",
+     "lead": 5,
+     "trainingLead": 5,
+     "tmax": {
+      "band": {
+       "rawMean": 21.9,
+       "rawMin": 19,
+       "rawMax": 23.8,
+       "mean": 22.39,
+       "p10": 20.51,
+       "p50": 22.39,
+       "p90": 24.27,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 23.5,
+       "ECMWF AIFS (AI model)": 20.1,
+       "NOAA GFS": 22.8,
+       "DWD ICON": 23.8,
+       "UK Met Office UM": 19,
+       "JMA GSM": 22.2
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 18.03,
+       "rawMin": 16.8,
+       "rawMax": 19.5,
+       "mean": 18.11,
+       "p10": 17.03,
+       "p50": 18.11,
+       "p90": 19.19,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 19.5,
+       "ECMWF AIFS (AI model)": 18.3,
+       "NOAA GFS": 17.7,
+       "DWD ICON": 17.6,
+       "UK Met Office UM": 16.8,
+       "JMA GSM": 18.3
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0.23,
+       "rawMin": 0,
+       "rawMax": 0.8,
+       "mean": 0.29,
+       "p10": 0,
+       "p50": 0,
+       "p90": 0.8,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0,
+       "ECMWF AIFS (AI model)": 0.8,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0.6,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-22",
+     "lead": 6,
+     "trainingLead": 6,
+     "tmax": {
+      "band": {
+       "rawMean": 20.13,
+       "rawMin": 17.2,
+       "rawMax": 22.1,
+       "mean": 20.81,
+       "p10": 18.28,
+       "p50": 20.81,
+       "p90": 23.33,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 20.7,
+       "ECMWF AIFS (AI model)": 20.4,
+       "NOAA GFS": 18.8,
+       "DWD ICON": 22.1,
+       "UK Met Office UM": 17.2,
+       "JMA GSM": 21.6
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 17.53,
+       "rawMin": 15.9,
+       "rawMax": 19.5,
+       "mean": 17.17,
+       "p10": 15.74,
+       "p50": 17.17,
+       "p90": 18.6,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 18.1,
+       "ECMWF AIFS (AI model)": 17.7,
+       "NOAA GFS": 15.9,
+       "DWD ICON": 17.9,
+       "UK Met Office UM": 16.1,
+       "JMA GSM": 19.5
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0.25,
+       "rawMin": 0,
+       "rawMax": 0.9,
+       "mean": 0.28,
+       "p10": 0,
+       "p50": 0,
+       "p90": 0.9,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0.6,
+       "ECMWF AIFS (AI model)": 0.9,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    }
+   ]
+  },
+  {
+   "key": "saskatchewan",
+   "name": "Saskatchewan · Canada",
+   "lat": 52.13,
+   "lng": -106.67,
+   "commodities": [
+    "oats:saskatchewan"
+   ],
+   "generatedAtUtc": "2026-11-16T09:42:26.148Z",
+   "inputSha256": "868ecaec6fb93561e7eee6b4e2070b3bc04b35e9f8bce5d5a71eaa98eb255faf",
+   "outlook": {
+    "version": "astraeus-v2",
+    "trainingDates": {
+     "start": "2026-08-12",
+     "end": "2026-11-09"
+    },
+    "models": [
+     "ECMWF IFS 0.25°",
+     "ECMWF AIFS (AI model)",
+     "NOAA GFS",
+     "DWD ICON",
+     "UK Met Office UM",
+     "JMA GSM"
+    ]
+   },
+   "days": [
+    {
+     "date": "2026-11-16",
+     "lead": 0,
+     "trainingLead": 1,
+     "tmax": {
+      "band": {
+       "rawMean": 8.03,
+       "rawMin": 6.1,
+       "rawMax": 9.2,
+       "mean": 7.99,
+       "p10": 6.31,
+       "p50": 7.99,
+       "p90": 9.67,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 8.3,
+       "ECMWF AIFS (AI model)": 6.1,
+       "NOAA GFS": 7.2,
+       "DWD ICON": 8.7,
+       "UK Met Office UM": 9.2,
+       "JMA GSM": 8.7
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 4.1,
+       "rawMin": 2.8,
+       "rawMax": 6.8,
+       "mean": 3.66,
+       "p10": 2.87,
+       "p50": 3.66,
+       "p90": 4.45,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 3.6,
+       "ECMWF AIFS (AI model)": 2.9,
+       "NOAA GFS": 2.8,
+       "DWD ICON": 3.2,
+       "UK Met Office UM": 5.3,
+       "JMA GSM": 6.8
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0,
+       "rawMin": 0,
+       "rawMax": 0,
+       "mean": 0,
+       "p10": 0,
+       "p50": 0,
+       "p90": 0,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0,
+       "ECMWF AIFS (AI model)": 0,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-17",
+     "lead": 1,
+     "trainingLead": 1,
+     "tmax": {
+      "band": {
+       "rawMean": 5.4,
+       "rawMin": 3.5,
+       "rawMax": 7.9,
+       "mean": 5.16,
+       "p10": 3.12,
+       "p50": 5.16,
+       "p90": 7.2,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 4.5,
+       "ECMWF AIFS (AI model)": 3.5,
+       "NOAA GFS": 4.6,
+       "DWD ICON": 4.7,
+       "UK Met Office UM": 7.2,
+       "JMA GSM": 7.9
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 1.65,
+       "rawMin": 0.1,
+       "rawMax": 3.4,
+       "mean": 1.21,
+       "p10": 0.42,
+       "p50": 1.21,
+       "p90": 2.01,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 1.1,
+       "ECMWF AIFS (AI model)": 0.1,
+       "NOAA GFS": 2.5,
+       "DWD ICON": 1.1,
+       "UK Met Office UM": 1.7,
+       "JMA GSM": 3.4
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0.12,
+       "rawMin": 0,
+       "rawMax": 0.7,
+       "mean": 0.05,
+       "p10": 0,
+       "p50": 0,
+       "p90": 0,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0,
+       "ECMWF AIFS (AI model)": 0,
+       "NOAA GFS": 0.7,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-18",
+     "lead": 2,
+     "trainingLead": 2,
+     "tmax": {
+      "band": {
+       "rawMean": 3.32,
+       "rawMin": 2.1,
+       "rawMax": 5.5,
+       "mean": 2.8,
+       "p10": 1.45,
+       "p50": 2.8,
+       "p90": 4.15,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 2.5,
+       "ECMWF AIFS (AI model)": 2.1,
+       "NOAA GFS": 3.7,
+       "DWD ICON": 2.3,
+       "UK Met Office UM": 3.8,
+       "JMA GSM": 5.5
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 2.12,
+       "rawMin": 1.2,
+       "rawMax": 3.6,
+       "mean": 1.55,
+       "p10": 0.77,
+       "p50": 1.55,
+       "p90": 2.32,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 1.8,
+       "ECMWF AIFS (AI model)": 1.2,
+       "NOAA GFS": 2.4,
+       "DWD ICON": 1.3,
+       "UK Met Office UM": 2.4,
+       "JMA GSM": 3.6
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 1.96,
+       "rawMin": 0.3,
+       "rawMax": 4.93,
+       "mean": 1.87,
+       "p10": 0.3,
+       "p50": 0.6,
+       "p90": 4.93,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.31
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0.6,
+       "ECMWF AIFS (AI model)": 0.5,
+       "NOAA GFS": 4.93,
+       "DWD ICON": 0.5,
+       "UK Met Office UM": 4.9,
+       "JMA GSM": 0.3
+      }
+     }
+    },
+    {
+     "date": "2026-11-19",
+     "lead": 3,
+     "trainingLead": 3,
+     "tmax": {
+      "band": {
+       "rawMean": 1.75,
+       "rawMin": 1.1,
+       "rawMax": 2.8,
+       "mean": 1.27,
+       "p10": -0.34,
+       "p50": 1.27,
+       "p90": 2.87,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 2.2,
+       "ECMWF AIFS (AI model)": 1.1,
+       "NOAA GFS": 1.3,
+       "DWD ICON": 1.2,
+       "UK Met Office UM": 2.8,
+       "JMA GSM": 1.9
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 0.18,
+       "rawMin": -1.5,
+       "rawMax": 1.9,
+       "mean": -0.37,
+       "p10": -1.41,
+       "p50": -0.37,
+       "p90": 0.68,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0.1,
+       "ECMWF AIFS (AI model)": -1.5,
+       "NOAA GFS": 0.6,
+       "DWD ICON": -0.6,
+       "UK Met Office UM": 1.9,
+       "JMA GSM": 0.6
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 2.28,
+       "rawMin": 0,
+       "rawMax": 6.7,
+       "mean": 1.8,
+       "p10": 0,
+       "p50": 0.8,
+       "p90": 6.7,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.48
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0,
+       "ECMWF AIFS (AI model)": 0.8,
+       "NOAA GFS": 6.7,
+       "DWD ICON": 1.4,
+       "UK Met Office UM": 2,
+       "JMA GSM": 2.8
+      }
+     }
+    },
+    {
+     "date": "2026-11-20",
+     "lead": 4,
+     "trainingLead": 4,
+     "tmax": {
+      "band": {
+       "rawMean": 0.68,
+       "rawMin": -0.6,
+       "rawMax": 1.8,
+       "mean": 0.29,
+       "p10": -1.06,
+       "p50": 0.29,
+       "p90": 1.64,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0.8,
+       "ECMWF AIFS (AI model)": 0.2,
+       "NOAA GFS": 1.2,
+       "DWD ICON": -0.6,
+       "UK Met Office UM": 1.8,
+       "JMA GSM": 0.7
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": -0.62,
+       "rawMin": -2.1,
+       "rawMax": 1,
+       "mean": -1.33,
+       "p10": -2.62,
+       "p50": -1.33,
+       "p90": -0.04,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": -0.5,
+       "ECMWF AIFS (AI model)": -2,
+       "NOAA GFS": 0.3,
+       "DWD ICON": -2.1,
+       "UK Met Office UM": 1,
+       "JMA GSM": -0.4
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0.63,
+       "rawMin": 0,
+       "rawMax": 2.1,
+       "mean": 0.82,
+       "p10": 0,
+       "p50": 0,
+       "p90": 2.1,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.42
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 1.7,
+       "ECMWF AIFS (AI model)": 2.1,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-21",
+     "lead": 5,
+     "trainingLead": 5,
+     "tmax": {
+      "band": {
+       "rawMean": -0.03,
+       "rawMin": -0.8,
+       "rawMax": 0.6,
+       "mean": -0.37,
+       "p10": -2.16,
+       "p50": -0.37,
+       "p90": 1.43,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0.1,
+       "ECMWF AIFS (AI model)": 0.1,
+       "NOAA GFS": 0.5,
+       "DWD ICON": -0.7,
+       "UK Met Office UM": 0.6,
+       "JMA GSM": -0.8
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": -1.35,
+       "rawMin": -3.8,
+       "rawMax": -0.3,
+       "mean": -1.84,
+       "p10": -4.24,
+       "p50": -1.84,
+       "p90": 0.56,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": -0.7,
+       "ECMWF AIFS (AI model)": -0.3,
+       "NOAA GFS": -3.8,
+       "DWD ICON": -2,
+       "UK Met Office UM": -0.3,
+       "JMA GSM": -1
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 1.3,
+       "rawMin": 0,
+       "rawMax": 4.5,
+       "mean": 1.38,
+       "p10": 0,
+       "p50": 1.2,
+       "p90": 4.5,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.62
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 4.5,
+       "ECMWF AIFS (AI model)": 1.6,
+       "NOAA GFS": 0,
+       "DWD ICON": 1.2,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0.5
+      }
+     }
+    },
+    {
+     "date": "2026-11-22",
+     "lead": 6,
+     "trainingLead": 6,
+     "tmax": {
+      "band": {
+       "rawMean": -1.77,
+       "rawMin": -3.9,
+       "rawMax": 0.5,
+       "mean": -1.51,
+       "p10": -3.74,
+       "p50": -1.51,
+       "p90": 0.72,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": -1.6,
+       "ECMWF AIFS (AI model)": -1.1,
+       "NOAA GFS": 0.5,
+       "DWD ICON": -3.9,
+       "UK Met Office UM": -2.1,
+       "JMA GSM": -2.4
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": -4.07,
+       "rawMin": -6.1,
+       "rawMax": -2.6,
+       "mean": -4.14,
+       "p10": -5.93,
+       "p50": -4.14,
+       "p90": -2.35,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": -3.7,
+       "ECMWF AIFS (AI model)": -2.6,
+       "NOAA GFS": -3,
+       "DWD ICON": -6.1,
+       "UK Met Office UM": -5.6,
+       "JMA GSM": -3.4
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0.47,
+       "rawMin": 0,
+       "rawMax": 1.2,
+       "mean": 0.45,
+       "p10": 0,
+       "p50": 0,
+       "p90": 1.2,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.34
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 1.2,
+       "ECMWF AIFS (AI model)": 1.1,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0.5
+      }
+     }
+    }
+   ]
+  },
+  {
+   "key": "minas",
+   "name": "Minas Gerais · Brazil",
+   "lat": -21.55,
+   "lng": -45.43,
+   "commodities": [
+    "coffee:minas"
+   ],
+   "generatedAtUtc": "2026-11-16T09:42:29.155Z",
+   "inputSha256": "3c1442dc2cc8601fad7640d9e8c91b6b5ea4055f94014274e1d352156eadb4e4",
+   "outlook": {
+    "version": "astraeus-v2",
+    "trainingDates": {
+     "start": "2026-08-12",
+     "end": "2026-11-09"
+    },
+    "models": [
+     "ECMWF IFS 0.25°",
+     "ECMWF AIFS (AI model)",
+     "NOAA GFS",
+     "DWD ICON",
+     "UK Met Office UM",
+     "JMA GSM"
+    ]
+   },
+   "days": [
+    {
+     "date": "2026-11-16",
+     "lead": 0,
+     "trainingLead": 1,
+     "tmax": {
+      "band": {
+       "rawMean": 24.45,
+       "rawMin": 23.2,
+       "rawMax": 25.6,
+       "mean": 24.96,
+       "p10": 23.87,
+       "p50": 24.96,
+       "p90": 26.06,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 25.1,
+       "ECMWF AIFS (AI model)": 23.2,
+       "NOAA GFS": 24.6,
+       "DWD ICON": 24.4,
+       "UK Met Office UM": 25.6,
+       "JMA GSM": 23.8
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 20.73,
+       "rawMin": 20,
+       "rawMax": 21.6,
+       "mean": 20.61,
+       "p10": 19.92,
+       "p50": 20.61,
+       "p90": 21.3,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 20,
+       "ECMWF AIFS (AI model)": 20.2,
+       "NOAA GFS": 20.8,
+       "DWD ICON": 21,
+       "UK Met Office UM": 20.8,
+       "JMA GSM": 21.6
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 17.7,
+       "rawMin": 10.6,
+       "rawMax": 23.7,
+       "mean": 18.49,
+       "p10": 10.6,
+       "p50": 19.6,
+       "p90": 23.7,
+       "calibrated": true,
+       "members": 6,
+       "prob": 1
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 23.7,
+       "ECMWF AIFS (AI model)": 19.6,
+       "NOAA GFS": 10.6,
+       "DWD ICON": 22.4,
+       "UK Met Office UM": 16.7,
+       "JMA GSM": 13.2
+      }
+     }
+    },
+    {
+     "date": "2026-11-17",
+     "lead": 1,
+     "trainingLead": 1,
+     "tmax": {
+      "band": {
+       "rawMean": 27.43,
+       "rawMin": 26,
+       "rawMax": 28.4,
+       "mean": 27.49,
+       "p10": 26.63,
+       "p50": 27.49,
+       "p90": 28.36,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 27.1,
+       "ECMWF AIFS (AI model)": 28.1,
+       "NOAA GFS": 28.4,
+       "DWD ICON": 28.2,
+       "UK Met Office UM": 26.8,
+       "JMA GSM": 26
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 21.47,
+       "rawMin": 20.7,
+       "rawMax": 22.1,
+       "mean": 21.41,
+       "p10": 20.81,
+       "p50": 21.41,
+       "p90": 22.02,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 21.2,
+       "ECMWF AIFS (AI model)": 21.3,
+       "NOAA GFS": 21.7,
+       "DWD ICON": 22.1,
+       "UK Met Office UM": 20.7,
+       "JMA GSM": 21.8
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 1.47,
+       "rawMin": 0,
+       "rawMax": 5.1,
+       "mean": 1.48,
+       "p10": 0,
+       "p50": 0.4,
+       "p90": 5.1,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.36
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0.2,
+       "ECMWF AIFS (AI model)": 3.1,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0.4,
+       "JMA GSM": 5.1
+      }
+     }
+    },
+    {
+     "date": "2026-11-18",
+     "lead": 2,
+     "trainingLead": 2,
+     "tmax": {
+      "band": {
+       "rawMean": 28,
+       "rawMin": 25.6,
+       "rawMax": 29,
+       "mean": 28.07,
+       "p10": 26.83,
+       "p50": 28.07,
+       "p90": 29.31,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 27.9,
+       "ECMWF AIFS (AI model)": 29,
+       "NOAA GFS": 28.7,
+       "DWD ICON": 28.4,
+       "UK Met Office UM": 28.4,
+       "JMA GSM": 25.6
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 22.63,
+       "rawMin": 21.7,
+       "rawMax": 23.6,
+       "mean": 22.69,
+       "p10": 21.78,
+       "p50": 22.69,
+       "p90": 23.6,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 21.7,
+       "ECMWF AIFS (AI model)": 23.6,
+       "NOAA GFS": 22.5,
+       "DWD ICON": 22.7,
+       "UK Met Office UM": 22.4,
+       "JMA GSM": 22.9
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 3.55,
+       "rawMin": 0.3,
+       "rawMax": 7,
+       "mean": 3.2,
+       "p10": 0.3,
+       "p50": 3.1,
+       "p90": 7,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.61
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 3.1,
+       "ECMWF AIFS (AI model)": 0.9,
+       "NOAA GFS": 4.4,
+       "DWD ICON": 5.6,
+       "UK Met Office UM": 0.3,
+       "JMA GSM": 7
+      }
+     }
+    },
+    {
+     "date": "2026-11-19",
+     "lead": 3,
+     "trainingLead": 3,
+     "tmax": {
+      "band": {
+       "rawMean": 28.37,
+       "rawMin": 27.1,
+       "rawMax": 29.5,
+       "mean": 28.38,
+       "p10": 26.89,
+       "p50": 28.38,
+       "p90": 29.86,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 27.1,
+       "ECMWF AIFS (AI model)": 28.9,
+       "NOAA GFS": 28.4,
+       "DWD ICON": 29.2,
+       "UK Met Office UM": 29.5,
+       "JMA GSM": 27.1
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 23.33,
+       "rawMin": 22.4,
+       "rawMax": 23.9,
+       "mean": 23.21,
+       "p10": 22.27,
+       "p50": 23.21,
+       "p90": 24.16,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 22.4,
+       "ECMWF AIFS (AI model)": 23.8,
+       "NOAA GFS": 22.8,
+       "DWD ICON": 23.9,
+       "UK Met Office UM": 23.8,
+       "JMA GSM": 23.3
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 3.1,
+       "rawMin": 0.5,
+       "rawMax": 4.9,
+       "mean": 3.35,
+       "p10": 0.5,
+       "p50": 4.6,
+       "p90": 4.9,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.86
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 1.9,
+       "ECMWF AIFS (AI model)": 4.9,
+       "NOAA GFS": 4.6,
+       "DWD ICON": 1.9,
+       "UK Met Office UM": 0.5,
+       "JMA GSM": 4.8
+      }
+     }
+    },
+    {
+     "date": "2026-11-20",
+     "lead": 4,
+     "trainingLead": 4,
+     "tmax": {
+      "band": {
+       "rawMean": 28.6,
+       "rawMin": 26.9,
+       "rawMax": 29.6,
+       "mean": 28.53,
+       "p10": 27.29,
+       "p50": 28.53,
+       "p90": 29.77,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 28.4,
+       "ECMWF AIFS (AI model)": 29.2,
+       "NOAA GFS": 28.7,
+       "DWD ICON": 29.6,
+       "UK Met Office UM": 28.8,
+       "JMA GSM": 26.9
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 23.93,
+       "rawMin": 23.3,
+       "rawMax": 24.4,
+       "mean": 23.66,
+       "p10": 22.8,
+       "p50": 23.66,
+       "p90": 24.51,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 23.3,
+       "ECMWF AIFS (AI model)": 24.1,
+       "NOAA GFS": 23.4,
+       "DWD ICON": 24.4,
+       "UK Met Office UM": 24.4,
+       "JMA GSM": 24
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 7.67,
+       "rawMin": 2,
+       "rawMax": 12.1,
+       "mean": 7.5,
+       "p10": 2,
+       "p50": 6.3,
+       "p90": 12.1,
+       "calibrated": true,
+       "members": 6,
+       "prob": 1
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 2,
+       "ECMWF AIFS (AI model)": 5.1,
+       "NOAA GFS": 6.3,
+       "DWD ICON": 11,
+       "UK Met Office UM": 12.1,
+       "JMA GSM": 9.5
+      }
+     }
+    },
+    {
+     "date": "2026-11-21",
+     "lead": 5,
+     "trainingLead": 5,
+     "tmax": {
+      "band": {
+       "rawMean": 28.73,
+       "rawMin": 28,
+       "rawMax": 29.3,
+       "mean": 28.65,
+       "p10": 27.44,
+       "p50": 28.65,
+       "p90": 29.85,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 29.1,
+       "ECMWF AIFS (AI model)": 29.3,
+       "NOAA GFS": 28,
+       "DWD ICON": 29.2,
+       "UK Met Office UM": 28.7,
+       "JMA GSM": 28.1
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 23.47,
+       "rawMin": 21.8,
+       "rawMax": 24.6,
+       "mean": 23.26,
+       "p10": 22.16,
+       "p50": 23.26,
+       "p90": 24.36,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 22.7,
+       "ECMWF AIFS (AI model)": 23.8,
+       "NOAA GFS": 21.8,
+       "DWD ICON": 24.6,
+       "UK Met Office UM": 23.9,
+       "JMA GSM": 24
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 7.67,
+       "rawMin": 3.3,
+       "rawMax": 16.5,
+       "mean": 7.76,
+       "p10": 3.3,
+       "p50": 5.9,
+       "p90": 16.5,
+       "calibrated": true,
+       "members": 6,
+       "prob": 1
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 3.5,
+       "ECMWF AIFS (AI model)": 5.9,
+       "NOAA GFS": 3.3,
+       "DWD ICON": 3.6,
+       "UK Met Office UM": 13.2,
+       "JMA GSM": 16.5
+      }
+     }
+    },
+    {
+     "date": "2026-11-22",
+     "lead": 6,
+     "trainingLead": 6,
+     "tmax": {
+      "band": {
+       "rawMean": 28.93,
+       "rawMin": 26.6,
+       "rawMax": 29.9,
+       "mean": 28.72,
+       "p10": 26.81,
+       "p50": 28.72,
+       "p90": 30.64,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.01
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 28.8,
+       "ECMWF AIFS (AI model)": 29.9,
+       "NOAA GFS": 29.2,
+       "DWD ICON": 29.4,
+       "UK Met Office UM": 29.7,
+       "JMA GSM": 26.6
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 24.15,
+       "rawMin": 23.1,
+       "rawMax": 25,
+       "mean": 23.74,
+       "p10": 22.56,
+       "p50": 23.74,
+       "p90": 24.93,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 23.4,
+       "ECMWF AIFS (AI model)": 25,
+       "NOAA GFS": 23.1,
+       "DWD ICON": 24.7,
+       "UK Met Office UM": 24.7,
+       "JMA GSM": 24
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 8.1,
+       "rawMin": 0.7,
+       "rawMax": 16,
+       "mean": 8.19,
+       "p10": 0.7,
+       "p50": 4.4,
+       "p90": 16,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.88
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 2.4,
+       "ECMWF AIFS (AI model)": 4.4,
+       "NOAA GFS": 0.7,
+       "DWD ICON": 15.3,
+       "UK Met Office UM": 9.8,
+       "JMA GSM": 16
+      }
+     }
+    }
+   ]
+  },
+  {
+   "key": "daloa",
+   "name": "Daloa · Côte d’Ivoire",
+   "lat": 6.88,
+   "lng": -6.45,
+   "commodities": [
+    "cocoa:daloa"
+   ],
+   "generatedAtUtc": "2026-11-16T09:42:30.795Z",
+   "inputSha256": "c6241e612d7416d27347aac750711b871eb33e17859a6a56b76c6e48dd0ebbe5",
+   "outlook": {
+    "version": "astraeus-v2",
+    "trainingDates": {
+     "start": "2026-08-12",
+     "end": "2026-11-09"
+    },
+    "models": [
+     "ECMWF IFS 0.25°",
+     "ECMWF AIFS (AI model)",
+     "NOAA GFS",
+     "DWD ICON",
+     "UK Met Office UM",
+     "JMA GSM"
+    ]
+   },
+   "days": [
+    {
+     "date": "2026-11-16",
+     "lead": 0,
+     "trainingLead": 1,
+     "tmax": {
+      "band": {
+       "rawMean": 31.15,
+       "rawMin": 28.8,
+       "rawMax": 34.6,
+       "mean": 30.22,
+       "p10": 29.54,
+       "p50": 30.22,
+       "p90": 30.89,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 29.6,
+       "ECMWF AIFS (AI model)": 31,
+       "NOAA GFS": 34.6,
+       "DWD ICON": 31.4,
+       "UK Met Office UM": 31.5,
+       "JMA GSM": 28.8
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 26.18,
+       "rawMin": 25.3,
+       "rawMax": 26.9,
+       "mean": 25.74,
+       "p10": 25.37,
+       "p50": 25.74,
+       "p90": 26.1,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 25.3,
+       "ECMWF AIFS (AI model)": 26.5,
+       "NOAA GFS": 25.9,
+       "DWD ICON": 26.9,
+       "UK Met Office UM": 26.7,
+       "JMA GSM": 25.8
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 1.57,
+       "rawMin": 0.2,
+       "rawMax": 3.6,
+       "mean": 1.53,
+       "p10": 0.2,
+       "p50": 1.4,
+       "p90": 3.6,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.56
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 3.4,
+       "ECMWF AIFS (AI model)": 1.4,
+       "NOAA GFS": 0.4,
+       "DWD ICON": 3.6,
+       "UK Met Office UM": 0.2,
+       "JMA GSM": 0.4
+      }
+     }
+    },
+    {
+     "date": "2026-11-17",
+     "lead": 1,
+     "trainingLead": 1,
+     "tmax": {
+      "band": {
+       "rawMean": 30.27,
+       "rawMin": 26.5,
+       "rawMax": 33.3,
+       "mean": 29.72,
+       "p10": 28.82,
+       "p50": 29.72,
+       "p90": 30.61,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 29.2,
+       "ECMWF AIFS (AI model)": 30,
+       "NOAA GFS": 33.3,
+       "DWD ICON": 30.6,
+       "UK Met Office UM": 32,
+       "JMA GSM": 26.5
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 25.92,
+       "rawMin": 25,
+       "rawMax": 26.8,
+       "mean": 25.55,
+       "p10": 25.15,
+       "p50": 25.55,
+       "p90": 25.96,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 25.3,
+       "ECMWF AIFS (AI model)": 26.3,
+       "NOAA GFS": 25.4,
+       "DWD ICON": 26.7,
+       "UK Met Office UM": 26.8,
+       "JMA GSM": 25
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 2.35,
+       "rawMin": 0,
+       "rawMax": 5.6,
+       "mean": 2.83,
+       "p10": 0,
+       "p50": 2.6,
+       "p90": 5.6,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.73
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0.6,
+       "ECMWF AIFS (AI model)": 5.6,
+       "NOAA GFS": 2.9,
+       "DWD ICON": 2.6,
+       "UK Met Office UM": 0,
+       "JMA GSM": 2.4
+      }
+     }
+    },
+    {
+     "date": "2026-11-18",
+     "lead": 2,
+     "trainingLead": 2,
+     "tmax": {
+      "band": {
+       "rawMean": 30.77,
+       "rawMin": 28,
+       "rawMax": 34.3,
+       "mean": 29.95,
+       "p10": 29.17,
+       "p50": 29.95,
+       "p90": 30.73,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 30.3,
+       "ECMWF AIFS (AI model)": 30,
+       "NOAA GFS": 34.3,
+       "DWD ICON": 30.3,
+       "UK Met Office UM": 31.7,
+       "JMA GSM": 28
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 26.18,
+       "rawMin": 25,
+       "rawMax": 26.8,
+       "mean": 25.77,
+       "p10": 25.36,
+       "p50": 25.77,
+       "p90": 26.18,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 26.3,
+       "ECMWF AIFS (AI model)": 26.4,
+       "NOAA GFS": 25.9,
+       "DWD ICON": 26.7,
+       "UK Met Office UM": 26.8,
+       "JMA GSM": 25
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 1,
+       "rawMin": 0,
+       "rawMax": 2.7,
+       "mean": 1.23,
+       "p10": 0,
+       "p50": 0.7,
+       "p90": 2.7,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.44
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0.4,
+       "ECMWF AIFS (AI model)": 2.7,
+       "NOAA GFS": 0.6,
+       "DWD ICON": 1.6,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0.7
+      }
+     }
+    },
+    {
+     "date": "2026-11-19",
+     "lead": 3,
+     "trainingLead": 3,
+     "tmax": {
+      "band": {
+       "rawMean": 31.07,
+       "rawMin": 28.6,
+       "rawMax": 32.2,
+       "mean": 30.24,
+       "p10": 29.57,
+       "p50": 30.24,
+       "p90": 30.91,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 30.3,
+       "ECMWF AIFS (AI model)": 31.4,
+       "NOAA GFS": 32.2,
+       "DWD ICON": 32,
+       "UK Met Office UM": 31.9,
+       "JMA GSM": 28.6
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 26.37,
+       "rawMin": 25.1,
+       "rawMax": 27.4,
+       "mean": 25.9,
+       "p10": 25.37,
+       "p50": 25.9,
+       "p90": 26.43,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 26,
+       "ECMWF AIFS (AI model)": 27.2,
+       "NOAA GFS": 25.7,
+       "DWD ICON": 27.4,
+       "UK Met Office UM": 26.8,
+       "JMA GSM": 25.1
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0.65,
+       "rawMin": 0,
+       "rawMax": 1.6,
+       "mean": 0.67,
+       "p10": 0,
+       "p50": 0.7,
+       "p90": 1.6,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.4
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0.5,
+       "ECMWF AIFS (AI model)": 1.1,
+       "NOAA GFS": 0.7,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0,
+       "JMA GSM": 1.6
+      }
+     }
+    },
+    {
+     "date": "2026-11-20",
+     "lead": 4,
+     "trainingLead": 4,
+     "tmax": {
+      "band": {
+       "rawMean": 31.47,
+       "rawMin": 27.2,
+       "rawMax": 35.2,
+       "mean": 30.22,
+       "p10": 29.08,
+       "p50": 30.22,
+       "p90": 31.35,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.02
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 30.6,
+       "ECMWF AIFS (AI model)": 31.6,
+       "NOAA GFS": 35.2,
+       "DWD ICON": 32.3,
+       "UK Met Office UM": 31.9,
+       "JMA GSM": 27.2
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 26.48,
+       "rawMin": 25.1,
+       "rawMax": 27.6,
+       "mean": 25.94,
+       "p10": 25.44,
+       "p50": 25.94,
+       "p90": 26.43,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 26.1,
+       "ECMWF AIFS (AI model)": 27.1,
+       "NOAA GFS": 26.5,
+       "DWD ICON": 27.6,
+       "UK Met Office UM": 26.5,
+       "JMA GSM": 25.1
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0.52,
+       "rawMin": 0,
+       "rawMax": 2,
+       "mean": 0.53,
+       "p10": 0,
+       "p50": 0.3,
+       "p90": 2,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.18
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0.2,
+       "ECMWF AIFS (AI model)": 0.3,
+       "NOAA GFS": 0.3,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0.3,
+       "JMA GSM": 2
+      }
+     }
+    },
+    {
+     "date": "2026-11-21",
+     "lead": 5,
+     "trainingLead": 5,
+     "tmax": {
+      "band": {
+       "rawMean": 31.52,
+       "rawMin": 29.2,
+       "rawMax": 33,
+       "mean": 30.45,
+       "p10": 29.79,
+       "p50": 30.45,
+       "p90": 31.11,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 30.8,
+       "ECMWF AIFS (AI model)": 31.4,
+       "NOAA GFS": 33,
+       "DWD ICON": 32.4,
+       "UK Met Office UM": 32.3,
+       "JMA GSM": 29.2
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 26.35,
+       "rawMin": 25.2,
+       "rawMax": 27.6,
+       "mean": 25.85,
+       "p10": 25.41,
+       "p50": 25.85,
+       "p90": 26.3,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 25.9,
+       "ECMWF AIFS (AI model)": 27.1,
+       "NOAA GFS": 25.4,
+       "DWD ICON": 27.6,
+       "UK Met Office UM": 26.9,
+       "JMA GSM": 25.2
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0.68,
+       "rawMin": 0,
+       "rawMax": 3,
+       "mean": 0.62,
+       "p10": 0,
+       "p50": 0,
+       "p90": 3,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.14
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0.5,
+       "ECMWF AIFS (AI model)": 0.6,
+       "NOAA GFS": 3,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-22",
+     "lead": 6,
+     "trainingLead": 6,
+     "tmax": {
+      "band": {
+       "rawMean": 31.15,
+       "rawMin": 29,
+       "rawMax": 32.7,
+       "mean": 30.37,
+       "p10": 29.73,
+       "p50": 30.37,
+       "p90": 31,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 30.7,
+       "ECMWF AIFS (AI model)": 31.3,
+       "NOAA GFS": 32.7,
+       "DWD ICON": 32.7,
+       "UK Met Office UM": 30.5,
+       "JMA GSM": 29
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 26.52,
+       "rawMin": 25.4,
+       "rawMax": 27.7,
+       "mean": 25.96,
+       "p10": 25.51,
+       "p50": 25.96,
+       "p90": 26.42,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 26.1,
+       "ECMWF AIFS (AI model)": 27.1,
+       "NOAA GFS": 25.4,
+       "DWD ICON": 27.7,
+       "UK Met Office UM": 26.8,
+       "JMA GSM": 26
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0.27,
+       "rawMin": 0,
+       "rawMax": 1,
+       "mean": 0.37,
+       "p10": 0,
+       "p50": 0,
+       "p90": 1,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.24
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0,
+       "ECMWF AIFS (AI model)": 1,
+       "NOAA GFS": 0.6,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    }
+   ]
+  },
+  {
+   "key": "sao-paulo",
+   "name": "São Paulo · Brazil",
+   "lat": -21.17,
+   "lng": -47.81,
+   "commodities": [
+    "sugar:sao-paulo"
+   ],
+   "generatedAtUtc": "2026-11-16T09:42:32.499Z",
+   "inputSha256": "88bac02b05149e1a4afae4a08e44c7dc50fed556a9a82fca2a79e57b75b4af3a",
+   "outlook": {
+    "version": "astraeus-v2",
+    "trainingDates": {
+     "start": "2026-08-12",
+     "end": "2026-11-09"
+    },
+    "models": [
+     "ECMWF IFS 0.25°",
+     "ECMWF AIFS (AI model)",
+     "NOAA GFS",
+     "DWD ICON",
+     "UK Met Office UM",
+     "JMA GSM"
+    ]
+   },
+   "days": [
+    {
+     "date": "2026-11-16",
+     "lead": 0,
+     "trainingLead": 1,
+     "tmax": {
+      "band": {
+       "rawMean": 29.55,
+       "rawMin": 28.3,
+       "rawMax": 30.5,
+       "mean": 28.56,
+       "p10": 27.27,
+       "p50": 28.56,
+       "p90": 29.86,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 29.7,
+       "ECMWF AIFS (AI model)": 29,
+       "NOAA GFS": 29.3,
+       "DWD ICON": 28.3,
+       "UK Met Office UM": 30.5,
+       "JMA GSM": 30.5
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 24.83,
+       "rawMin": 24.4,
+       "rawMax": 25.8,
+       "mean": 23.52,
+       "p10": 22.62,
+       "p50": 23.52,
+       "p90": 24.41,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 24.5,
+       "ECMWF AIFS (AI model)": 24.6,
+       "NOAA GFS": 24.4,
+       "DWD ICON": 24.4,
+       "UK Met Office UM": 25.8,
+       "JMA GSM": 25.3
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 9.05,
+       "rawMin": 3.5,
+       "rawMax": 14.2,
+       "mean": 10.01,
+       "p10": 3.5,
+       "p50": 13.4,
+       "p90": 14.2,
+       "calibrated": true,
+       "members": 6,
+       "prob": 1
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 3.5,
+       "ECMWF AIFS (AI model)": 13.4,
+       "NOAA GFS": 7.4,
+       "DWD ICON": 14.2,
+       "UK Met Office UM": 6.7,
+       "JMA GSM": 9.1
+      }
+     }
+    },
+    {
+     "date": "2026-11-17",
+     "lead": 1,
+     "trainingLead": 1,
+     "tmax": {
+      "band": {
+       "rawMean": 31.72,
+       "rawMin": 30.5,
+       "rawMax": 32.9,
+       "mean": 30.63,
+       "p10": 29.33,
+       "p50": 30.63,
+       "p90": 31.93,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.09
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 31.5,
+       "ECMWF AIFS (AI model)": 32,
+       "NOAA GFS": 32.1,
+       "DWD ICON": 31.3,
+       "UK Met Office UM": 32.9,
+       "JMA GSM": 30.5
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 25.62,
+       "rawMin": 24.3,
+       "rawMax": 26.5,
+       "mean": 24.2,
+       "p10": 23.35,
+       "p50": 24.2,
+       "p90": 25.05,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 24.3,
+       "ECMWF AIFS (AI model)": 25.5,
+       "NOAA GFS": 25.6,
+       "DWD ICON": 25.6,
+       "UK Met Office UM": 26.5,
+       "JMA GSM": 26.2
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 1.63,
+       "rawMin": 0,
+       "rawMax": 3.7,
+       "mean": 1.89,
+       "p10": 0,
+       "p50": 2.5,
+       "p90": 3.7,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.63
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 3.7,
+       "ECMWF AIFS (AI model)": 2.5,
+       "NOAA GFS": 2.4,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0.4,
+       "JMA GSM": 0.8
+      }
+     }
+    },
+    {
+     "date": "2026-11-18",
+     "lead": 2,
+     "trainingLead": 2,
+     "tmax": {
+      "band": {
+       "rawMean": 30.12,
+       "rawMin": 27.4,
+       "rawMax": 33,
+       "mean": 29.54,
+       "p10": 26.75,
+       "p50": 29.54,
+       "p90": 32.34,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.13
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 33,
+       "ECMWF AIFS (AI model)": 31.1,
+       "NOAA GFS": 28.1,
+       "DWD ICON": 30.3,
+       "UK Met Office UM": 30.8,
+       "JMA GSM": 27.4
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 25.87,
+       "rawMin": 24,
+       "rawMax": 27.5,
+       "mean": 24.67,
+       "p10": 23.44,
+       "p50": 24.67,
+       "p90": 25.9,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 25,
+       "ECMWF AIFS (AI model)": 26.1,
+       "NOAA GFS": 24,
+       "DWD ICON": 26.5,
+       "UK Met Office UM": 27.5,
+       "JMA GSM": 26.1
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 7.07,
+       "rawMin": 2.6,
+       "rawMax": 14.7,
+       "mean": 5.92,
+       "p10": 2.6,
+       "p50": 4.8,
+       "p90": 10.6,
+       "calibrated": true,
+       "members": 6,
+       "prob": 1
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 2.6,
+       "ECMWF AIFS (AI model)": 4.8,
+       "NOAA GFS": 14.7,
+       "DWD ICON": 2.8,
+       "UK Met Office UM": 6.9,
+       "JMA GSM": 10.6
+      }
+     }
+    },
+    {
+     "date": "2026-11-19",
+     "lead": 3,
+     "trainingLead": 3,
+     "tmax": {
+      "band": {
+       "rawMean": 31.95,
+       "rawMin": 31.1,
+       "rawMax": 33.2,
+       "mean": 30.68,
+       "p10": 28.84,
+       "p50": 30.68,
+       "p90": 32.52,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.18
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 31.9,
+       "ECMWF AIFS (AI model)": 32.5,
+       "NOAA GFS": 31.6,
+       "DWD ICON": 31.1,
+       "UK Met Office UM": 33.2,
+       "JMA GSM": 31.4
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 26.53,
+       "rawMin": 25.4,
+       "rawMax": 27.8,
+       "mean": 25.18,
+       "p10": 23.94,
+       "p50": 25.18,
+       "p90": 26.41,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 25.4,
+       "ECMWF AIFS (AI model)": 26.9,
+       "NOAA GFS": 25.7,
+       "DWD ICON": 26.6,
+       "UK Met Office UM": 27.8,
+       "JMA GSM": 26.8
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 3.97,
+       "rawMin": 1.9,
+       "rawMax": 6.6,
+       "mean": 4.09,
+       "p10": 1.9,
+       "p50": 4.1,
+       "p90": 6.6,
+       "calibrated": true,
+       "members": 6,
+       "prob": 1
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 4.9,
+       "ECMWF AIFS (AI model)": 4.1,
+       "NOAA GFS": 3.3,
+       "DWD ICON": 1.9,
+       "UK Met Office UM": 3,
+       "JMA GSM": 6.6
+      }
+     }
+    },
+    {
+     "date": "2026-11-20",
+     "lead": 4,
+     "trainingLead": 4,
+     "tmax": {
+      "band": {
+       "rawMean": 32.62,
+       "rawMin": 31.1,
+       "rawMax": 33.5,
+       "mean": 31.22,
+       "p10": 29.65,
+       "p50": 31.22,
+       "p90": 32.79,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.26
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 33.5,
+       "ECMWF AIFS (AI model)": 32.4,
+       "NOAA GFS": 33.1,
+       "DWD ICON": 32.7,
+       "UK Met Office UM": 32.9,
+       "JMA GSM": 31.1
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 27.32,
+       "rawMin": 26.8,
+       "rawMax": 27.8,
+       "mean": 25.93,
+       "p10": 24.78,
+       "p50": 25.93,
+       "p90": 27.07,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 26.8,
+       "ECMWF AIFS (AI model)": 27.6,
+       "NOAA GFS": 27,
+       "DWD ICON": 27,
+       "UK Met Office UM": 27.8,
+       "JMA GSM": 27.7
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 5.22,
+       "rawMin": 1.9,
+       "rawMax": 9.3,
+       "mean": 4.81,
+       "p10": 1.9,
+       "p50": 3.9,
+       "p90": 8.7,
+       "calibrated": true,
+       "members": 6,
+       "prob": 1
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 3.5,
+       "ECMWF AIFS (AI model)": 3.9,
+       "NOAA GFS": 1.9,
+       "DWD ICON": 8.7,
+       "UK Met Office UM": 9.3,
+       "JMA GSM": 4
+      }
+     }
+    },
+    {
+     "date": "2026-11-21",
+     "lead": 5,
+     "trainingLead": 5,
+     "tmax": {
+      "band": {
+       "rawMean": 32.67,
+       "rawMin": 31.9,
+       "rawMax": 34.2,
+       "mean": 31.33,
+       "p10": 29.32,
+       "p50": 31.33,
+       "p90": 33.34,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.34
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 34.2,
+       "ECMWF AIFS (AI model)": 32.9,
+       "NOAA GFS": 31.9,
+       "DWD ICON": 32.4,
+       "UK Met Office UM": 32.5,
+       "JMA GSM": 32.1
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 26.8,
+       "rawMin": 24.6,
+       "rawMax": 27.8,
+       "mean": 25.45,
+       "p10": 24.13,
+       "p50": 25.45,
+       "p90": 26.77,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 27,
+       "ECMWF AIFS (AI model)": 26.8,
+       "NOAA GFS": 24.6,
+       "DWD ICON": 27,
+       "UK Met Office UM": 27.8,
+       "JMA GSM": 27.6
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 6.32,
+       "rawMin": 1.5,
+       "rawMax": 8.8,
+       "mean": 5.87,
+       "p10": 1.5,
+       "p50": 6.1,
+       "p90": 8.8,
+       "calibrated": true,
+       "members": 6,
+       "prob": 1
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 1.5,
+       "ECMWF AIFS (AI model)": 6.1,
+       "NOAA GFS": 8.8,
+       "DWD ICON": 7.3,
+       "UK Met Office UM": 8.7,
+       "JMA GSM": 5.5
+      }
+     }
+    },
+    {
+     "date": "2026-11-22",
+     "lead": 6,
+     "trainingLead": 6,
+     "tmax": {
+      "band": {
+       "rawMean": 33.17,
+       "rawMin": 28.9,
+       "rawMax": 35.1,
+       "mean": 31.54,
+       "p10": 28.08,
+       "p50": 31.54,
+       "p90": 34.99,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.43
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 34.6,
+       "ECMWF AIFS (AI model)": 33,
+       "NOAA GFS": 33.4,
+       "DWD ICON": 34,
+       "UK Met Office UM": 35.1,
+       "JMA GSM": 28.9
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 27.7,
+       "rawMin": 27.1,
+       "rawMax": 28.9,
+       "mean": 26.09,
+       "p10": 24.75,
+       "p50": 26.09,
+       "p90": 27.44,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 27.5,
+       "ECMWF AIFS (AI model)": 28,
+       "NOAA GFS": 27.1,
+       "DWD ICON": 27.6,
+       "UK Met Office UM": 28.9,
+       "JMA GSM": 27.1
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 4.7,
+       "rawMin": 0.6,
+       "rawMax": 8.8,
+       "mean": 4.17,
+       "p10": 0.6,
+       "p50": 3.6,
+       "p90": 8.3,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.84
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 1.4,
+       "ECMWF AIFS (AI model)": 3.6,
+       "NOAA GFS": 0.6,
+       "DWD ICON": 8.3,
+       "UK Met Office UM": 8.8,
+       "JMA GSM": 5.5
+      }
+     }
+    }
+   ]
+  },
+  {
+   "key": "lubbock",
+   "name": "West Texas · United States",
+   "lat": 33.58,
+   "lng": -101.85,
+   "commodities": [
+    "cotton:lubbock"
+   ],
+   "generatedAtUtc": "2026-11-16T09:42:34.261Z",
+   "inputSha256": "e343579d6b2f052cf5fc743f45b265ea4e27f6f69859f3fe94438eec8b22bedb",
+   "outlook": {
+    "version": "astraeus-v2",
+    "trainingDates": {
+     "start": "2026-08-12",
+     "end": "2026-11-09"
+    },
+    "models": [
+     "ECMWF IFS 0.25°",
+     "ECMWF AIFS (AI model)",
+     "NOAA GFS",
+     "DWD ICON",
+     "UK Met Office UM",
+     "JMA GSM"
+    ]
+   },
+   "days": [
+    {
+     "date": "2026-11-16",
+     "lead": 0,
+     "trainingLead": 1,
+     "tmax": {
+      "band": {
+       "rawMean": 8.95,
+       "rawMin": 7.1,
+       "rawMax": 10.3,
+       "mean": 9.09,
+       "p10": 7.55,
+       "p50": 9.09,
+       "p90": 10.62,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 9.8,
+       "ECMWF AIFS (AI model)": 7.1,
+       "NOAA GFS": 8,
+       "DWD ICON": 10.3,
+       "UK Met Office UM": 8.9,
+       "JMA GSM": 9.6
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 6.38,
+       "rawMin": 5.6,
+       "rawMax": 6.9,
+       "mean": 5.95,
+       "p10": 5.19,
+       "p50": 5.95,
+       "p90": 6.71,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 6.7,
+       "ECMWF AIFS (AI model)": 5.6,
+       "NOAA GFS": 6.1,
+       "DWD ICON": 6.9,
+       "UK Met Office UM": 6.2,
+       "JMA GSM": 6.8
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0.05,
+       "rawMin": 0,
+       "rawMax": 0.2,
+       "mean": 0.06,
+       "p10": 0,
+       "p50": 0,
+       "p90": 0.2,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0.1,
+       "ECMWF AIFS (AI model)": 0,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0.2,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-17",
+     "lead": 1,
+     "trainingLead": 1,
+     "tmax": {
+      "band": {
+       "rawMean": 11.03,
+       "rawMin": 9.2,
+       "rawMax": 12,
+       "mean": 11.24,
+       "p10": 9.98,
+       "p50": 11.24,
+       "p90": 12.51,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 12,
+       "ECMWF AIFS (AI model)": 10.6,
+       "NOAA GFS": 9.2,
+       "DWD ICON": 11.3,
+       "UK Met Office UM": 11.3,
+       "JMA GSM": 11.8
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 8.33,
+       "rawMin": 7.4,
+       "rawMax": 8.9,
+       "mean": 7.97,
+       "p10": 7.12,
+       "p50": 7.97,
+       "p90": 8.82,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 8.8,
+       "ECMWF AIFS (AI model)": 7.6,
+       "NOAA GFS": 7.4,
+       "DWD ICON": 8.9,
+       "UK Met Office UM": 8.5,
+       "JMA GSM": 8.8
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0.25,
+       "rawMin": 0,
+       "rawMax": 0.6,
+       "mean": 0.32,
+       "p10": 0,
+       "p50": 0.3,
+       "p90": 0.6,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0.3,
+       "ECMWF AIFS (AI model)": 0.5,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0.6,
+       "JMA GSM": 0.1
+      }
+     }
+    },
+    {
+     "date": "2026-11-18",
+     "lead": 2,
+     "trainingLead": 2,
+     "tmax": {
+      "band": {
+       "rawMean": 14.47,
+       "rawMin": 12.6,
+       "rawMax": 17.5,
+       "mean": 14.77,
+       "p10": 12.76,
+       "p50": 14.77,
+       "p90": 16.77,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 16,
+       "ECMWF AIFS (AI model)": 12.6,
+       "NOAA GFS": 17.5,
+       "DWD ICON": 15,
+       "UK Met Office UM": 12.6,
+       "JMA GSM": 13.1
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 10.05,
+       "rawMin": 9.4,
+       "rawMax": 11.1,
+       "mean": 9.41,
+       "p10": 8.62,
+       "p50": 9.41,
+       "p90": 10.2,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 9.4,
+       "ECMWF AIFS (AI model)": 9.4,
+       "NOAA GFS": 11.1,
+       "DWD ICON": 10.5,
+       "UK Met Office UM": 9.5,
+       "JMA GSM": 10.4
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0.08,
+       "rawMin": 0,
+       "rawMax": 0.3,
+       "mean": 0.09,
+       "p10": 0,
+       "p50": 0,
+       "p90": 0.3,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0,
+       "ECMWF AIFS (AI model)": 0.3,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0.2
+      }
+     }
+    },
+    {
+     "date": "2026-11-19",
+     "lead": 3,
+     "trainingLead": 3,
+     "tmax": {
+      "band": {
+       "rawMean": 14.1,
+       "rawMin": 11.8,
+       "rawMax": 16.3,
+       "mean": 14.37,
+       "p10": 12.97,
+       "p50": 14.37,
+       "p90": 15.77,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 16.3,
+       "ECMWF AIFS (AI model)": 13.2,
+       "NOAA GFS": 15.2,
+       "DWD ICON": 13.2,
+       "UK Met Office UM": 11.8,
+       "JMA GSM": 14.9
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 10.68,
+       "rawMin": 9.4,
+       "rawMax": 13.2,
+       "mean": 9.98,
+       "p10": 9.05,
+       "p50": 9.98,
+       "p90": 10.91,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 10,
+       "ECMWF AIFS (AI model)": 9.8,
+       "NOAA GFS": 13.2,
+       "DWD ICON": 10.1,
+       "UK Met Office UM": 9.4,
+       "JMA GSM": 11.6
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0.02,
+       "rawMin": -0.3,
+       "rawMax": 0.2,
+       "mean": 0.02,
+       "p10": -0.3,
+       "p50": 0,
+       "p90": 0.2,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0.2,
+       "ECMWF AIFS (AI model)": 0,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0.2,
+       "JMA GSM": -0.3
+      }
+     }
+    },
+    {
+     "date": "2026-11-20",
+     "lead": 4,
+     "trainingLead": 4,
+     "tmax": {
+      "band": {
+       "rawMean": 16.87,
+       "rawMin": 14.2,
+       "rawMax": 19.8,
+       "mean": 17.28,
+       "p10": 14.94,
+       "p50": 17.28,
+       "p90": 19.62,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 17.8,
+       "ECMWF AIFS (AI model)": 15.4,
+       "NOAA GFS": 16.6,
+       "DWD ICON": 19.8,
+       "UK Met Office UM": 14.2,
+       "JMA GSM": 17.4
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 13.27,
+       "rawMin": 11.7,
+       "rawMax": 14.8,
+       "mean": 12.76,
+       "p10": 11.68,
+       "p50": 12.76,
+       "p90": 13.85,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 12.8,
+       "ECMWF AIFS (AI model)": 11.7,
+       "NOAA GFS": 14.8,
+       "DWD ICON": 14.2,
+       "UK Met Office UM": 12,
+       "JMA GSM": 14.1
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0.57,
+       "rawMin": 0,
+       "rawMax": 1.8,
+       "mean": 0.58,
+       "p10": 0,
+       "p50": 0.3,
+       "p90": 1.8,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.17
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0.3,
+       "ECMWF AIFS (AI model)": 0.3,
+       "NOAA GFS": 0.5,
+       "DWD ICON": 0,
+       "UK Met Office UM": 1.8,
+       "JMA GSM": 0.5
+      }
+     }
+    },
+    {
+     "date": "2026-11-21",
+     "lead": 5,
+     "trainingLead": 5,
+     "tmax": {
+      "band": {
+       "rawMean": 17.4,
+       "rawMin": 16.4,
+       "rawMax": 19,
+       "mean": 17.98,
+       "p10": 16.47,
+       "p50": 17.98,
+       "p90": 19.48,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 19,
+       "ECMWF AIFS (AI model)": 16.9,
+       "NOAA GFS": 17,
+       "DWD ICON": 17.8,
+       "UK Met Office UM": 16.4,
+       "JMA GSM": 17.3
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 13.35,
+       "rawMin": 12.9,
+       "rawMax": 14.1,
+       "mean": 12.97,
+       "p10": 11.81,
+       "p50": 12.97,
+       "p90": 14.14,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 13.8,
+       "ECMWF AIFS (AI model)": 13,
+       "NOAA GFS": 13.4,
+       "DWD ICON": 12.9,
+       "UK Met Office UM": 12.9,
+       "JMA GSM": 14.1
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0.12,
+       "rawMin": 0,
+       "rawMax": 0.4,
+       "mean": 0.12,
+       "p10": 0,
+       "p50": 0,
+       "p90": 0.3,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0,
+       "ECMWF AIFS (AI model)": 0.3,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0.4,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-22",
+     "lead": 6,
+     "trainingLead": 6,
+     "tmax": {
+      "band": {
+       "rawMean": 15.1,
+       "rawMin": 11.2,
+       "rawMax": 17.3,
+       "mean": 16.11,
+       "p10": 13.46,
+       "p50": 16.11,
+       "p90": 18.76,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 15.4,
+       "ECMWF AIFS (AI model)": 15.8,
+       "NOAA GFS": 17.3,
+       "DWD ICON": 15.7,
+       "UK Met Office UM": 11.2,
+       "JMA GSM": 15.2
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 9.93,
+       "rawMin": 7.6,
+       "rawMax": 12,
+       "mean": 9.27,
+       "p10": 7.49,
+       "p50": 9.27,
+       "p90": 11.06,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 9.4,
+       "ECMWF AIFS (AI model)": 9.5,
+       "NOAA GFS": 12,
+       "DWD ICON": 9.5,
+       "UK Met Office UM": 7.6,
+       "JMA GSM": 11.6
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0.27,
+       "rawMin": 0,
+       "rawMax": 1.6,
+       "mean": 0.4,
+       "p10": 0,
+       "p50": 0,
+       "p90": 1.6,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.25
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0,
+       "ECMWF AIFS (AI model)": 0,
+       "NOAA GFS": 1.6,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    }
+   ]
+  },
+  {
+   "key": "florida",
+   "name": "Central Florida · United States",
+   "lat": 28.04,
+   "lng": -81.95,
+   "commodities": [
+    "orange-juice:florida"
+   ],
+   "generatedAtUtc": "2026-11-16T09:42:35.261Z",
+   "inputSha256": "49dc00005c1897c315eb7d3d9b4a968abc6094d851b8c8bd1f0aae2608e54e64",
+   "outlook": {
+    "version": "astraeus-v2",
+    "trainingDates": {
+     "start": "2026-08-12",
+     "end": "2026-11-09"
+    },
+    "models": [
+     "ECMWF IFS 0.25°",
+     "ECMWF AIFS (AI model)",
+     "NOAA GFS",
+     "DWD ICON",
+     "UK Met Office UM",
+     "JMA GSM"
+    ]
+   },
+   "days": [
+    {
+     "date": "2026-11-16",
+     "lead": 0,
+     "trainingLead": 1,
+     "tmax": {
+      "band": {
+       "rawMean": 23.55,
+       "rawMin": 22.8,
+       "rawMax": 24.4,
+       "mean": 23.78,
+       "p10": 22.78,
+       "p50": 23.78,
+       "p90": 24.77,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 23.4,
+       "ECMWF AIFS (AI model)": 23.9,
+       "NOAA GFS": 24.4,
+       "DWD ICON": 23.1,
+       "UK Met Office UM": 23.7,
+       "JMA GSM": 22.8
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 17.33,
+       "rawMin": 16.8,
+       "rawMax": 18.2,
+       "mean": 17.36,
+       "p10": 16.74,
+       "p50": 17.36,
+       "p90": 17.98,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 17.2,
+       "ECMWF AIFS (AI model)": 16.8,
+       "NOAA GFS": 17.4,
+       "DWD ICON": 16.9,
+       "UK Met Office UM": 18.2,
+       "JMA GSM": 17.5
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0.03,
+       "rawMin": 0,
+       "rawMax": 0.1,
+       "mean": 0.03,
+       "p10": 0,
+       "p50": 0,
+       "p90": 0.1,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0.1,
+       "ECMWF AIFS (AI model)": 0,
+       "NOAA GFS": 0,
+       "DWD ICON": 0.1,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-17",
+     "lead": 1,
+     "trainingLead": 1,
+     "tmax": {
+      "band": {
+       "rawMean": 20.05,
+       "rawMin": 18.6,
+       "rawMax": 21.7,
+       "mean": 20.45,
+       "p10": 19.19,
+       "p50": 20.45,
+       "p90": 21.71,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 18.6,
+       "ECMWF AIFS (AI model)": 20.5,
+       "NOAA GFS": 20.4,
+       "DWD ICON": 18.9,
+       "UK Met Office UM": 20.2,
+       "JMA GSM": 21.7
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 18.43,
+       "rawMin": 17.6,
+       "rawMax": 19.3,
+       "mean": 18.54,
+       "p10": 17.9,
+       "p50": 18.54,
+       "p90": 19.18,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 17.6,
+       "ECMWF AIFS (AI model)": 19.3,
+       "NOAA GFS": 17.8,
+       "DWD ICON": 17.9,
+       "UK Met Office UM": 18.9,
+       "JMA GSM": 19.1
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 9.03,
+       "rawMin": 3.9,
+       "rawMax": 23.2,
+       "mean": 9.1,
+       "p10": 3.9,
+       "p50": 5.7,
+       "p90": 23.2,
+       "calibrated": true,
+       "members": 6,
+       "prob": 1
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 23.2,
+       "ECMWF AIFS (AI model)": 5.7,
+       "NOAA GFS": 8.1,
+       "DWD ICON": 9.4,
+       "UK Met Office UM": 3.9,
+       "JMA GSM": 3.9
+      }
+     }
+    },
+    {
+     "date": "2026-11-18",
+     "lead": 2,
+     "trainingLead": 2,
+     "tmax": {
+      "band": {
+       "rawMean": 22.28,
+       "rawMin": 19.9,
+       "rawMax": 24.8,
+       "mean": 22.79,
+       "p10": 20.89,
+       "p50": 22.79,
+       "p90": 24.68,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 24.8,
+       "ECMWF AIFS (AI model)": 22.3,
+       "NOAA GFS": 21.7,
+       "DWD ICON": 21.6,
+       "UK Met Office UM": 19.9,
+       "JMA GSM": 23.4
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 19.5,
+       "rawMin": 18.4,
+       "rawMax": 20.6,
+       "mean": 19.61,
+       "p10": 18.65,
+       "p50": 19.61,
+       "p90": 20.56,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 19.9,
+       "ECMWF AIFS (AI model)": 19.6,
+       "NOAA GFS": 18.4,
+       "DWD ICON": 19.6,
+       "UK Met Office UM": 18.9,
+       "JMA GSM": 20.6
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 12.62,
+       "rawMin": 1.1,
+       "rawMax": 30.3,
+       "mean": 13.45,
+       "p10": 1.1,
+       "p50": 10.45,
+       "p90": 30.3,
+       "calibrated": true,
+       "members": 6,
+       "prob": 1
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 7.9,
+       "ECMWF AIFS (AI model)": 22.2,
+       "NOAA GFS": 10.45,
+       "DWD ICON": 3.8,
+       "UK Met Office UM": 30.3,
+       "JMA GSM": 1.1
+      }
+     }
+    },
+    {
+     "date": "2026-11-19",
+     "lead": 3,
+     "trainingLead": 3,
+     "tmax": {
+      "band": {
+       "rawMean": 24.07,
+       "rawMin": 21.6,
+       "rawMax": 26.7,
+       "mean": 24.55,
+       "p10": 22.48,
+       "p50": 24.55,
+       "p90": 26.62,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 26.7,
+       "ECMWF AIFS (AI model)": 23.9,
+       "NOAA GFS": 21.6,
+       "DWD ICON": 24.3,
+       "UK Met Office UM": 23.9,
+       "JMA GSM": 24
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 21.13,
+       "rawMin": 19.6,
+       "rawMax": 21.7,
+       "mean": 21.04,
+       "p10": 20.23,
+       "p50": 21.04,
+       "p90": 21.85,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 21.5,
+       "ECMWF AIFS (AI model)": 21.3,
+       "NOAA GFS": 19.6,
+       "DWD ICON": 21.4,
+       "UK Met Office UM": 21.3,
+       "JMA GSM": 21.7
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 9.73,
+       "rawMin": 0.4,
+       "rawMax": 33,
+       "mean": 9.64,
+       "p10": 0.4,
+       "p50": 4.9,
+       "p90": 33,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.5
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0.4,
+       "ECMWF AIFS (AI model)": 19.1,
+       "NOAA GFS": 33,
+       "DWD ICON": 0.4,
+       "UK Met Office UM": 4.9,
+       "JMA GSM": 0.6
+      }
+     }
+    },
+    {
+     "date": "2026-11-20",
+     "lead": 4,
+     "trainingLead": 4,
+     "tmax": {
+      "band": {
+       "rawMean": 24.05,
+       "rawMin": 21.1,
+       "rawMax": 26.3,
+       "mean": 24.46,
+       "p10": 21.84,
+       "p50": 24.46,
+       "p90": 27.08,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 26.3,
+       "ECMWF AIFS (AI model)": 23.8,
+       "NOAA GFS": 21.1,
+       "DWD ICON": 24.1,
+       "UK Met Office UM": 23.9,
+       "JMA GSM": 25.1
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 22.05,
+       "rawMin": 20.5,
+       "rawMax": 22.9,
+       "mean": 21.75,
+       "p10": 20.85,
+       "p50": 21.75,
+       "p90": 22.66,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 22.3,
+       "ECMWF AIFS (AI model)": 22.1,
+       "NOAA GFS": 20.5,
+       "DWD ICON": 22.2,
+       "UK Met Office UM": 22.3,
+       "JMA GSM": 22.9
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 20.97,
+       "rawMin": 0,
+       "rawMax": 80.9,
+       "mean": 20.08,
+       "p10": 0,
+       "p50": 11.1,
+       "p90": 80.9,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.85
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 1,
+       "ECMWF AIFS (AI model)": 21.1,
+       "NOAA GFS": 80.9,
+       "DWD ICON": 11.1,
+       "UK Met Office UM": 11.7,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-21",
+     "lead": 5,
+     "trainingLead": 5,
+     "tmax": {
+      "band": {
+       "rawMean": 25.42,
+       "rawMin": 23.9,
+       "rawMax": 26.8,
+       "mean": 25.46,
+       "p10": 24.15,
+       "p50": 25.46,
+       "p90": 26.76,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 25.4,
+       "ECMWF AIFS (AI model)": 24.7,
+       "NOAA GFS": 26.8,
+       "DWD ICON": 25.3,
+       "UK Met Office UM": 26.4,
+       "JMA GSM": 23.9
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 22.03,
+       "rawMin": 21.5,
+       "rawMax": 23,
+       "mean": 21.56,
+       "p10": 20.74,
+       "p50": 21.56,
+       "p90": 22.39,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 21.6,
+       "ECMWF AIFS (AI model)": 21.5,
+       "NOAA GFS": 22.3,
+       "DWD ICON": 22.1,
+       "UK Met Office UM": 23,
+       "JMA GSM": 21.7
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 4.32,
+       "rawMin": 0,
+       "rawMax": 14,
+       "mean": 4.54,
+       "p10": 0,
+       "p50": 3,
+       "p90": 14,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.84
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 3,
+       "ECMWF AIFS (AI model)": 5.6,
+       "NOAA GFS": 1.5,
+       "DWD ICON": 0,
+       "UK Met Office UM": 1.8,
+       "JMA GSM": 14
+      }
+     }
+    },
+    {
+     "date": "2026-11-22",
+     "lead": 6,
+     "trainingLead": 6,
+     "tmax": {
+      "band": {
+       "rawMean": 24.98,
+       "rawMin": 23.8,
+       "rawMax": 26.7,
+       "mean": 25.36,
+       "p10": 23.48,
+       "p50": 25.36,
+       "p90": 27.24,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 25.3,
+       "ECMWF AIFS (AI model)": 25,
+       "NOAA GFS": 23.8,
+       "DWD ICON": 24.3,
+       "UK Met Office UM": 26.7,
+       "JMA GSM": 24.8
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 21.25,
+       "rawMin": 19.1,
+       "rawMax": 23.8,
+       "mean": 21.11,
+       "p10": 19.17,
+       "p50": 21.11,
+       "p90": 23.05,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 21.1,
+       "ECMWF AIFS (AI model)": 21.2,
+       "NOAA GFS": 19.1,
+       "DWD ICON": 20,
+       "UK Met Office UM": 23.8,
+       "JMA GSM": 22.3
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 1.72,
+       "rawMin": 0,
+       "rawMax": 5,
+       "mean": 1.93,
+       "p10": 0,
+       "p50": 0.8,
+       "p90": 5,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.39
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0.8,
+       "ECMWF AIFS (AI model)": 3.9,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0.6,
+       "JMA GSM": 5
+      }
+     }
+    }
+   ]
+  },
+  {
+   "key": "bc",
+   "name": "British Columbia · Canada",
+   "lat": 53.92,
+   "lng": -122.75,
+   "commodities": [
+    "lumber:bc"
+   ],
+   "generatedAtUtc": "2026-11-16T09:42:37.357Z",
+   "inputSha256": "0a61fa52fd784e8b81f5a010445948dee906ee07c002ab15ecb513cb69f4fde3",
+   "outlook": {
+    "version": "astraeus-v2",
+    "trainingDates": {
+     "start": "2026-08-12",
+     "end": "2026-11-09"
+    },
+    "models": [
+     "ECMWF IFS 0.25°",
+     "ECMWF AIFS (AI model)",
+     "NOAA GFS",
+     "DWD ICON",
+     "UK Met Office UM",
+     "JMA GSM"
+    ]
+   },
+   "days": [
+    {
+     "date": "2026-11-16",
+     "lead": 0,
+     "trainingLead": 1,
+     "tmax": {
+      "band": {
+       "rawMean": 9.22,
+       "rawMin": 6.9,
+       "rawMax": 10.1,
+       "mean": 8.61,
+       "p10": 7.92,
+       "p50": 8.61,
+       "p90": 9.31,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 6.9,
+       "ECMWF AIFS (AI model)": 9.8,
+       "NOAA GFS": 10.1,
+       "DWD ICON": 9.5,
+       "UK Met Office UM": 9.7,
+       "JMA GSM": 9.3
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 5.13,
+       "rawMin": 4.2,
+       "rawMax": 6.6,
+       "mean": 4.77,
+       "p10": 4.31,
+       "p50": 4.77,
+       "p90": 5.23,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 4.2,
+       "ECMWF AIFS (AI model)": 5.3,
+       "NOAA GFS": 5,
+       "DWD ICON": 4.2,
+       "UK Met Office UM": 6.6,
+       "JMA GSM": 5.5
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0.9,
+       "rawMin": 0,
+       "rawMax": 1.6,
+       "mean": 0.91,
+       "p10": 0,
+       "p50": 1.1,
+       "p90": 1.3,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0.73
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 1.3,
+       "ECMWF AIFS (AI model)": 1.1,
+       "NOAA GFS": 1.6,
+       "DWD ICON": 0.2,
+       "UK Met Office UM": 0,
+       "JMA GSM": 1.2
+      }
+     }
+    },
+    {
+     "date": "2026-11-17",
+     "lead": 1,
+     "trainingLead": 1,
+     "tmax": {
+      "band": {
+       "rawMean": 5.3,
+       "rawMin": 4,
+       "rawMax": 6.9,
+       "mean": 4.95,
+       "p10": 4.26,
+       "p50": 4.95,
+       "p90": 5.63,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 4.4,
+       "ECMWF AIFS (AI model)": 6.5,
+       "NOAA GFS": 4.7,
+       "DWD ICON": 4,
+       "UK Met Office UM": 6.9,
+       "JMA GSM": 5.3
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": 1.73,
+       "rawMin": -0.4,
+       "rawMax": 3.5,
+       "mean": 1.44,
+       "p10": 0.96,
+       "p50": 1.44,
+       "p90": 1.93,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 1.2,
+       "ECMWF AIFS (AI model)": 1.7,
+       "NOAA GFS": 2.1,
+       "DWD ICON": -0.4,
+       "UK Met Office UM": 3.5,
+       "JMA GSM": 2.3
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0.05,
+       "rawMin": 0,
+       "rawMax": 0.2,
+       "mean": 0.09,
+       "p10": 0,
+       "p50": 0.1,
+       "p90": 0.2,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0.1,
+       "ECMWF AIFS (AI model)": 0.2,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-18",
+     "lead": 2,
+     "trainingLead": 2,
+     "tmax": {
+      "band": {
+       "rawMean": 2.25,
+       "rawMin": 1.3,
+       "rawMax": 3.9,
+       "mean": 2.03,
+       "p10": 1.05,
+       "p50": 2.03,
+       "p90": 3,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 1.4,
+       "ECMWF AIFS (AI model)": 2.5,
+       "NOAA GFS": 2.6,
+       "DWD ICON": 1.3,
+       "UK Met Office UM": 3.9,
+       "JMA GSM": 1.8
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": -1.03,
+       "rawMin": -2.9,
+       "rawMax": 0.1,
+       "mean": -1.34,
+       "p10": -1.94,
+       "p50": -1.34,
+       "p90": -0.74,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": -1.2,
+       "ECMWF AIFS (AI model)": -1.6,
+       "NOAA GFS": -0.5,
+       "DWD ICON": -2.9,
+       "UK Met Office UM": 0.1,
+       "JMA GSM": -0.1
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0,
+       "rawMin": 0,
+       "rawMax": 0,
+       "mean": 0,
+       "p10": 0,
+       "p50": 0,
+       "p90": 0,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0,
+       "ECMWF AIFS (AI model)": 0,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-19",
+     "lead": 3,
+     "trainingLead": 3,
+     "tmax": {
+      "band": {
+       "rawMean": 0.47,
+       "rawMin": -1.2,
+       "rawMax": 2.2,
+       "mean": 0.24,
+       "p10": -0.7,
+       "p50": 0.24,
+       "p90": 1.18,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": -0.1,
+       "ECMWF AIFS (AI model)": -1.2,
+       "NOAA GFS": 2.2,
+       "DWD ICON": -0.1,
+       "UK Met Office UM": 1.7,
+       "JMA GSM": 0.3
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": -2.4,
+       "rawMin": -4,
+       "rawMax": -1,
+       "mean": -2.56,
+       "p10": -3.42,
+       "p50": -2.56,
+       "p90": -1.69,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": -2.5,
+       "ECMWF AIFS (AI model)": -4,
+       "NOAA GFS": -1.6,
+       "DWD ICON": -4,
+       "UK Met Office UM": -1.3,
+       "JMA GSM": -1
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0,
+       "rawMin": 0,
+       "rawMax": 0,
+       "mean": 0,
+       "p10": 0,
+       "p50": 0,
+       "p90": 0,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0,
+       "ECMWF AIFS (AI model)": 0,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-20",
+     "lead": 4,
+     "trainingLead": 4,
+     "tmax": {
+      "band": {
+       "rawMean": 0.07,
+       "rawMin": -1.9,
+       "rawMax": 1.8,
+       "mean": 0,
+       "p10": -1.33,
+       "p50": 0,
+       "p90": 1.33,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": -0.5,
+       "ECMWF AIFS (AI model)": -1.9,
+       "NOAA GFS": 1.6,
+       "DWD ICON": -0.9,
+       "UK Met Office UM": 1.8,
+       "JMA GSM": 0.3
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": -2.17,
+       "rawMin": -3.8,
+       "rawMax": -1.3,
+       "mean": -2.35,
+       "p10": -3.31,
+       "p50": -2.35,
+       "p90": -1.39,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": -2,
+       "ECMWF AIFS (AI model)": -3.8,
+       "NOAA GFS": -1.8,
+       "DWD ICON": -2.6,
+       "UK Met Office UM": -1.5,
+       "JMA GSM": -1.3
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0.1,
+       "rawMin": 0,
+       "rawMax": 0.3,
+       "mean": 0.13,
+       "p10": 0,
+       "p50": 0,
+       "p90": 0.3,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0.3,
+       "ECMWF AIFS (AI model)": 0.3,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-21",
+     "lead": 5,
+     "trainingLead": 5,
+     "tmax": {
+      "band": {
+       "rawMean": -0.15,
+       "rawMin": -1.3,
+       "rawMax": 1.4,
+       "mean": -0.03,
+       "p10": -1.17,
+       "p50": -0.03,
+       "p90": 1.11,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": -0.4,
+       "ECMWF AIFS (AI model)": -1.1,
+       "NOAA GFS": 0.4,
+       "DWD ICON": -1.3,
+       "UK Met Office UM": 1.4,
+       "JMA GSM": 0.1
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": -2.33,
+       "rawMin": -3,
+       "rawMax": -1.2,
+       "mean": -2.54,
+       "p10": -3.45,
+       "p50": -2.54,
+       "p90": -1.63,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": -3,
+       "ECMWF AIFS (AI model)": -2.4,
+       "NOAA GFS": -2.9,
+       "DWD ICON": -3,
+       "UK Met Office UM": -1.5,
+       "JMA GSM": -1.2
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0.15,
+       "rawMin": 0,
+       "rawMax": 0.9,
+       "mean": 0.18,
+       "p10": 0,
+       "p50": 0,
+       "p90": 0.9,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0,
+       "ECMWF AIFS (AI model)": 0.9,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    },
+    {
+     "date": "2026-11-22",
+     "lead": 6,
+     "trainingLead": 6,
+     "tmax": {
+      "band": {
+       "rawMean": -1.07,
+       "rawMin": -2.5,
+       "rawMax": 0.1,
+       "mean": -0.59,
+       "p10": -1.98,
+       "p50": -0.59,
+       "p90": 0.81,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": -1,
+       "ECMWF AIFS (AI model)": -1.1,
+       "NOAA GFS": -1.7,
+       "DWD ICON": -2.5,
+       "UK Met Office UM": 0.1,
+       "JMA GSM": -0.2
+      }
+     },
+     "tmean": {
+      "band": {
+       "rawMean": -3.7,
+       "rawMin": -4.9,
+       "rawMax": -1.9,
+       "mean": -3.72,
+       "p10": -4.9,
+       "p50": -3.72,
+       "p90": -2.53,
+       "calibrated": true,
+       "members": 6
+      },
+      "members": {
+       "ECMWF IFS 0.25°": -4.9,
+       "ECMWF AIFS (AI model)": -3.4,
+       "NOAA GFS": -4.3,
+       "DWD ICON": -3.9,
+       "UK Met Office UM": -1.9,
+       "JMA GSM": -3.8
+      }
+     },
+     "precip": {
+      "band": {
+       "rawMean": 0.05,
+       "rawMin": 0,
+       "rawMax": 0.3,
+       "mean": 0.05,
+       "p10": 0,
+       "p50": 0,
+       "p90": 0.3,
+       "calibrated": true,
+       "members": 6,
+       "prob": 0
+      },
+      "members": {
+       "ECMWF IFS 0.25°": 0,
+       "ECMWF AIFS (AI model)": 0.3,
+       "NOAA GFS": 0,
+       "DWD ICON": 0,
+       "UK Met Office UM": 0,
+       "JMA GSM": 0
+      }
+     }
+    }
+   ]
+  }
+ ],
+ "missing": [
+  {
+   "key": "texas",
+   "reason": "No calibrated outlook for this region today."
+  },
+  {
+   "key": "gulf",
+   "reason": "Open-Meteo rate limit (HTTP 429); stopped."
+  },
+  {
+   "key": "north-sea",
+   "reason": "Open-Meteo rate limit (HTTP 429); stopped."
+  },
+  {
+   "key": "northeast",
+   "reason": "Open-Meteo rate limit (HTTP 429); stopped."
+  },
+  {
+   "key": "antofagasta",
+   "reason": "Open-Meteo rate limit (HTTP 429); stopped."
+  },
+  {
+   "key": "yunnan",
+   "reason": "Open-Meteo rate limit (HTTP 429); stopped."
+  },
+  {
+   "key": "sulawesi",
+   "reason": "Open-Meteo rate limit (HTTP 429); stopped."
+  },
+  {
+   "key": "pilbara",
+   "reason": "Open-Meteo rate limit (HTTP 429); stopped."
+  },
+  {
+   "key": "johannesburg",
+   "reason": "Open-Meteo rate limit (HTTP 429); stopped."
+  },
+  {
+   "key": "zacatecas",
+   "reason": "Open-Meteo rate limit (HTTP 429); stopped."
+  },
+  {
+   "key": "rustenburg",
+   "reason": "Open-Meteo rate limit (HTTP 429); stopped."
+  },
+  {
+   "key": "amarillo",
+   "reason": "Open-Meteo rate limit (HTTP 429); stopped."
+  }
+ ],
+ "notes": [
+  "Bands are copied verbatim from the live calibrated outlook; members are the raw model values that produced each band (matched on the band's raw count, mean, min and max).",
+  "lead = days after the issue date (0 = the issue date, a partly elapsed UTC day at issue time).",
+  "Scored against ERA5 (Open-Meteo archive, models=era5, UTC days with all 24 hours) once available, by research/track-record.ts score."
+ ]
+}
