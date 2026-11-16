@@ -42,7 +42,21 @@ const extras: ReportExtras = {
     comparisons: areasFull.comparisons.filter((x: any) => x.scope === 'pooled'),
     caveats: areasFull.caveats,
   } as AreaArchive) : null,
-  storage: read<any>('public/research/storage-summary.json'),
+  storage: (() => {
+    const st = read<any>('public/research/storage-skill.json');
+    const rv = read<any>('public/research/price-revisions.json');
+    if (!st) return null;
+    return {
+      generatedAt: st.generatedAt,
+      comparisons: st.comparisons.map((c: any) => ({ id: c.id, window: c.window, ref: c.ref, model: c.model, confirmatory: c.confirmatory, q: c.q ?? null, refLabel: c.refLabel, modelLabel: c.modelLabel, n: c.result.n, rmseRef: c.result.rmseRef, rmseModel: c.result.rmseModel, skillMse: c.result.skillMse, ci: [c.result.skillMseCi95.lo, c.result.skillMseCi95.hi], p: c.result.dmSquared.p })),
+      bySeason: st.bySeason,
+      sensitivity: { bcfPerHdd: st.sanity.fullYearLinear.bcfPerHdd, tHdd: st.sanity.fullYearLinear.tHdd, bcfPerCdd: st.sanity.fullYearLinear.bcfPerCdd },
+      windows: { multi: st.comparisons.find((c: any) => c.window === 'multi')?.result.n, gfs: st.comparisons.find((c: any) => c.window === 'gfs')?.result.n },
+      missingGfsWeeks: st.missingGfsWeeks,
+      caveats: st.caveats,
+      revisions: rv ? { n: rv.family[0]?.metrics.n, start: rv.family[0]?.metrics.oosStart, end: rv.family[0]?.metrics.oosEnd, family: rv.family.map((f: any) => ({ key: f.key, label: f.label, q: f.qCw ?? f.q ?? null, cwP: f.metrics.cwWxVsMkt?.p, dmP: f.metrics.dmWxVsRw?.p, qDm: f.qDm ?? null })) } : null,
+    };
+  })(),
 };
 writeFileSync(path.join(ROOT, 'public', 'research', 'report-extras.json'), JSON.stringify(extras));
 const track = read<TrackSummary>('data/track-record/summary.json');
