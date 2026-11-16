@@ -43,4 +43,6 @@ What Astraeus uses, under which terms, and what has to change before any commerc
 
 ## The repository's own licence
 
-None has been chosen yet: no `LICENSE` file exists. Pick one before publishing the code. MIT or Apache-2.0 suit an open research release; keep it proprietary if the product will be sold. The published results files in `public/research/` inherit the share-alike condition above for anything derived from Met Office data.
+- **Code: MIT** (`LICENSE`). Anyone may use, copy, modify and sell the code if they keep the copyright notice. It comes with no warranty.
+- **Research results and published forecasts: CC BY-SA 4.0** (`LICENSE-RESULTS.md`). This covers `public/research/`, `data/track-record/`, `docs/results/` and `docs/TECHNICAL_REPORT.md`. Share-alike is required by the Met Office data in the multi-model inputs, so it is not optional.
+- **The MIT licence covers only this code.** It grants no rights to the upstream data. Anyone running the code still needs their own Open-Meteo plan for commercial use and a licensed price feed (see above).

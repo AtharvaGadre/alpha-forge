@@ -1,7 +1,7 @@
 import {researchFor,papersFor} from './engine/commodityResearch';
 import React, { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
-import { FileText, Gauge, BookOpen, ArrowRight, Check, ChevronDown, ChevronRight, CircleHelp, Download, ExternalLink, FlaskConical, Globe2, Layers3, Loader2, Radar, RefreshCw, Search, ShieldCheck, SlidersHorizontal, Sprout, Star, Waves, X, Zap } from 'lucide-react';
+import { FileText, Gauge, BookOpen, ArrowRight, Check, ChevronDown, ChevronRight, CircleHelp, Download, ExternalLink, FlaskConical, Globe2, Layers3, Loader2, Radar, RefreshCw, Search, ShieldCheck, SlidersHorizontal, Sprout, Star, X, Zap } from 'lucide-react';
 import { COMMODITIES, SECTORS, type CommodityDefinition, type CommodityForecast } from './engine/commodityForecastEngine';
 import { appendForecastSnapshot, linksForCommodity, TRANSMISSION_VERSION } from './engine/commodityTransmissionEngine';
 import { workspaceViewFromHash, type WorkspaceView } from './engine/workspaceNavigation';
@@ -23,6 +23,7 @@ const TechnicalReport = lazy(() => import('./components/TechnicalReport').then((
 const ViewLoading = () => <div className="sk-loading" role="status">Loading view…</div>;
 import { CalibratedOutlookPanel } from './components/CalibratedOutlookPanel';
 import { DataAttribution } from './components/DataAttribution';
+import { AstraeusMark } from './components/AstraeusMark';
 import './landing.css';
 import './components/charts/charts.css';
 import './skill.css';
@@ -158,7 +159,7 @@ export function App() {
   if (view === 'home') return <Landing onEnter={navigate} />;
   return <div className="af-app">
     <aside className="af-sidebar">
-      <a className="af-brand" href="#home" onClick={e => { e.preventDefault(); navigate('home'); }}><span className="af-logo"><Waves size={23} /></span><span>Astraeus<small>COMMODITY INTELLIGENCE</small></span></a>
+      <a className="af-brand" href="#home" onClick={e => { e.preventDefault(); navigate('home'); }}><span className="af-logo"><AstraeusMark size={23} /></span><span>Astraeus<small>COMMODITY INTELLIGENCE</small></span></a>
       <div className="af-nav-caption">WORKSPACE</div>
       <nav aria-label="Workspace">
         <button title="Global globe explorer" aria-label="Global globe explorer" aria-current={view === 'globe' ? 'page' : undefined} className={view === 'globe' ? 'active' : ''} onClick={() => navigate('globe')}><Globe2 size={18} /> Global explorer <ChevronRight size={14} /></button>

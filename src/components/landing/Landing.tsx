@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowRight, ArrowUpRight, BookOpen, FileText, Gauge, Layers, ShieldCheck, Sparkles, Waves } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, BookOpen, FileText, Gauge, Layers, ShieldCheck, Sparkles, TrendingUp } from 'lucide-react';
+import { AstraeusMark } from '../AstraeusMark';
 import { HeroGlobe, type HeroSite } from './HeroGlobe';
 import { BarList, FanChart, LineChart, type FanDay } from '../charts/Charts';
 import { loadJson, useResearchData, type WeatherSkill, type PriceSkill } from '../../engine/researchData';
@@ -65,7 +66,7 @@ const STEPS = [
   { n: '01', icon: Layers, title: 'Ingest seven global models', body: 'ECMWF IFS and its machine-learning sibling AIFS, NOAA GFS, DWD ICON, the UK Met Office, JMA and Environment Canada. Runs older than 24 hours are rejected, never back-filled.' },
   { n: '02', icon: Gauge, title: 'Score every model against the record', body: 'Each model’s past forecasts are verified against ERA5 reanalysis at the same lead time, region by region. Skill is measured, then earned: accurate models gain weight.' },
   { n: '03', icon: Sparkles, title: 'Calibrate into probabilities', body: 'Bias-corrected, skill-weighted and spread-adjusted by non-homogeneous Gaussian regression fitted on minimum CRPS (Gneiting et al., 2005). The output is a distribution, and its interval coverage is published, warts and all.' },
-  { n: '04', icon: Waves, title: 'Trace the shock into markets', body: 'Calibrated anomalies feed explicit, literature-backed mechanisms: heat at corn pollination, frost in Brazilian coffee, heating demand in the US Northeast — each with its own invalidation test.' },
+  { n: '04', icon: TrendingUp, title: 'Trace the shock into markets', body: 'Calibrated anomalies feed explicit, literature-backed mechanisms: heat at corn pollination, frost in Brazilian coffee, heating demand in the US Northeast — each with its own invalidation test.' },
 ];
 
 function StepVisual({ step, w }: { step: number; w: WeatherSkill | null }) {
@@ -79,7 +80,7 @@ function StepVisual({ step, w }: { step: number; w: WeatherSkill | null }) {
     <div className={`lp-vis ${step === 0 ? 'on' : ''}`} aria-hidden={step !== 0}>
       <div className="lp-models">
         {['ECMWF IFS', 'ECMWF AIFS', 'NOAA GFS', 'DWD ICON', 'UK Met Office', 'JMA GSM', 'ECCC GEM'].map((m, i) => <span key={m} style={{ ['--i' as any]: i }}>{m}{m === 'ECMWF AIFS' && <small>AI</small>}</span>)}
-        <div className="lp-models-core"><Waves size={22} /><strong>Astraeus</strong><small>multi-model calibration</small></div>
+        <div className="lp-models-core"><AstraeusMark size={22} /><strong>Astraeus</strong><small>multi-model calibration</small></div>
       </div>
     </div>
     <div className={`lp-vis ${step === 1 ? 'on' : ''}`} aria-hidden={step !== 1}>
@@ -152,7 +153,7 @@ export function Landing({ onEnter }: { onEnter: (view: WorkspaceView) => void })
 
   return <div className="lp" ref={root}>
     <header className={`lp-nav ${scrolled ? 'solid' : ''}`}>
-      <a className="lp-brand" href="#home" aria-label="Astraeus home"><span className="lp-mark"><Waves size={18} /></span>Astraeus</a>
+      <a className="lp-brand" href="#home" aria-label="Astraeus home"><span className="lp-mark"><AstraeusMark size={18} /></span>Astraeus</a>
       <nav aria-label="Site">
         <a href="#method" onClick={(e) => { e.preventDefault(); document.getElementById('lp-method')?.scrollIntoView({ behavior: 'smooth' }); }}>Method</a>
         <a href="#accuracy" onClick={go('accuracy')}>Forecast skill</a>
@@ -216,7 +217,7 @@ export function Landing({ onEnter }: { onEnter: (view: WorkspaceView) => void })
         </div>
         <div className="lp-proof-chart" data-reveal>
           {leadSeries.length ? <LineChart caption="Probabilistic error (CRPS, °C) of daily maximum temperature by forecast lead — lower is better" series={leadSeries} xFormat={(x) => LEAD_LABEL(x)} yFormat={(y) => y.toFixed(1)} xLabel="Lead" yLabel="CRPS (°C)" height={280} /> : null}
-          <p className="lp-footnote">Temperature gains over a no-training forecast fall from about 15% at day 1 to 3–5% at day 7; rainfall gains over the raw ensemble are small (1–2%) but significant at every lead. These are grid-box scores (~30 km): against nearby weather stations the same forecasts gain only 1–5%, and training on station data is what restores about 11% at day 1. Since 16 November the live outlook runs v3, which widens v2’s slightly over-confident ranges (80% intervals now hold about 78% of outcomes, up from 75%); every day’s outlook is logged to a hash-chained track record and scored as it verifies. ERA5 verification favours ECMWF’s AIFS, which is trained on it. <a href="#accuracy" onClick={go('accuracy')}>Full skill report <ArrowUpRight size={12} /></a></p>
+          <p className="lp-footnote">Temperature gains over a no-training forecast fall from about 15% at day 1 to 3–5% at day 7; rainfall gains over the raw ensemble are small (1–2%) but significant at every lead. These are grid-box scores (~30 km): against nearby weather stations the same forecasts gain only 1–5%, and training on station data is what restores about 11% at day 1. Since 16 November the live outlook runs v3.1, which widens v2’s slightly over-confident ranges (80% intervals now hold about 78% of outcomes, up from 75%) and no longer runs warm when the season turns; every day’s outlook is logged to a hash-chained track record and scored as it verifies. ERA5 verification favours ECMWF’s AIFS, which is trained on it. <a href="#accuracy" onClick={go('accuracy')}>Full skill report <ArrowUpRight size={12} /></a></p>
         </div>
       </div>
     </section>
