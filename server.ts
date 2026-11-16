@@ -15,7 +15,7 @@ import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import { createOutbound, OutboundError } from './server/outbound.ts';
 import { buildCsp, rateLimit, securityHeaders } from './server/security.ts';
-import { issueCommodityForecast, loadLatestOutlooks, outlookPaths, type OutlookFile } from './server/precompute.ts';
+import { COLD_REGION_WEIGHT, issueCommodityForecast, loadLatestOutlooks, outlookPaths, type OutlookFile } from './server/precompute.ts';
 import { startScheduler } from './server/dailyJob.ts';
 import { buildSummary, trackRecordPaths, type TrackRecordSummary } from './server/trackRecordStore.ts';
 
@@ -122,7 +122,7 @@ async function startServer() {
   const handleLiveInvestigate = async (req: express.Request, res: express.Response) => {
     const query = String(req.body?.query ?? req.query.q ?? '').trim().slice(0, 300);
     if (!query) { res.status(400).json({ error: 'Provide ?q=<question or place> or {"query": "..."}' }); return; }
-    if (outbound.budget.remaining('interactive') < 20) { res.status(503).json({ error: 'The daily live-data budget for this server is used up. Try again after 00:00 UTC.', dataMode: 'LIVE_UNAVAILABLE' }); return; }
+    if (outbound.budget.remaining('interactive') < COLD_REGION_WEIGHT) { res.status(503).json({ error: 'The daily live-data budget for this server is used up. Try again after 00:00 UTC.', dataMode: 'LIVE_UNAVAILABLE' }); return; }
     try {
       const live = await runLiveAtmospherePipeline({ query, fetchJson: outbound.fetcher({ priority: 'interactive' }) });
       res.json(live);
@@ -254,7 +254,7 @@ async function startServer() {
       if (precomputed) { res.json({ ...precomputed, cached: true, notice: `${reason} Showing the precomputed outlook issued ${precomputed.precomputed?.issuedAtUtc ?? latestOutlooks?.issuedAtUtc}.` }); return; }
       res.status(503).json({ error: `${reason} No precomputed outlook exists for this region; try again after 00:00 UTC.`, dataMode: 'LIVE_UNAVAILABLE' });
     };
-    if (!commodityPending.has(key) && (outbound.budget.remaining('interactive') < 20 || outbound.coolingDown())) {
+    if (!commodityPending.has(key) && (outbound.budget.remaining('interactive') < COLD_REGION_WEIGHT || outbound.coolingDown())) {
       budgetFallback(outbound.coolingDown() ? 'The weather provider is rate-limiting this server.' : 'The daily live-data budget for this server is used up.');
       return;
     }
@@ -273,7 +273,7 @@ async function startServer() {
       }
       res.json({ ...await pending, cached: false });
     } catch (err: any) {
-      if (outbound.budget.remaining('interactive') < 20 || outbound.coolingDown()) { budgetFallback('Live data became unavailable during this analysis.'); return; }
+      if (outbound.budget.remaining('interactive') < COLD_REGION_WEIGHT || outbound.coolingDown()) { budgetFallback('Live data became unavailable during this analysis.'); return; }
       res.status(502).json({ error: err?.message || 'Live data unavailable.', dataMode: 'LIVE_UNAVAILABLE' });
     }
   });
