@@ -118,7 +118,9 @@ test('with the weather budget at zero the UI degrades gracefully', async () => {
   await page.$$eval('.af-analysis-controls button', (b) => b[0].click()); // "Run forecast": answered 503 by the budget gate
   const alert = await page.waitForSelector('.af-detail [role=alert]', WAIT);
   assert.match(await alert.evaluate((el) => el.textContent), /Live analysis unavailable/);
-  assert.match(await alert.evaluate((el) => el.textContent), /No demo result has been substituted/);
+  // A fresh clone has no data/outlooks, so nothing is shown; a checkout whose server has precomputed today's
+  // outlooks falls back to those (labelled with their issue time). Either way no demo result is substituted.
+  assert.match(await alert.evaluate((el) => el.textContent), /No demo result has been substituted|Showing the precomputed outlook issued/);
   assert.deepEqual(problems, []);
   await page.close();
 });
