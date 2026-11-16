@@ -10,6 +10,7 @@ import {
   cdfOf, crpsLogistic, logisticCdf, fitNgrV3, predictNgrV3, fitScaleFactor,
   ASTRAEUS_V3_TEMPERATURE, fitAstraeusV3, predictAstraeusV3,
 } from './weatherPostprocessing';
+import { buildCalibratedOutlook, OUTLOOK_METHOD_VERSION } from './calibratedOutlook';
 
 const close = (a: number, b: number, tol: number, msg?: string) => assert.ok(Math.abs(a - b) <= tol, `${msg ?? ''} ${a} vs ${b} (tol ${tol})`);
 
@@ -369,4 +370,42 @@ test('Astraeus v3 is the frozen C6 configuration for temperature and v2 for prec
   const pr = fitAstraeusV3(rain, 'precipitation')!;
   assert.deepEqual(predictAstraeusV3(pr, [0, 1, 2, 0.5, 3]), { kind: 'weighted-ensemble', members: [0, 1, 2, 0.5, 3], weights: skillWeights(rain, 0.25) });
   assert.equal(fitAstraeusV3(rows.slice(0, 9), 'temperature'), null);
+});
+
+test('live outlook uses the method chosen by the adoption rule, reports it in `version`, and v2 stays selectable', () => {
+  const rnd = seededRandom(71);
+  const day = (k: number) => new Date(Date.UTC(2026, 7, 1) + k * 86_400_000).toISOString().slice(0, 10);
+  const verifyDates = Array.from({ length: 90 }, (_, k) => day(k));
+  const nextDates = Array.from({ length: 7 }, (_, k) => day(97 + k));
+  const models = [{ apiId: 'm1', name: 'M1' }, { apiId: 'm2', name: 'M2' }, { apiId: 'm3', name: 'M3' }];
+  const bias = [0.8, -0.5, 0.2];
+  const truth = verifyDates.map((_, k) => ({ tm: 15 + 6 * Math.sin(k / 15) + 2 * gaussian(rnd), rain: Math.max(0, 3 * gaussian(rnd)) }));
+  const eraLoc = { daily: { time: verifyDates, temperature_2m_mean: truth.map((t) => t.tm), temperature_2m_max: truth.map((t) => t.tm + 5), precipitation_sum: truth.map((t) => t.rain) } };
+  const hourly: Record<string, unknown> = { time: verifyDates.flatMap((d) => Array.from({ length: 24 }, (_, h) => `${d}T${String(h).padStart(2, '0')}:00`)) };
+  for (const lead of [1, 2, 3, 4, 5, 6]) models.forEach((m, i) => {
+    const daily = truth.map((t) => ({ tm: t.tm + bias[i] + (0.6 + 0.2 * i) * gaussian(rnd), rain: Math.max(0, t.rain + gaussian(rnd)) }));
+    // hourly profile with mean = daily mean and maximum = daily mean + 5
+    hourly[`temperature_2m_previous_day${lead}_${m.apiId}`] = daily.flatMap((x) => Array.from({ length: 24 }, (_, h) => x.tm + (h === 12 ? 5 : -5 / 23)));
+    hourly[`precipitation_previous_day${lead}_${m.apiId}`] = daily.flatMap((x) => Array.from({ length: 24 }, () => x.rain / 24));
+  });
+  const fcDaily: Record<string, unknown> = { time: nextDates };
+  models.forEach((m, i) => {
+    fcDaily[`temperature_2m_mean_${m.apiId}`] = nextDates.map(() => 16 + bias[i]);
+    fcDaily[`temperature_2m_max_${m.apiId}`] = nextDates.map(() => 21 + bias[i]);
+    fcDaily[`precipitation_sum_${m.apiId}`] = nextDates.map(() => 2 + i);
+  });
+  const input = { models, usable: [true, true, true], fcLocs: [{ daily: fcDaily }], prevLocs: [{ hourly }], eraLocs: [eraLoc], nextDates, verifyDates };
+  assert.equal(OUTLOOK_METHOD_VERSION, 'astraeus-v3');
+  const v3 = buildCalibratedOutlook(input)!;
+  const v2 = buildCalibratedOutlook({ ...input, method: 'astraeus-v2' })!;
+  assert.equal(v3.version, 'astraeus-v3');
+  assert.equal(v2.version, 'astraeus-v2');
+  assert.ok(v3.method.startsWith('Astraeus v3') && v2.method.startsWith('Astraeus v2'));
+  for (const o of [v3, v2]) for (const d of o.days) for (const b of [d.tmean, d.tmax, d.precip]) {
+    assert.ok(b && b.calibrated, `${o.version} ${d.date} calibrated`);
+    assert.ok(b!.p10 <= b!.p50 && b!.p50 <= b!.p90, `${o.version} ${d.date} quantiles ${b!.p10} ${b!.p50} ${b!.p90}`);
+  }
+  // rain is the same skill-weighted ensemble in both versions; temperature differs
+  assert.deepEqual(v3.days.map((d) => d.precip), v2.days.map((d) => d.precip));
+  assert.notDeepEqual(v3.days.map((d) => d.tmean), v2.days.map((d) => d.tmean));
 });
