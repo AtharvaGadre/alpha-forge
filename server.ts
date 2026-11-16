@@ -17,7 +17,7 @@ import { createOutbound, OutboundError } from './server/outbound.ts';
 import { buildCsp, rateLimit, securityHeaders } from './server/security.ts';
 import { issueCommodityForecast, loadLatestOutlooks, outlookPaths, type OutlookFile } from './server/precompute.ts';
 import { startScheduler } from './server/dailyJob.ts';
-import { buildSummary, type TrackRecordSummary } from './server/trackRecordStore.ts';
+import { buildSummary, trackRecordPaths, type TrackRecordSummary } from './server/trackRecordStore.ts';
 
 dotenv.config();
 
@@ -154,6 +154,12 @@ async function startServer() {
   const globeTtlMs = num('GLOBE_TTL_MIN', 180) * 60_000;
   app.get('/api/v1/weather/globe', async (_req, res) => {
     if (weatherGridCache && weatherGridCache.expires > Date.now()) { res.json({ ...weatherGridCache.field, cached: true }); return; }
+    // A refresh is all-or-nothing (≈144 weighted calls); never start one the budget cannot finish.
+    if (!weatherGridPending && (outbound.coolingDown() || outbound.budget.remaining('interactive') < 150)) {
+      if (weatherGridCache) { res.json({ ...weatherGridCache.field, cached: true, stale: true }); return; }
+      res.status(503).json({ error: 'The live weather layer is paused: this server’s daily Open-Meteo budget is used up or the provider is rate-limiting. It returns after 00:00 UTC.', dataMode: 'LIVE_UNAVAILABLE' });
+      return;
+    }
     try {
       if (!weatherGridPending) {
         weatherGridPending = (async () => {
@@ -292,6 +298,24 @@ async function startServer() {
   app.get('/api/v1/track-record', (_req, res) => {
     try { res.setHeader('Cache-Control', 'public, max-age=300'); res.json({ ...trackRecordSummary(), enabled: TRACK_RECORD }); }
     catch (err: any) { res.status(500).json({ error: err?.message || 'Track record unavailable.' }); }
+  });
+  // The raw ledger and snapshot files, so anyone can recompute the chain without the repository.
+  const trackDir = trackRecordPaths(__dirname);
+  app.get('/api/v1/track-record/ledger', (_req, res) => {
+    if (!fs.existsSync(trackDir.ledger)) { res.status(404).type('text/plain').send(''); return; }
+    res.setHeader('Cache-Control', 'public, max-age=300');
+    res.type('text/plain; charset=utf-8');
+    fs.createReadStream(trackDir.ledger).pipe(res);
+  });
+  app.get('/api/v1/track-record/snapshots/:date', (req, res) => {
+    const date = String(req.params.date).replace(/\.json$/, '');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) { res.status(400).json({ error: 'Use /api/v1/track-record/snapshots/YYYY-MM-DD.' }); return; }
+    const file = path.join(trackDir.snapshots, `${date}.json`);
+    if (!fs.existsSync(file)) { res.status(404).json({ error: 'No snapshot for that date.' }); return; }
+    res.setHeader('Cache-Control', 'public, max-age=86400, immutable');
+    res.type('application/json');
+    // Served byte-for-byte so the sha256 in the ledger can be checked against this response.
+    fs.createReadStream(file).pipe(res);
   });
 
   app.use('/api', (_req, res) => { res.status(404).json({ error: 'Unknown API route.' }); });
