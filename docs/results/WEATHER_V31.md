@@ -118,3 +118,6 @@ If D2 is adopted, the live pipeline fetches ERA5 2019–2024 daily Tmean and Tma
 ## 7. Freeze
 
 `astraeus-v3.1` is implemented as `ASTRAEUS_V31_TEMPERATURE` and `fitAstraeusV31` in `src/engine/weatherPostprocessing.ts`, predicted with `predictAstraeusV3`, with unit tests in `weatherPostprocessing.test.ts`. It is registered as `astraeus-v3.1` in `research/weather-benchmark.ts` and appended to the `final` suite after v3, with its own randomised-PIT stream, so every other method's scores are unchanged by its presence.
+
+- **Freeze commit:** `73d0d441953a5da30515838522c4a007665c9b88` ("freeze astraeus-v3.1: …"), committed **2026-11-16T12:43:41Z**.
+- Recorded before the confirmation period was scored. That is also before any prospective outcome exists: the first prospective target day is 2026-11-17, and ERA5 for it is published around 2026-11-22.
