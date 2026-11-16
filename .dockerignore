@@ -1,0 +1,8 @@
+node_modules
+dist
+research/cache
+research/out
+.astraeus-data
+.git
+*.png
+apps

@@ -1,3 +1,16 @@
+# Deployment
+
+Astraeus is a single Node service: Express serves the API and the built Vite bundle.
+
+```bash
+npm ci && npm run build
+PORT=3000 npm start            # NODE_ENV=production tsx server.ts
+# or
+docker build -t astraeus . && docker run -p 3000:3000 astraeus
+```
+
+Optional environment: `GEMINI_API_KEY` (narrative rephrasing only; all numbers are deterministic). The issued-forecast ledger is written to `.astraeus-data/` — mount a volume to keep it across restarts. Open-Meteo and Yahoo free endpoints are licensed for non-commercial use; a commercial deployment needs their paid plans.
+
 # DEPLOYMENT.md — Cloud Run, Web & Cross-Platform Deployment Guide
 
 ## 1. Unified Web & API Gateway (`server.ts`)
