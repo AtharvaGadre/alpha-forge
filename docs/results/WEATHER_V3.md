@@ -151,6 +151,86 @@ Otherwise the live outlook stays on v2. v3 is still kept in the `final` suite fo
 - **Freeze commit:** `9b999596cc6fed04b1eae302dd5f0b8481ac79bb` ("freeze astraeus-v3: …"), committed **2026-11-16T09:37:06Z**.
 - Recorded before the confirmation period was scored. That is also before any prospective outcome exists: the first prospective target day is 2026-11-17, and ERA5 for it is published around 2026-11-22.
 
+## 8. Confirmation period: scored once, after the freeze
+
+**Run.** `npx tsx research/weather-benchmark.ts --suite final --period confirm --offline`, from commit 95d2fab (the freeze plus the freeze record). The cache was complete: no fetch, API cost 0. Output: `public/research/weather-skill.json` (generated 2026-11-16T09:38:04Z) and `docs/results/WEATHER_BENCHMARK.md`.
+
+**Integrity check.** We removed the `astraeus-v3` rows (12 summary rows, 48 significance rows, its `bySite` column and its `methods` entry) and `generatedAt`. The new file is then identical to the previously committed `weather-skill.json`: 0 differences across 72 summary rows, 240 significance rows, 192 per-site rows, config, examples and single-model scores. `headlineMethod` is still `astraeus-v2`.
+
+**Temperature, confirmation period (25,326 cases).** Columns: CRPS v2 → v3 (°C); CRPSS against the zero-training Gaussian with 95% block-bootstrap interval; Diebold–Mariano p against that Gaussian (largest over bandwidths); PIT-based 80% coverage; share below p10 and above p90; bias (°C).
+
+| Variable | Lead | CRPS v2 → v3 | CRPSS vs Gaussian, v2 | CRPSS vs Gaussian, v3 | p v2 / v3 | Coverage v2 → v3 | < p10 v2 → v3 | > p90 v2 → v3 | Bias v2 → v3 |
+|---|---|---|---|---|---|---|---|---|---|
+| Tmax | 1 | 0.544 → 0.539 | +14.8% (+12.1, +17.5) | +15.6% (+13.0, +18.4) | <0.001 / <0.001 | 75.5 → 78.0% | 14.1 → 12.7% | 10.4 → 9.3% | +0.100 → +0.089 |
+| Tmax | 3 | 0.713 → 0.707 | +11.3% (+8.4, +14.2) | +12.1% (+9.2, +15.2) | <0.001 / <0.001 | 77.7 → 78.8% | 12.9 → 12.4% | 9.4 → 8.8% | +0.128 → +0.113 |
+| Tmax | 5 | 0.946 → 0.940 | +7.4% (+3.3, +11.0) | +8.0% (+4.3, +11.4) | 0.012 / 0.004 | 76.3 → 78.7% | 13.6 → 12.9% | 10.0 → 8.4% | +0.197 → +0.162 |
+| Tmax | 7 | 1.277 → 1.259 | +4.5% (+1.5, +7.9) | +5.9% (+3.0, +9.1) | 0.021 / 0.001 | 76.2 → 77.9% | 13.8 → 13.3% | 10.1 → 8.8% | +0.252 → +0.228 |
+| Tmean | 1 | 0.341 → 0.334 | +15.0% (+11.3, +17.9) | +16.8% (+13.3, +19.6) | <0.001 / <0.001 | 73.5 → 77.7% | 15.6 → 13.0% | 11.0 → 9.4% | +0.068 → +0.056 |
+| Tmean | 3 | 0.479 → 0.473 | +12.5% (+8.9, +15.8) | +13.7% (+10.2, +17.2) | <0.001 / <0.001 | 75.4 → 78.8% | 13.8 → 11.8% | 10.8 → 9.4% | +0.070 → +0.053 |
+| Tmean | 5 | 0.671 → 0.663 | +5.5% (+2.1, +9.3) | +6.7% (+3.5, +10.7) | 0.078 / 0.032 | 75.0 → 77.6% | 14.1 → 12.8% | 10.9 → 9.6% | +0.105 → +0.077 |
+| Tmean | 7 | 0.944 → 0.930 | +2.7% (+0.4, +5.5) | +4.1% (+1.9, +6.9) | 0.163 / 0.032 | 74.4 → 77.6% | 14.6 → 13.0% | 10.9 → 9.4% | +0.162 → +0.136 |
+| **Pooled** | | **0.75005 → 0.74099 (−1.21%)** | | | | **75.5 → 78.1%** | **14.0 → 12.7%** | **10.4 → 9.1%** | **+0.137 → +0.116** |
+
+- **Against the raw ensemble**, v3's CRPSS is +18.0 / +15.6 / +11.6 / +10.0% for Tmax and +18.7 / +16.0 / +10.1 / +8.3% for Tmean at days 1 / 3 / 5 / 7. The corresponding v2 figures are +17.2 / +14.8 / +11.0 / +8.7% and +16.9 / +14.8 / +8.9 / +6.9%.
+- **Against the zero-training Gaussian**, v3 is significant at p < 0.05 in 8 of 8 temperature cells, against 6 of 8 for v2.
+
+**v3 against v2 directly.** This is a Diebold–Mariano test on the case-weighted daily CRPS difference; it was not in the pre-specification. Rows are in `public/research/archive/weather-v3-vs-v2-dm.json`. They come from a re-run of the frozen `final` suite through a temporary, uncommitted copy of the benchmark whose comparison list also included v2; its confirmation summary was byte-identical to the published run. Columns: mean daily CRPS difference v3 − v2 (°C), p at 14 days, and the largest p over bandwidths of lead, 7, 14 and 21 days.
+
+| Period | Tmean d1 | Tmean d3 | Tmean d5 | Tmean d7 | Tmax d1 | Tmax d3 | Tmax d5 | Tmax d7 |
+|---|---|---|---|---|---|---|---|---|
+| Confirmation | −0.007; 0.0003; 0.0009 | −0.007; 0.044; 0.075 | −0.008; 0.016; 0.016 | −0.014; 0.013; 0.013 | −0.005; 0.032; 0.049 | −0.006; 0.042; 0.067 | −0.006; 0.137; 0.137 | −0.018; 0.002; 0.002 |
+| Development | −0.002; 0.20; 0.23 | −0.003; 0.29; 0.34 | −0.001; 0.90; 0.91 | +0.003; 0.71; 0.73 | −0.014; 0.020; 0.020 | −0.007; 0.15; 0.15 | −0.004; 0.51; 0.53 | −0.007; 0.40; 0.40 |
+
+On confirmation, v3 is better than v2 in all eight temperature cells: p < 0.05 in 7 of 8 at the 14-day bandwidth, and 5 of 8 under the largest p. There is no multiplicity correction. On dev the difference is significant only for Tmax day 1, and Tmean day 7 is slightly worse.
+
+**Precipitation.** v3 uses v2's component, so its precipitation CRPS, bias and CRPSS are identical to v2's in every cell. Its PIT coverage differs by at most 0.3 pp (for example 82.8% vs 82.7% at day 1). That gap is randomisation noise: v3 draws its randomised-PIT numbers from its own stream.
+
+## 9. Live adoption
+
+The Section 5 rule was applied to the confirmation numbers above:
+
+- pooled temperature CRPS 0.74099 ≤ 0.75005 °C ✓;
+- |78.1% − 80%| = 1.9 pp < |75.5% − 80%| = 4.5 pp ✓.
+
+**The live outlook therefore switches to v3.** `src/engine/calibratedOutlook.ts` now:
+
+- takes an optional `method` ('astraeus-v2' | 'astraeus-v3');
+- defaults to `OUTLOOK_METHOD_VERSION = 'astraeus-v3'`;
+- sets `version` and the method description to the method actually used;
+- passes each training row's age in days (counted back from the last verification date), so the recency weights match the benchmark;
+- leaves the older-half → newer-half held-out check unchanged, now run with the selected method.
+
+A unit test covers the default, the `version` field, v2 still being selectable, and identical rainfall output.
+
+## 10. Discussion
+
+- **The confirmation period motivated this work, so it is not a clean test.**
+  - v2's over-confidence and warm bias were found there.
+  - Knowing that shaped which fixes were tried (scale recalibration, recency weights against bias drift).
+  - The rules were written down first, selection used dev data only, and the winner was frozen before the confirmation scoring. Even so, the confirmation result is a consistency check, not independent evidence.
+  - The first clean test is prospective: forecasts for days after 2026-11-16, scorable from about 22 Nov 2026.
+- **The gain is real but small.**
+  - Pooled temperature CRPS fell 1.2% on confirmation and 0.55% on dev. Every confirmation cell improved, but only about half the cells are individually significant under conservative bandwidths.
+  - On dev, most of the gain came from recency weighting and most of the coverage gain from the scale factor.
+- **Calibration is better but not fixed.**
+  - Coverage is 78% instead of 80%, against 75.5% for v2.
+  - What remains is mostly asymmetric: 12.7% of outcomes fall below p10 and 9.1% above p90, so the upper tail is now slightly over-covered.
+  - **v3 does not remove the April–November warm bias**; it only trims it (+0.116 vs +0.137 °C). It mainly widens intervals, which a symmetric law cannot target at one tail.
+  - A seasonally aware bias model is the obvious next step. It would have to be selected on dev and tested prospectively, and dev showed little bias to learn from.
+- **Why the gain is larger on confirmation than on dev is unknown.** Recency weighting may matter more through spring and summer transitions, or the difference may be chance.
+- **Not done:**
+  - no prospective scoring (no outcomes exist yet);
+  - no anomaly-based or Student-t candidate;
+  - no tuning of the half-life, folds or κ range (all fixed in advance);
+  - no station truth;
+  - no change to the headline method, `technicalReport.ts`, README or landing pages (left to the integrator).
+
+## 11. Prospective test: one thing to fix before scoring it
+
+`npx tsx research/weather-benchmark.ts --period prospective` now defaults to the `final` suite, which includes v2 and v3. But `CONFIG.forecastEnd` is still 2026-11-08, so neither forecasts nor ERA5 are loaded for any day after that date, and a prospective run would currently have no test days.
+
+To score it, the loaders must also cover days after 2026-11-16. That is best done as additional chunks starting 2026-11-09, leaving the existing chunks alone. Moving `forecastEnd` changes the cache key of the last forecast chunk and the last ERA5 chunk (2026-07-01 onwards). Both would be re-fetched, and preliminary ERA5T values may have been revised since, which could shift the confirmation numbers.
+
 ## References
 
 - Bergmeir, C., Benítez, J. M. (2012). On the use of cross-validation for time series predictor evaluation. *Information Sciences* 191, 192–213. doi:10.1016/j.ins.2011.12.028 (verified via Crossref).
