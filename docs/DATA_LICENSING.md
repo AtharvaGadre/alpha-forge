@@ -23,10 +23,10 @@ What Astraeus uses, under which terms, and what has to change before any commerc
 
 ## Before a commercial launch
 
-1. **Open-Meteo:** buy an API subscription and set `OPEN_METEO_API_KEY` so the server uses the customer endpoints. The live regional analysis runs in the visitor's browser, so it must also be routed through the server proxy (`VITE_OM_PROXY=1`) for the key to apply.
+1. **Open-Meteo:** buy an API subscription and set `OPEN_METEO_API_KEY` so the server uses the customer endpoints. Every weather request (live analyses, the globe layer, the daily precompute) is made server-side through `server/outbound.ts`, so the key applies to all of them.
 2. **Prices:** replace the Yahoo chart endpoint with a licensed end-of-day futures feed. Exchange data, such as CME settlements, carry their own redistribution fees.
 3. **Met Office share-alike:** either publish the calibrated outlook under CC BY-SA 4.0, or drop the UKMO member from commercial outputs and re-verify skill without it.
-4. **Attribution:** keep the in-app attribution block (Open-Meteo link, the seven model providers, the ERA5 notice) visible wherever forecasts are displayed, and in the technical report.
+4. **Attribution:** keep the in-app attribution block (`src/components/DataAttribution.tsx`: Open-Meteo link, the seven model providers, the ERA5 notice, NASA POWER, the price disclaimer) visible wherever forecasts are displayed. It sits in the footer of every workspace view, at the sidebar foot (Open-Meteo credit), in the landing footer and in the printed technical report.
 
 ## Sources checked
 
