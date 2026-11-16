@@ -1282,7 +1282,7 @@ export async function runLiveAtmospherePipeline(opts: RunLivePipelineOptions): P
     ),
     Promise.all(
       climRanges.map(([a, b]) =>
-        cached(`clim-agro-v2|${locKey}|${a}`, 7 * 24 * 3_600_000, () => logged<any>(log, `Open-Meteo Historical (ERA5 climatology ${a.slice(0, 4)})`, eraUrl(a, b), 15000, fetchJson, () => `${a}…${b}`))
+        cached(`clim-agro-v3|${locKey}|${a}`, 7 * 24 * 3_600_000, () => logged<any>(log, `Open-Meteo Historical (ERA5 climatology ${a.slice(0, 4)})`, eraUrl(a, b), 15000, fetchJson, () => `${a}…${b}`))
       )
     ),
   ]);
