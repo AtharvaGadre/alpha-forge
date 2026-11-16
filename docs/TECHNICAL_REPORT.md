@@ -1,15 +1,15 @@
 # Calibrated multi-model weather forecasts for commodity regions, and what they can and cannot tell us about futures returns
 
-*Astraeus Technical Report AR-2026-01 · Astraeus Research*
+*Astraeus Technical Report AR-2026-01 (revision 2) · Astraeus Research*
 
-- Results generated 2026-11-15
+- Results generated 2026-11-16
 - Weather benchmark astraeus-weather-benchmark-v1 · final/confirm
 - Price study astraeus-weather-price-walkforward-v1
 - Code: research/weather-benchmark.ts · research/price-study.ts · src/engine/weatherPostprocessing.ts
 
 ## Abstract
 
-We verify daily forecasts from seven global weather prediction systems — ECMWF IFS and the machine-learning AIFS, NOAA GFS, DWD ICON, the UK Met Office Unified Model, JMA GSM and ECCC GEM — at 16 commodity-producing and demand regions against ERA5 reanalysis, and develop a post-processing scheme for the weather layer of the Astraeus commodity platform. Candidate methods were compared on a development period (test days from October 2025 to 2026-03-31); the selected scheme, Astraeus v2 — bias-corrected, skill-weighted non-homogeneous Gaussian regression for temperature and a skill-weighted multi-model ensemble for precipitation, trained on trailing 90-day windows — was frozen and scored once on a later confirmation period (209 days, 38,420 forecast–observation pairs). Relative to the raw multi-model ensemble, Astraeus v2 reduced the continuous ranked probability score (CRPS) by 17.2% at day 1 and 8.7% at day 7 for daily maximum temperature, 16.9% to 6.9% for daily mean temperature and 2.3% to 1.1% for daily precipitation; every difference was significant (Diebold–Mariano, p < 0.01). A pre-registered first run showed that classical EMOS fitted on 40-day windows was under-dispersive and degraded precipitation forecasts, which motivated the final design. In a walk-forward study of weekly futures returns for 6 weather-sensitive commodities, weather information improved out-of-sample forecasts over a market-only model in 6 of 34 commodity–information–horizon cells; after Benjamini–Hochberg correction the only surviving cell is Natural gas (Henry Hub) with NWP forecasts known at origin at 1 week (R² gain over the market-only model +6.7%, Clark–West q = 0.004), which nevertheless did not significantly beat a no-change forecast (Diebold–Mariano p = 0.210; out-of-sample R² +7.1%, 95% CI -3.3% to +22.2%) and rests on 88 weeks. We conclude that calibrated weather information is a reliable physical input, but that weekly price predictability from weather is narrow and should be claimed only where it survives out-of-sample testing.
+We verify daily forecasts from seven global weather prediction systems — ECMWF IFS and the machine-learning AIFS, NOAA GFS, DWD ICON, the UK Met Office Unified Model, JMA GSM and ECCC GEM — at 16 commodity-producing and demand regions against ERA5 reanalysis, and develop the post-processing behind the Astraeus commodity platform. Candidate methods were compared on development-period test days (October 2025 to 2026-03-31); the selected scheme, Astraeus v2 — bias-corrected, skill-weighted non-homogeneous Gaussian regression for temperature and a skill-weighted multi-model ensemble for precipitation, both trained on trailing 90-day windows — was then frozen and scored on a later confirmation period (209 days, 38,420 forecast–observation pairs). Against a zero-training Gaussian forecast built from the same models, Astraeus v2 reduced the continuous ranked probability score (CRPS) of daily maximum temperature by 14.8% at day 1 and 4.5% at day 7, and of daily mean temperature by 15.0% and 2.7% (significant in 6 of 8 temperature cells at p < 0.05). Against the raw ensemble scored as its empirical distribution the reductions are larger (17.2% and 8.7% for maximum temperature), partly because a 7- to 5-member ensemble carries a finite-ensemble penalty. For precipitation, where v2 is itself a weighted ensemble, the like-for-like gain over the raw ensemble was 2.3% at day 1 and 1.1% at day 7 (significant at every lead). The gains come from bias correction and skill weighting rather than from better dispersion: v2’s central 80% intervals covered 76%–78% of maximum-temperature observations, whereas the raw ensemble is over-dispersive at short leads. An exploratory first run had also covered the confirmation days, so a strictly prospective test on forecasts issued after 2026-11-16 is specified alongside. In a walk-forward study of weekly futures returns for 6 weather-sensitive commodities, weather information improved out-of-sample forecasts over a market-only model in 6 of 34 commodity–information–horizon cells (point estimates); after Benjamini–Hochberg correction the only surviving cell is Natural gas (Henry Hub) with NWP forecasts known at origin at 1 week (R² gain over the market-only model +6.7%, Clark–West q = 0.004), which nevertheless did not significantly beat a no-change forecast (Diebold–Mariano p = 0.210; out-of-sample R² +7.1%, 95% CI -3.3% to +22.2%) and rests on 88 weeks. Calibrated weather information is a reliable physical input; weekly price predictability from weather is narrow and should be claimed only where it survives out-of-sample testing.
 
 **Keywords:** ensemble post-processing · EMOS · CRPS · ERA5 · AIFS · commodity futures · out-of-sample predictability
 
@@ -17,22 +17,22 @@ We verify daily forecasts from seven global weather prediction systems — ECMWF
 
 Weather is a first-order driver of commodity supply and demand. Extreme heat above roughly 29–30 °C sharply reduces US corn and soybean yields (Schlenker and Roberts, 2009), weather-driven yield shocks identify the supply response of staple crops (Roberts and Schlenker, 2013), temperature shocks move natural-gas returns and volatility through heating and cooling demand and storage (Mu, 2007), and frost risk is visible in orange-juice futures (Roll, 1984; Boudoukh et al., 2007).
 
-At the same time, medium-range forecasting has improved steadily (Bauer et al., 2015; Haiden et al., 2026) and machine-learning models trained on reanalysis now rival or exceed physics-based systems on many headline scores (Lam et al., 2023; Price et al., 2025; Bi et al., 2023; Lang et al., 2024). Raw model output is nonetheless biased and its spread is typically under-dispersive, so operational centres apply statistical post-processing (Gneiting et al., 2005; Raftery et al., 2005; Vannitsem et al., 2021).
+Medium-range forecasting has improved steadily (Bauer et al., 2015; Haiden et al., 2026) and machine-learning models trained on reanalysis now rival or exceed physics-based systems on many headline scores (Lam et al., 2023; Price et al., 2025; Bi et al., 2023; Lang et al., 2024). Raw model output is nonetheless biased, so operational centres apply statistical post-processing (Gneiting et al., 2005; Raftery et al., 2005; Vannitsem et al., 2021).
 
-This report documents the weather engine behind Astraeus and asks two questions. First, how accurate are freely available global forecasts at the specific places commodities are grown and consumed, and how much does post-processing help? Second, does weather information measurably improve forecasts of weekly commodity futures returns once evaluated out of sample?
+This report documents the weather engine behind Astraeus and asks two questions. How accurate are freely available global forecasts at the places commodities are grown and consumed, and how much does post-processing help? And does weather information measurably improve forecasts of weekly commodity futures returns once evaluated out of sample?
 
 - A reproducible, 16-region verification of seven global models (including ECMWF’s AIFS) against ERA5 at leads of 1, 3, 5, 7 days.
-- A development/confirmation protocol with a pre-registered first run, so the headline numbers are not tuned on the data that score them.
+- A development/confirmation protocol, a zero-training baseline that separates learned skill from the finite-ensemble penalty, and calibration judged consistently from the probability integral transform.
 - A closed-form CRPS for the zero-censored Gaussian, derived and verified numerically, alongside skill-weighted NGR and weighted-ensemble predictors.
 - A walk-forward test of weather information in futures returns with nested-model tests and multiple-testing control.
 
 ## 2. Data
 
-Forecasts. Daily forecasts were reconstructed from the Open-Meteo Previous Runs API, which archives each model’s hourly output as issued N days before the target day. Hourly values were aggregated to UTC days (all 24 hours required) as the mean and maximum of 2 m temperature and the sum of precipitation. Leads of 1, 3, 5, 7 days were used; models were included at a region and lead only when at least 90% of days were available (day 1: 7–7 models; day 3: 6–6 models; day 5: 6–6 models; day 7: 5–5 models).
+Forecasts. Daily forecasts were reconstructed from the Open-Meteo Previous Runs API, which archives each model’s hourly output as issued N days before the target day. Hourly values were aggregated to UTC days (all 24 hours required) as the mean and maximum of 2 m temperature and the sum of precipitation. Leads of 1, 3, 5, 7 days were used. A model enters at a region and lead when it is available on at least 90% of archive days — a rule that uses no truth or skill information — giving 7–7 models at day 1, 6–6 models at day 3, 6–6 models at day 5, 5–5 models at day 7.
 
-Truth. ERA5 reanalysis (Hersbach et al., 2020) from the Open-Meteo archive, aggregated identically. ERA5 is published with a lag of about five days; the benchmark therefore treats only days at least 6 days before issue time as known.
+Truth. ERA5 reanalysis (Hersbach et al., 2020) from the Open-Meteo archive, aggregated identically. ERA5 is published with a lag of about five days; only days at least 6 days before issue time are treated as known.
 
-Climatology. Reference forecasts are the empirical distribution of ERA5 values within ±7 days of the calendar date over 2019–2024.
+Climatology. Reference forecasts are the empirical distribution of ERA5 values within ±7 days of the calendar date over 2019–2024, years that do not overlap the evaluation.
 
 **Table 1. Verification regions (representative grid points) and models available at leads 1 / 3 / 5 / 7 days.**
 
@@ -55,7 +55,7 @@ Climatology. Reference forecasts are the empirical distribution of ERA5 values w
 | Northeast · United States | natural-gas, heating-oil | 40.71, -74.01 | 7 / 6 / 6 / 5 |
 | Northwest Europe · Netherlands | natural-gas | 52.37, 4.90 | 7 / 6 / 6 / 5 |
 
-Prices. Daily settlement-style closes of continuous front-month futures from the Yahoo Finance chart endpoint, resampled to Friday-to-Friday weekly log returns. Continuous contracts contain roll jumps, so returns are research proxies rather than executable P&L.
+Prices. Friday-to-Friday weekly log returns of continuous front-month futures from the Yahoo Finance chart endpoint. Continuous contracts contain roll jumps, so returns are research proxies rather than executable P&L.
 
 ## 3. Methods
 
@@ -65,92 +65,112 @@ Prices. Daily settlement-style closes of continuous front-month futures from the
 CRPS(F, y) = ∫ (F(x) − 𝟙{x ≥ y})² dx    (1)
 ```
 
-For a Gaussian N(μ, σ²) it has the closed form of Gneiting et al. (Gneiting et al., 2005); for an m-member ensemble it is E|X − y| − ½E|X − X′|, computed exactly by sorting. For a Gaussian left-censored at zero — used for precipitation — we use
+For a Gaussian N(μ, σ²) it has the closed form of Gneiting et al. (Gneiting et al., 2005); for an m-member ensemble it is E|X − y| − ½E|X − X′|, computed exactly by sorting. For a Gaussian left-censored at zero we use
 
 ```
 CRPS_c0(μ, σ; y) = CRPS_N(μ, σ; y) − σ [ ℓΦ(ℓ)² + 2φ(ℓ)Φ(ℓ) − Φ(ℓ√2)/√π ],   ℓ = −μ/σ    (2)
 ```
 
-which follows from removing the integral of Φ² below zero; it agrees with numerical integration to 10⁻⁸ in the unit tests and is consistent with the censored-distribution formulas of scoringRules (Jordan et al., 2019). Skill is reported as CRPSS = 1 − CRPS/CRPS_ref against the raw ensemble and against climatology. Calibration is examined with PIT histograms (Hamill, 2001; Gneiting et al., 2007), 80% central-interval coverage and the Brier score with its reliability–resolution decomposition for events (precipitation ≥ 1 mm; temperature above the local 80th climatological percentile).
+which follows from removing the integral of Φ² below zero; it agrees with numerical integration to 10⁻⁸ in the unit tests and is consistent with the censored-distribution formulas of scoringRules (Jordan et al., 2019). Skill is CRPSS = 1 − ΣCRPS / ΣCRPS_ref over identical cases. Calibration is judged from the randomised probability integral transform (PIT; rank-based for ensembles, with a weighted analogue for weighted ensembles that reduces to the rank when weights are equal) (Hamill, 2001; Gneiting et al., 2007); central 80% coverage is the share of PIT values in [0.1, 0.9], so a calibrated forecast covers 80% whatever its representation. Events (precipitation ≥ 1 mm; temperature above the local 80th climatological percentile) are scored with the Brier score and its decomposition.
 
-3.2 Post-processing candidates. All candidates are refitted every seven days on trailing windows that contain only information available at issue time.
+3.2 Methods compared. All trained methods are refitted every seven days on trailing windows containing only information available at issue time.
 
-- Raw ensemble: the seven model forecasts as equally weighted members.
+- Raw ensemble: the m available model forecasts (m = 7, 6, 6, 5 at days 1, 3, 5, 7) as equally weighted members.
+- Zero-training Gaussian: N(member mean, member sd²), zero-censored for precipitation. It isolates the effect of turning a few point forecasts into a smooth distribution from the effect of learning from past errors.
 - Astraeus v1 (the previous production method): inverse-MSE model weights shrunk 50% toward equal weights and a Gaussian whose spread is inflated by the training RMSE/spread ratio.
-- Classical EMOS (Gneiting et al., 2005): Y ~ N(a + b·m̄, c² + d²s²) on additively bias-corrected members, fitted by minimum CRPS; for precipitation a zero-censored Gaussian with variance c² + d²·MD + g²·m̄ using the members’ mean absolute difference (Scheuerer and Hamill, 2015; Thorarinsdottir and Gneiting, 2010).
+- Classical EMOS (Gneiting et al., 2005) on 40-day windows: Y ~ N(a + b·m̄, c² + d²s²) on additively bias-corrected, equally weighted members, fitted by minimum CRPS; for precipitation a zero-censored Gaussian with variance c² + d²·MD + g²·m̄ (Scheuerer and Hamill, 2015; Thorarinsdottir and Gneiting, 2010).
 - Skill-weighted NGR: members are bias-corrected, combined with inverse-MSE weights shrunk 25% toward equal (cf. superensemble weighting (Krishnamurti et al., 1999)), then Y ~ N(a + b·m̄_w, c² + d²·s²_w) is fitted by minimum CRPS — four parameters regardless of the number of models.
-- Skill-weighted ensemble: the members themselves with the same weights (bias-corrected for temperature), scored with the weighted-ensemble CRPS.
-- Power-censored Gaussians for precipitation on √ and ∛ scales, fitted by maximum likelihood (Messner et al., 2014; Gebetsberger et al., 2018).
+- Skill-weighted ensemble: the members with the same weights (bias-corrected for temperature), scored with the weighted-ensemble CRPS.
+- Development-only candidates: power-censored Gaussians for precipitation on √ and ∛ scales fitted by maximum likelihood (Messner et al., 2014; Gebetsberger et al., 2018), and NGR with a climatology predictor.
 
 ```
 w_i ∝ (1 − λ)·MSE_i⁻¹ / Σ_j MSE_j⁻¹ + λ/K,   λ = 0.25;   Y | x ~ N(a + b Σ w_i (x_i − β_i),  c² + d² Σ w_i (x_i − β_i − m̄_w)²)    (3)
 ```
 
-3.3 Protocol. A first, pre-registered run (archived as weather-run1-preregistered.json) evaluated five methods over the full period with 40-day windows. Its diagnostics motivated new candidates, which were compared only on test days up to 2026-03-31. The best temperature and precipitation methods on that development period were frozen as Astraeus v2 and evaluated once on later days. Every method is scored on identical cases; where a fit is impossible (for example a bone-dry window) the raw ensemble is used and counted.
+3.3 Protocol. An exploratory first run evaluated five methods over the whole archive with 40-day windows; because it covered the later confirmation days too, those days are held out from tuning but not unseen. Replaying that run on development days only reproduces its diagnostics (EMOS day-1 coverage 74% and 74% for mean and maximum temperature; censored-EMOS precipitation CRPSS -13%, -11%, -19%, -22% at days 1, 3, 5, 7), so the redesign would have followed from development data alone. New candidates were then compared only on test days up to 2026-03-31. The selection rule was the highest mean CRPSS against the raw ensemble, pooled over both temperature variables and all leads for temperature, and over all leads for precipitation. Astraeus v2 was frozen before the confirmation period was scored, and the scoring corrections made after an independent code review (Section 6) changed only how forecasts are scored, not the method. A strictly prospective evaluation covers forecasts for days after 2026-11-16 (--period prospective).
 
-3.4 Inference. Differences are tested with the Diebold–Mariano statistic (Diebold and Mariano, 1995) on the daily cross-region mean CRPS differential, with a Newey–West variance (lag = lead) and the Harvey–Leybourne–Newbold small-sample correction (Harvey et al., 1997). Confidence intervals for CRPSS come from a 7-day moving-block bootstrap. Regions are not independent, so the effective sample size is the number of days.
+3.4 Inference. Confidence intervals for CRPSS come from a 7-day moving-block bootstrap over days that recomputes the pooled ratio from the resampled cases. Diebold–Mariano tests (Diebold and Mariano, 1995) use the case-weighted daily loss differential with a Newey–West bandwidth of 14 days and the Harvey–Leybourne–Newbold correction (Harvey et al., 1997); reported p-values are the largest across bandwidths of the lead, 7, 14 and 21 days. Regions are not independent, so the effective sample size is the number of days.
 
-3.5 Price study. Weekly log returns at 1- and 4-week horizons are forecast with expanding-window ridge regressions: a market-only model (recent returns and realised volatility) and a nested model adding weather features — season-gated extreme degree days and precipitation in production regions (Schlenker and Roberts, 2009), frost indicators for coffee, and heating/cooling degree-day anomalies for natural gas (Mu, 2007). Three information sets are tested: realised weather with a publication lag, a look-ahead diagnostic using realised weather inside the holding period (not tradable, and not an upper bound, because the forecastable part of that weather is already priced at the origin), and NWP forecasts known at the origin (2024–2026). Out-of-sample R² follows Campbell and Thompson (Campbell and Thompson, 2008); nested models are compared with the Clark–West test (Clark and West, 2007), direction with Pesaran–Timmermann (Pesaran and Timmermann, 1992), and p-values are controlled for false discovery with Benjamini–Hochberg (Benjamini and Hochberg, 1995).
+3.5 Price study. Weekly log returns at 1- and 4-week horizons are forecast with expanding-window ridge regressions: a market-only model (recent returns and realised volatility) and a nested model adding weather features — season-gated extreme degree days and precipitation in production regions (Schlenker and Roberts, 2009), frost indicators for coffee, and heating/cooling degree-day anomalies for natural gas (Mu, 2007). Three information sets are tested: realised weather with a publication lag, a look-ahead diagnostic using the weather that occurred during the holding period (not tradable, and not an upper bound because forecastable weather is already priced at the origin), and NWP forecasts known at the origin (2024–2026). Out-of-sample R² follows Campbell and Thompson (Campbell and Thompson, 2008); nested models are compared with the Clark–West test (Clark and West, 2007), direction with Pesaran–Timmermann (Pesaran and Timmermann, 1992), and p-values are controlled for false discovery with Benjamini–Hochberg (Benjamini and Hochberg, 1995).
 
 ## 4. Results
 
-4.1 Pre-registered run. Over the full period, every post-processing method improved temperature forecasts on the raw ensemble at short leads, but classical EMOS on 40-day windows was under-dispersive — its 80% intervals covered only 71% (mean) and 73% (maximum temperature) of day-1 observations — and censored-Gaussian EMOS degraded precipitation CRPS by 13%, 19%, 35% at days 1, 3 and 5. A requirement that all seven models be present also left day 7 empty because not every model publishes 7-day-old runs; availability is therefore assessed per lead in later runs.
+4.1 First run. Every post-processing method improved temperature forecasts at short leads, but classical EMOS on 40-day windows was under-dispersive and censored-Gaussian EMOS degraded precipitation (development-only figures in Section 3.3). Requiring every model to be present also left day 7 empty, because not every model publishes 7-day-old runs; availability is therefore assessed per lead.
 
-4.2 Development period. Table 2 lists the four best candidates per variable, ranked by mean CRPSS against the raw ensemble across leads. Longer windows reduced over-fitting: skill-weighted NGR with 90 days led for both temperature variables, while none of the parametric precipitation models beat the raw ensemble; the skill-weighted ensemble gave small but consistent gains.
+4.2 Development period. Table 2 lists the four best candidates per variable by mean CRPSS against the raw ensemble across leads. Pooled over both temperature variables, Skill-weighted NGR (90 d) led (+11.6%, next Skill-weighted NGR (60 d) +11.3%); for maximum temperature alone Skill-weighted NGR (60 d) was marginally ahead (+10.4% vs +10.3%). For precipitation, Skill-weighted ensemble (90 d) led (+1.9%); none of the parametric censored models beat the raw ensemble on average.
 
-**Table 2. Development period (test days to 31 March 2026): CRPSS vs the raw ensemble by lead, and day-3 80% coverage.**
+**Table 2. Development period (test days to 2026-03-31): CRPSS vs the raw ensemble by lead and the mean across leads.**
 
-| Variable | Method | Day 1 | Day 3 | Day 5 | Day 7 | Cov. d3 |
+| Variable | Method | Day 1 | Day 3 | Day 5 | Day 7 | Mean |
 |---|---|---|---|---|---|---|
-| Max temp. | Skill-weighted NGR (60 d) | +16.1% | +11.2% | +7.3% | +7.0% | 73% |
-|  | Skill-weighted NGR (90 d) | +15.4% | +11.1% | +7.3% | +7.2% | 74% |
-|  | Skill NGR + clim. (90 d) | +13.8% | +9.9% | +5.1% | +5.2% | 73% |
-|  | Skill-weighted NGR (40 d) | +16.0% | +9.0% | +3.4% | +2.9% | 73% |
-| Mean temp. | Skill-weighted NGR (90 d) | +21.8% | +15.7% | +8.7% | +5.8% | 74% |
-|  | Skill-weighted NGR (60 d) | +21.2% | +15.6% | +7.5% | +4.3% | 74% |
-|  | Skill NGR + clim. (90 d) | +20.5% | +14.3% | +6.4% | +2.5% | 73% |
-|  | Astraeus v1 | +12.1% | +11.7% | +8.7% | +7.2% | 84% |
-| Precip. | Skill-weighted ensemble (90 d) | +3.4% | +2.5% | +1.1% | +0.4% | 84% |
-|  | Skill-weighted ensemble (40 d) | +2.6% | +1.6% | +1.4% | +0.7% | 84% |
-|  | Raw ensemble | 0.0% | 0.0% | 0.0% | 0.0% | 79% |
-|  | Astraeus v1 | -0.2% | -0.6% | +0.4% | -0.9% | 88% |
+| Max temp. | Skill-weighted NGR (60 d) | +16.1% | +11.2% | +7.3% | +7.0% | +10.4% |
+|  | Skill-weighted NGR (90 d) | +15.4% | +11.1% | +7.3% | +7.2% | +10.3% |
+|  | Skill NGR + clim. (90 d) | +13.8% | +9.9% | +5.1% | +5.2% | +8.5% |
+|  | Skill-weighted NGR (40 d) | +16.0% | +9.0% | +3.4% | +2.9% | +7.8% |
+| Mean temp. | Skill-weighted NGR (90 d) | +21.8% | +15.7% | +8.7% | +5.8% | +13.0% |
+|  | Skill-weighted NGR (60 d) | +21.2% | +15.6% | +7.5% | +4.3% | +12.2% |
+|  | Skill NGR + clim. (90 d) | +20.5% | +14.3% | +6.4% | +2.5% | +10.9% |
+|  | Astraeus v1 | +12.1% | +11.7% | +8.7% | +7.2% | +9.9% |
+| Precip. | Skill-weighted ensemble (90 d) | +3.4% | +2.5% | +1.1% | +0.4% | +1.9% |
+|  | Skill-weighted ensemble (40 d) | +2.6% | +1.6% | +1.4% | +0.7% | +1.6% |
+|  | Raw ensemble | 0.0% | 0.0% | 0.0% | 0.0% | 0.0% |
+|  | Astraeus v1 | -0.2% | -0.6% | +0.4% | -0.9% | -0.3% |
 
-4.3 Confirmation period. Table 3 is the headline result. Astraeus v2 improved on the raw ensemble for every variable and lead; the gains are largest for maximum temperature (17.2% at day 1, 8.7% at day 7) and smallest for precipitation (2.3% to 1.1%). Against the previous production method (Astraeus v1) it was better in 8 of 12 variable–lead cells at p < 0.05 and statistically indistinguishable in 4; its CRPS was lower than classical EMOS in every variable–lead cell (point estimates; significance against EMOS was not tested).
+4.3 Confirmation period. Table 3 is the headline result. Against the zero-training Gaussian, Astraeus v2 reduced CRPS for maximum temperature by 14.8%, 11.3%, 7.4%, 4.5% and for mean temperature by 15.0%, 12.5%, 5.5%, 2.7% at days 1, 3, 5, 7; 6 of 8 temperature cells are significant at p < 0.05 under every bandwidth. Against the raw ensemble the improvement is significant in 12 of 12 cells, including precipitation at every lead. Against the previous production method it was significantly better in 7 of 12 cells, significantly worse in 0, and statistically indistinguishable in 5 (max temp. day 5, max temp. day 7, mean temp. day 3, mean temp. day 5, mean temp. day 7), where v1’s simpler Gaussian is about as good.
 
-**Table 3. Confirmation period: CRPS of the raw ensemble and Astraeus v2, CRPSS with 95% block-bootstrap interval and Diebold–Mariano p-values, relative skill against Astraeus v1 and classical EMOS, skill against climatology, and 80% interval coverage.**
+**Table 3. Confirmation period. CRPS of the raw ensemble, the zero-training Gaussian and Astraeus v2; CRPSS of v2 with 95% block-bootstrap intervals and Diebold–Mariano p-values (largest across bandwidths) against each reference; and PIT-based 80% coverage of v2.**
 
-| Variable | Lead | N | CRPS raw | CRPS v2 | CRPSS vs raw (95% CI) | p (DM) | vs v1 | p (DM) | vs EMOS | vs clim. | Cov. 80% |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| Max temp. | Day 1 | 2910 | 0.658 | 0.544 | +17.2% (+11.7%, +19.2%) | <0.001 | +8.9% | <0.001 | +7.5% | +72.3% | 76% |
-| Max temp. | Day 3 | 3209 | 0.837 | 0.713 | +14.8% (+11.1%, +17.6%) | <0.001 | +5.9% | <0.001 | +5.8% | +63.9% | 78% |
-| Max temp. | Day 5 | 3216 | 1.063 | 0.946 | +11.0% (+7.1%, +14.2%) | <0.001 | +3.4% | 0.061 | +6.3% | +51.7% | 76% |
-| Max temp. | Day 7 | 3328 | 1.399 | 1.277 | +8.7% (+5.8%, +11.8%) | <0.001 | +1.7% | 0.293 | +3.1% | +34.9% | 76% |
-| Mean temp. | Day 1 | 2910 | 0.410 | 0.341 | +16.9% (+13.6%, +19.5%) | <0.001 | +5.5% | <0.001 | +10.3% | +78.2% | 74% |
-| Mean temp. | Day 3 | 3209 | 0.563 | 0.479 | +14.8% (+11.0%, +17.8%) | <0.001 | +3.3% | 0.032 | +8.4% | +69.7% | 75% |
-| Mean temp. | Day 5 | 3216 | 0.737 | 0.671 | +8.9% (+5.7%, +12.6%) | <0.001 | -0.5% | 0.784 | +6.9% | +57.3% | 75% |
-| Mean temp. | Day 7 | 3328 | 1.014 | 0.944 | +6.9% (+4.8%, +9.5%) | <0.001 | -1.9% | 0.137 | +4.8% | +40.3% | 74% |
-| Precip. | Day 1 | 3222 | 1.187 | 1.160 | +2.3% (+1.3%, +3.3%) | <0.001 | +3.6% | <0.001 | +14.2% | +47.9% | 87% |
-| Precip. | Day 3 | 3248 | 1.485 | 1.459 | +1.8% (+1.0%, +2.6%) | <0.001 | +2.0% | 0.026 | +12.5% | +35.7% | 84% |
-| Precip. | Day 5 | 3296 | 1.745 | 1.724 | +1.2% (+0.4%, +2.1%) | 0.006 | +3.9% | <0.001 | +13.2% | +24.2% | 82% |
-| Precip. | Day 7 | 3328 | 2.042 | 2.019 | +1.1% (+0.5%, +1.9%) | 0.005 | +4.0% | <0.001 | +8.2% | +11.1% | 80% |
+| Variable | Lead | N | m | CRPS raw | CRPS Gauss | CRPS v2 | vs Gauss (95% CI) | p | vs raw (95% CI) | p | vs v1 | p | Cov. 80% |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Max temp. | Day 1 | 2910 | 7 | 0.658 | 0.639 | 0.544 | +14.8% (+12.1%, +17.5%) | <0.001 | +17.2% (+14.5%, +20.1%) | <0.001 | +8.9% | <0.001 | 76% |
+| Max temp. | Day 3 | 3209 | 6 | 0.837 | 0.805 | 0.713 | +11.3% (+8.4%, +14.2%) | <0.001 | +14.8% (+11.8%, +17.7%) | <0.001 | +5.9% | 0.015 | 78% |
+| Max temp. | Day 5 | 3216 | 6 | 1.063 | 1.021 | 0.946 | +7.4% (+3.3%, +11.0%) | 0.012 | +11.0% (+7.2%, +14.3%) | <0.001 | +3.4% | 0.199 | 76% |
+| Max temp. | Day 7 | 3328 | 5 | 1.399 | 1.338 | 1.277 | +4.5% (+1.5%, +7.9%) | 0.021 | +8.7% (+5.7%, +11.8%) | <0.001 | +1.7% | 0.347 | 76% |
+| Mean temp. | Day 1 | 2910 | 7 | 0.410 | 0.401 | 0.341 | +15.0% (+11.3%, +17.9%) | <0.001 | +16.9% (+13.4%, +19.8%) | <0.001 | +5.5% | 0.025 | 74% |
+| Mean temp. | Day 3 | 3209 | 6 | 0.563 | 0.548 | 0.479 | +12.5% (+8.9%, +15.8%) | <0.001 | +14.8% (+11.4%, +18.0%) | <0.001 | +3.3% | 0.183 | 75% |
+| Mean temp. | Day 5 | 3216 | 6 | 0.737 | 0.710 | 0.671 | +5.5% (+2.1%, +9.3%) | 0.078 | +8.9% (+5.8%, +12.6%) | 0.002 | -0.5% | 0.867 | 75% |
+| Mean temp. | Day 7 | 3328 | 5 | 1.014 | 0.970 | 0.944 | +2.7% (+0.4%, +5.5%) | 0.163 | +6.9% (+4.7%, +9.5%) | <0.001 | -1.9% | 0.265 | 74% |
+| Precip. | Day 1 | 3222 | 7 | 1.187 | 1.219 | 1.160 | +4.9% (+3.0%, +6.9%) | <0.001 | +2.3% (+1.4%, +3.2%) | <0.001 | +3.6% | 0.001 | 83% |
+| Precip. | Day 3 | 3248 | 6 | 1.485 | 1.505 | 1.459 | +3.1% (+1.4%, +4.8%) | 0.001 | +1.8% (+1.1%, +2.5%) | <0.001 | +2.0% | 0.026 | 82% |
+| Precip. | Day 5 | 3296 | 6 | 1.745 | 1.799 | 1.724 | +4.2% (+2.9%, +5.7%) | <0.001 | +1.2% (+0.4%, +2.1%) | 0.008 | +3.9% | <0.001 | 79% |
+| Precip. | Day 7 | 3328 | 5 | 2.042 | 2.111 | 2.019 | +4.4% (+2.9%, +5.8%) | <0.001 | +1.1% (+0.5%, +1.9%) | 0.008 | +4.0% | <0.001 | 80% |
 
-*Units: °C for temperature, mm for precipitation. CRPSS = 1 − CRPS / CRPS_reference.*
+*Units: °C for temperature, mm for precipitation. m = members in the raw ensemble.*
 
-> Figure 1. CRPS of daily maximum temperature by lead for Astraeus v2, the raw ensemble, Astraeus v1 and climatology (confirmation period). — interactive version in the app (`#report`).
+> Figure 1. CRPS of daily maximum temperature by lead: Astraeus v2, the raw ensemble, the zero-training Gaussian and climatology (confirmation period). — interactive version in the app (`#report`).
 
-4.4 Calibration. The raw ensemble is markedly under-dispersive at longer leads — its nominal 80% interval covered 59% of day-7 maximum-temperature observations — while Astraeus v2 covered 76%. Some residual under-dispersion remains (coverage 74%, 75%, 75%, 74% for mean temperature at days 1, 3, 5, 7). For precipitation occurrence (≥ 1 mm) the Brier skill against climatology was 61% at day 1 and 22% at day 7.
+4.4 Calibration. Judged consistently from the PIT, the raw ensemble is over-dispersive at short leads — its 80% interval held 88% of day-1 maximum-temperature observations, falling to 82% at day 7 — because model disagreement exceeds the error of the best models. Astraeus v2 is mildly under-dispersive: its 80% intervals covered 76%–78% (maximum) and 74%–75% (mean temperature), with 13%–14% of maximum-temperature observations below its 10th percentile, reflecting a small warm bias. Its gains therefore come from bias correction and skill weighting, not from better dispersion; a dispersion correction is the obvious next step and will be tested prospectively. For precipitation, v2’s coverage was 79%–83% and its Brier skill for rain ≥ 1 mm against climatology was 61% at day 1 and 22% at day 7.
+
+**Table 4. Calibration: PIT-based central 80% coverage of the raw ensemble, the zero-training Gaussian and v2; share of observations below v2’s 10th and above its 90th percentile (10% each if calibrated); fair CRPS of the raw ensemble beside v2’s CRPS.**
+
+| Variable | Lead | Cov. raw | Cov. Gauss | Cov. v2 | v2 < p10 | v2 > p90 | Fair CRPS raw | CRPS v2 |
+|---|---|---|---|---|---|---|---|---|
+| Max temp. | Day 1 | 88% | 85% | 76% | 14% | 10% | 0.545 | 0.544 |
+| Max temp. | Day 3 | 86% | 82% | 78% | 13% | 9% | 0.678 | 0.713 |
+| Max temp. | Day 5 | 83% | 77% | 76% | 14% | 10% | 0.883 | 0.946 |
+| Max temp. | Day 7 | 82% | 73% | 76% | 14% | 10% | 1.138 | 1.277 |
+| Mean temp. | Day 1 | 91% | 89% | 74% | 16% | 11% | 0.333 | 0.341 |
+| Mean temp. | Day 3 | 86% | 83% | 75% | 14% | 11% | 0.452 | 0.479 |
+| Mean temp. | Day 5 | 84% | 78% | 75% | 14% | 11% | 0.610 | 0.671 |
+| Mean temp. | Day 7 | 81% | 72% | 74% | 15% | 11% | 0.829 | 0.944 |
+| Precip. | Day 1 | 83% | 79% | 83% | 9% | 9% | 0.999 | 1.160 |
+| Precip. | Day 3 | 83% | 76% | 82% | 9% | 9% | 1.248 | 1.459 |
+| Precip. | Day 5 | 81% | 73% | 79% | 11% | 10% | 1.479 | 1.724 |
+| Precip. | Day 7 | 81% | 70% | 80% | 11% | 9% | 1.694 | 2.019 |
+
+*The fair CRPS estimates the score of an unlimited ensemble drawn from the same distribution as the members [@ferro2014-fair-crps]. It is not an issuable forecast, and multi-model members are not exchangeable draws, so it is indicative only; by this measure the raw ensemble is comparable to v2 for temperature (day-1 maximum: 0.545 vs 0.544 °C).*
 
 > Figure 2. Reliability of day-1 probability of precipitation ≥ 1 mm, Astraeus v2 vs the raw ensemble. — interactive version in the app (`#report`).
 
-4.5 Regions. Gains are heterogeneous. For day-3 maximum temperature the largest improvements were at Mato Grosso · Brazil (+36%), Daloa · Côte d’Ivoire (+31%), New South Wales · Australia (+21%) and the smallest at Northeast · United States (+5%), Paraná · Brazil (+4%), Iowa · US Corn Belt (+1%) — consistent with larger systematic biases where orography or coastlines are poorly resolved by coarse models.
+4.5 Regions. Gains are heterogeneous. For day-3 maximum temperature the largest improvements over the raw ensemble were at Mato Grosso · Brazil (+36%), Daloa · Côte d’Ivoire (+31%), New South Wales · Australia (+21%) and the smallest at Northeast · United States (+5%), Paraná · Brazil (+4%), Iowa · US Corn Belt (+1%); the pattern does not follow a simple terrain or coastline explanation and is not interpreted further. For precipitation, v2 was worse than the raw ensemble in 22 of 64 region–lead cells, so its small average gain is not uniform.
 
-4.6 Individual models. ECMWF AIFS had the lowest mean absolute error in 12 of 12 variable–lead combinations (day-3 maximum temperature: ECMWF AIFS 1.12 °C, DWD ICON 1.38 °C, ECMWF IFS 1.44 °C). Because AIFS is trained on ERA5, verification against ERA5 is expected to favour it (Lang et al., 2024; Rasp et al., 2024); ECMWF reports AIFS ahead of IFS by roughly a third of a forecast day in its own verification (Haiden et al., 2026).
+4.6 Individual models. ECMWF AIFS had the lowest mean absolute error in 12 of 12 variable–lead combinations (day-3 maximum temperature: ECMWF AIFS 1.12 °C, DWD ICON 1.38 °C, ECMWF IFS 1.44 °C). Because AIFS is trained on ERA5, verification against ERA5 is expected to favour it (Lang et al., 2024; Rasp et al., 2024); ECMWF reports AIFS ahead of IFS by roughly a third of a forecast day in its own verification (Haiden et al., 2026). Skill weighting lets v2 lean on such models when their recent record warrants it.
 
 > Figure 3. Single-model mean absolute error, day-3 maximum temperature, confirmation period. — interactive version in the app (`#report`).
 
-4.7 Weather information and futures returns. In a walk-forward study of weekly futures returns for 6 weather-sensitive commodities, weather information improved out-of-sample forecasts over a market-only model in 6 of 34 commodity–information–horizon cells; after Benjamini–Hochberg correction the only surviving cell is Natural gas (Henry Hub) with NWP forecasts known at origin at 1 week (R² gain over the market-only model +6.7%, Clark–West q = 0.004), which nevertheless did not significantly beat a no-change forecast (Diebold–Mariano p = 0.210; out-of-sample R² +7.1%, 95% CI -3.3% to +22.2%) and rests on 88 weeks.
+4.7 Weather information and futures returns. In a walk-forward study of weekly futures returns for 6 weather-sensitive commodities, weather information improved out-of-sample forecasts over a market-only model in 6 of 34 commodity–information–horizon cells (point estimates); after Benjamini–Hochberg correction the only surviving cell is Natural gas (Henry Hub) with NWP forecasts known at origin at 1 week (R² gain over the market-only model +6.7%, Clark–West q = 0.004), which nevertheless did not significantly beat a no-change forecast (Diebold–Mariano p = 0.210; out-of-sample R² +7.1%, 95% CI -3.3% to +22.2%) and rests on 88 weeks.
 
-**Table 4. Walk-forward price study: out-of-sample R² of the weather model vs the historical-mean benchmark, R² gain over the nested market-only model, Clark–West p-value and its Benjamini–Hochberg q-value, Diebold–Mariano p-value against a no-change forecast, and directional hit rate.**
+**Table 5. Walk-forward price study: out-of-sample R² of the weather model vs the historical-mean benchmark, R² gain over the nested market-only model, Clark–West p-value and its Benjamini–Hochberg q-value, Diebold–Mariano p-value against a no-change forecast, and directional hit rate.**
 
 | Commodity | Information | Horizon | N weeks | R² (weather) | R² gain vs market | p (CW) | q (BH) | p (DM vs no-change) | Hit rate |
 |---|---|---|---|---|---|---|---|---|---|
@@ -195,24 +215,27 @@ w_i ∝ (1 − λ)·MSE_i⁻¹ / Σ_j MSE_j⁻¹ + λ/K,   λ = 0.25;   Y | x ~ 
 
 ## 5. Discussion
 
-Temperature benefits most from post-processing because its errors are dominated by smooth, persistent biases that a short training window can estimate. Weighting by recent skill matters more than learning many coefficients: with seven models and 40-day windows, full EMOS over-fits, whereas four-parameter skill-weighted NGR on 90 days generalises. This agrees with the literature on training-window length and parsimony (Gneiting et al., 2005; Lerch and Baran, 2017; Hagedorn et al., 2012).
+Temperature benefits most from post-processing because its errors are dominated by persistent biases and by large differences in skill between models, both of which a 90-day window can estimate. Compared with classical EMOS, v2 differs in two ways at once — inverse-MSE rather than equal member weights, and a 90-day rather than 40-day window — and the development results suggest both matter; with seven models and 40 days, parameter-rich fits over-fit (Gneiting et al., 2005; Lerch and Baran, 2017; Hagedorn et al., 2012). Part of the headline improvement over the raw ensemble is simply the conversion of five to seven point forecasts into a smooth distribution, which is why the zero-training Gaussian is the fairer reference for temperature.
 
-Precipitation is harder: it is intermittent and skewed, and parametric censored models need longer or spatially pooled training to beat a good raw ensemble (Scheuerer and Hamill, 2015; Lerch and Baran, 2017). The small but reliable gains from skill weighting are the honest ceiling of single-site, 90-day calibration; semi-local pooling across regions is the natural next step.
+Precipitation is harder: it is intermittent and skewed, and parametric censored models need longer or spatially pooled training to beat a good raw ensemble (Scheuerer and Hamill, 2015; Lerch and Baran, 2017). Skill weighting gives small average gains that are not uniform across regions; semi-local pooling is the natural next step.
 
-Price predictability from weather is narrow. Markets incorporate realised weather quickly (Roll, 1984), so lagged realised weather adds little to weekly return forecasts. Where evidence exists in the literature it concerns forecast information and revisions — especially for natural gas (Hsu et al., 2026; Monteux et al., 2025) — and even the look-ahead diagnostic, which uses the weather that actually occurred over the holding period, did not forecast returns in a linear model, consistent with the forecastable part of weather being priced at the origin. The natural-gas forecast result is suggestive rather than established: it beats a market-only model but not a no-change forecast, on 88 weeks of a short archive, and must be re-tested as the archive grows. Astraeus therefore presents weather as conditional physical pressure with explicit invalidation criteria, and reports price predictability only where it survives the tests in Table 4.
+Price predictability from weather is narrow. Markets incorporate realised weather quickly (Roll, 1984), so lagged realised weather adds little to weekly return forecasts, and even the look-ahead diagnostic did not forecast returns in a linear model, consistent with the forecastable part of weather being priced at the origin. Where evidence exists in the literature it concerns forecast information and revisions — especially for natural gas (Hsu et al., 2026; Monteux et al., 2025). The natural-gas result here is suggestive rather than established: it beats a market-only model but not a no-change forecast, on 88 weeks of a short archive, and must be re-tested as the archive grows. Astraeus therefore presents weather as conditional physical pressure with explicit invalidation criteria.
 
-Limitations. ERA5 is a ~31 km reanalysis rather than station truth and favours smooth models; single grid points stand in for production regions; one confirmation period covers a single realisation of each season; the forecast-tier price sample is short (2024–2026); continuous futures contain roll jumps; and the free data sources used are licensed for non-commercial research.
+Limitations. ERA5 is a ~31 km reanalysis rather than station truth and favours smooth models; single grid points stand in for production regions; the confirmation period had been covered by an exploratory run and spans a single realisation of each season; v2 is mildly under-dispersive; the forecast-tier price sample is short; continuous futures contain roll jumps; and the free data sources used are licensed for non-commercial research.
 
-Future work. Station verification (e.g. GHCN-Daily), production-weighted areal forecasts, semi-local and seasonal post-processing, ensemble members (ECMWF ENS, GEFS) as predictors, crop-stage-aware price features, and a longer prospective record of issued forecasts.
+Future work. A prospective evaluation of forecasts issued after the method freeze; a dispersion-corrected v3 developed on the development period only; station verification (e.g. GHCN-Daily); production-weighted areal forecasts; semi-local precipitation post-processing; ensemble members (ECMWF ENS, GEFS) as predictors; and crop-stage-aware price features.
 
-## 6. Reproducibility
+## 6. Reproducibility and revision history
 
-- npx tsx research/weather-benchmark.ts --suite run1 --period all — the pre-registered run.
+- npx tsx research/weather-benchmark.ts --suite run1 --period dev --offline — the first run replayed on development days.
 - npx tsx research/weather-benchmark.ts --suite dev --period dev --offline — development comparison.
 - npx tsx research/weather-benchmark.ts --suite final --period confirm --offline — the confirmation result (public/research/weather-skill.json).
-- npx tsx research/price-study.ts — the price study (public/research/price-skill.json).
-- npm test — unit tests, including closed-form CRPS against numerical integration and synthetic recovery tests for every post-processing method.
+- npx tsx research/weather-benchmark.ts --suite final --period prospective — the prospective test, once forecasts after the freeze have verified.
+- npx tsx research/price-study.ts --offline --end=2026-11-14 — the price study (public/research/price-skill.json).
+- npm test — unit tests, including closed-form CRPS against numerical integration, PIT-based coverage of calibrated forecasts, and synthetic recovery tests for every method.
 - npx tsx research/build-report.ts — regenerates this report as docs/TECHNICAL_REPORT.md from the same result files.
+
+Revision 2 follows an independent code review of the benchmark. Interval coverage was previously read from interpolated ensemble quantiles, which understates coverage for small ensembles and had reversed the calibration conclusion; it is now taken from the PIT for every method. The bootstrap now resamples the pooled estimand, Diebold–Mariano tests weight days by their number of cases, a zero-training Gaussian baseline and fair CRPS were added, the live outlook was aligned with the benchmark (per-day leads 1–6, ≥ 90% availability, ≥ 60 training days), and several sentences were corrected. The forecasting method itself was not changed.
 
 ## References
 

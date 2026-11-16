@@ -8,10 +8,11 @@ const VAR_LABEL: Record<Var, string> = { tmean: 'Mean temperature', tmax: 'Max t
 const UNIT: Record<Var, string> = { tmean: '°C', tmax: '°C', precip: 'mm' };
 const METHOD_STYLE: Record<string, { label: string; color: string; dashed?: boolean; emphasis?: boolean }> = {
   'astraeus-v2': { label: 'Astraeus v2', color: 'var(--viz-1)', emphasis: true },
-  'raw-ensemble': { label: 'Raw 7-model ensemble', color: 'var(--viz-2)' },
-  'astraeus-v1': { label: 'Astraeus v1', color: 'var(--viz-3)' },
+  'raw-ensemble': { label: 'Raw ensemble', color: 'var(--viz-2)' },
+  'raw-gauss': { label: 'No-training Gaussian', color: 'var(--viz-3)' },
   climatology: { label: 'Climatology', color: 'var(--viz-ref)', dashed: true },
 };
+const TABLE_LABEL: Record<string, string> = { ...Object.fromEntries(Object.entries(METHOD_STYLE).map(([k, v]) => [k, v.label])), 'astraeus-v1': 'Astraeus v1', emos: 'EMOS (classic, 40 d)' };
 const pct = (x: number | null | undefined, d = 1) => (x == null || !Number.isFinite(x) ? '—' : `${x > 0 ? '+' : ''}${(x * 100).toFixed(d)}%`);
 const pval = (p: number) => (p < 0.001 ? '< 0.001' : p.toFixed(3));
 
@@ -33,7 +34,13 @@ export function ForecastSkill({ onReport }: { onReport?: () => void }) {
   const h1 = row(w, v, 1, head);
   const hl = row(w, v, lead, head);
   const raw = row(w, v, lead, 'raw-ensemble');
+  const gauss = row(w, v, lead, 'raw-gauss');
+  const useGauss = v !== 'precip' && h1?.crpssVsRawGauss != null;
+  const refName = useGauss ? 'no-training Gaussian' : 'raw ensemble';
+  const skillOf = (x?: SkillRow) => (useGauss ? x?.crpssVsRawGauss : x?.crpssVsRaw) ?? null;
+  const ciOf = (x?: SkillRow) => (useGauss ? x?.crpssVsRawGaussCI : x?.crpssVsRawCI) ?? [null, null];
   const sig = (versus: string) => w.significance.find((s) => s.variable === v && s.lead === lead && s.method === head && s.versus === versus);
+  const sigP = (versus: string) => { const x = sig(versus); return x ? pval(x.robustMaxP ?? x.pValue) : '—'; };
   const event = v === 'precip' ? `rain ≥ ${w.config.precipEventMm} mm` : `above the local ${Math.round(w.config.temperatureEventPercentile * 100)}th climatological percentile`;
   const example = w.examples?.find((e) => e.variable === v) ?? w.examples?.[0];
   const siteName = (id: string) => w.sites.find((s) => s.id === id)?.name ?? id;
@@ -43,7 +50,7 @@ export function ForecastSkill({ onReport }: { onReport?: () => void }) {
     <header className="sk-hero">
       <span className="af-eyebrow">FORECAST SKILL · HELD-OUT VERIFICATION</span>
       <h1>How accurate is Astraeus?</h1>
-      <p>Astraeus v2 was designed on development-period test days (October 2025 → {w.config.devEnd}), frozen, and then scored <strong>once</strong> on {w.periodLabel.includes('confirmation') ? 'the later confirmation period (April → November 2026)' : w.periodLabel} across {w.sites.length} commodity regions. Truth is ERA5 reanalysis. Scores are the continuous ranked probability score (CRPS), a strictly proper score for whole forecast distributions (Gneiting & Raftery, 2007).</p>
+      <p>Astraeus v2 was designed on development-period test days (October 2025 → {w.config.devEnd}), frozen, and then scored on {w.periodLabel.includes('confirmation') ? 'the later confirmation period (April → November 2026)' : w.periodLabel} across {w.sites.length} commodity regions, against ERA5 reanalysis. Scores are the continuous ranked probability score (CRPS), a strictly proper score for whole forecast distributions (Gneiting & Raftery, 2007). Temperature is compared with a <strong>no-training Gaussian</strong> built from the same models — the fair reference, since scoring 5–7 raw members as a distribution carries a finite-ensemble penalty — and rain with the raw ensemble. An exploratory first run had also covered the confirmation days; a strictly prospective test starts with forecasts after {w.config.prospectiveStart ?? '16 November 2026'}.</p>
       <ul className="sk-chips"><li>{w.sites.length} regions</li><li>{w.models.length} global models</li><li>{w.summary.filter((s) => s.method === head).reduce((a, s) => a + s.cases, 0).toLocaleString()} scored forecasts</li><li>Leads {leads.join(' · ')} days</li><li>Refit every {w.config.refitEveryDays} days</li><li>ERA5 lag {w.config.era5LagDays} days respected</li></ul>
     </header>
 
@@ -53,10 +60,10 @@ export function ForecastSkill({ onReport }: { onReport?: () => void }) {
     </div>
 
     <section className="sk-kpis" aria-label="Headline skill">
-      <div><span>CRPS skill vs raw models · day 1</span><strong>{pct(h1?.crpssVsRaw)}</strong><small>95% CI {pct(h1?.crpssVsRawCI[0])} to {pct(h1?.crpssVsRawCI[1])}</small></div>
-      <div><span>CRPS skill vs raw models · day {lead}</span><strong>{pct(hl?.crpssVsRaw)}</strong><small>Diebold–Mariano p {sig('raw-ensemble') ? pval(sig('raw-ensemble')!.pValue) : '—'}</small></div>
+      <div><span>CRPS skill vs {refName} · day 1</span><strong>{pct(skillOf(h1))}</strong><small>95% CI {pct(ciOf(h1)[0])} to {pct(ciOf(h1)[1])}</small></div>
+      <div><span>CRPS skill vs {refName} · day {lead}</span><strong>{pct(skillOf(hl))}</strong><small>Diebold–Mariano p {sigP(useGauss ? 'raw-gauss' : 'raw-ensemble')} (largest across bandwidths){useGauss ? ` · vs raw ensemble ${pct(hl?.crpssVsRaw)}` : ''}</small></div>
       <div><span>Skill vs climatology · day {lead}</span><strong>{pct(hl?.crpssVsClimatology)}</strong><small>raw ensemble {pct(raw?.crpssVsClimatology)}</small></div>
-      <div><span>80% interval coverage · day {lead}</span><strong>{hl ? `${Math.round(hl.coverage80 * 100)}%` : '—'}</strong><small>target 80% · raw ensemble {raw ? `${Math.round(raw.coverage80 * 100)}%` : '—'}</small></div>
+      <div><span>80% interval coverage · day {lead}</span><strong>{hl ? `${Math.round(hl.coverage80 * 100)}%` : '—'}</strong><small>calibrated = 80% · raw ensemble {raw ? `${Math.round(raw.coverage80 * 100)}%` : '—'}{gauss ? ` · Gaussian ${Math.round(gauss.coverage80 * 100)}%` : ''}</small></div>
     </section>
 
     <div className="sk-grid two">
@@ -73,7 +80,7 @@ export function ForecastSkill({ onReport }: { onReport?: () => void }) {
         <p className="sk-card-title">Calibration · PIT histograms, day {lead}</p>
         <PitHistogram label="Astraeus v2" color="var(--viz-1)" bins={hl?.pit ?? []} />
         <PitHistogram label="Raw ensemble" color="var(--viz-2)" bins={raw?.pit ?? []} />
-        <p className="sk-note">Flat at the dashed 10% line = calibrated. A U-shape means the forecast is too confident: the truth often falls outside the forecast range.</p>
+        <p className="sk-note">Flat at the dashed 10% line = calibrated. A U-shape means too little spread (over-confident); a hump means too much. Coverage on this page is read from the PIT, so it means the same thing for every forecast type.</p>
       </article>
       <article className="sk-card">
         <BarList caption={`Single-model error · day ${lead} (MAE, ${UNIT[v]})`} rows={leaderboard.map((m, i) => ({ label: m.name, value: m.mae, note: m.kind === 'machine learning' ? 'machine learning' : undefined, highlight: i === 0 }))} format={(x) => x.toFixed(2)} />
@@ -88,9 +95,10 @@ export function ForecastSkill({ onReport }: { onReport?: () => void }) {
     <article className="sk-card sk-wide">
       <p className="sk-card-title">{VAR_LABEL[v]} · every method, every lead</p>
       <div className="sk-table-wrap"><table className="sk-table">
-        <thead><tr><th>Lead</th><th>Method</th><th>CRPS</th><th>vs raw (95% CI)</th><th>vs climatology</th><th>MAE</th><th>Bias</th><th>80% coverage</th><th>BSS</th></tr></thead>
+        <thead><tr><th>Lead</th><th>Method</th><th>CRPS</th><th>vs no-training Gaussian (95% CI)</th><th>vs raw (95% CI)</th><th>vs climatology</th><th>MAE</th><th>Bias</th><th>80% coverage</th><th>BSS</th></tr></thead>
         <tbody>{leads.flatMap((l) => w.summary.filter((s) => s.variable === v && s.lead === l).map((s) => <tr key={`${l}-${s.method}`} className={s.method === head ? 'head' : ''}>
-          <td>{l}</td><td>{METHOD_STYLE[s.method]?.label ?? (s.method === 'emos' ? 'EMOS (classic, 40 d)' : s.label)}</td><td>{s.crps.toFixed(3)}</td>
+          <td>{l}</td><td>{TABLE_LABEL[s.method] ?? s.label}</td><td>{s.crps.toFixed(3)}{s.method === 'raw-ensemble' && s.crpsFair != null ? <small className="sk-fair"> fair {s.crpsFair.toFixed(3)}</small> : null}</td>
+          <td>{s.method === 'raw-gauss' || s.crpssVsRawGauss == null ? '—' : `${pct(s.crpssVsRawGauss)} (${pct(s.crpssVsRawGaussCI?.[0])}, ${pct(s.crpssVsRawGaussCI?.[1])})`}</td>
           <td>{s.method === 'raw-ensemble' ? '—' : `${pct(s.crpssVsRaw)} (${pct(s.crpssVsRawCI[0])}, ${pct(s.crpssVsRawCI[1])})`}</td>
           <td>{pct(s.crpssVsClimatology)}</td><td>{s.mae.toFixed(2)}</td><td>{s.bias > 0 ? '+' : ''}{s.bias.toFixed(2)}</td><td>{Math.round(s.coverage80 * 100)}%</td><td>{pct(s.brierSkillVsClimatology)}</td>
         </tr>))}</tbody>
@@ -117,7 +125,8 @@ export function ForecastSkill({ onReport }: { onReport?: () => void }) {
           <li><strong>Truth:</strong> {String(w.provenance.truth)}</li>
           <li><strong>Climatology:</strong> {String(w.provenance.climatology)}</li>
           <li><strong>No look-ahead:</strong> at issue time only ERA5 days published {w.config.era5LagDays} days earlier are used for fitting; models are refitted every {w.config.refitEveryDays} days on trailing windows.</li>
-          <li><strong>Significance:</strong> Diebold–Mariano with Newey–West variance and Harvey–Leybourne–Newbold correction on the daily cross-region mean loss; intervals from a 7-day moving-block bootstrap.</li>
+          <li><strong>Significance:</strong> Diebold–Mariano on the case-weighted daily loss differential (Newey–West, {w.config.dmLagDays ?? 14}-day bandwidth; the largest p across bandwidths is shown) with the Harvey–Leybourne–Newbold correction; 95% intervals from a {w.config.bootstrapBlockDays ?? 7}-day moving-block bootstrap of the pooled skill ratio.</li>
+          <li><strong>Calibration:</strong> coverage and histograms use the randomised PIT (rank-based for ensembles), so 80% means calibrated for every forecast type.</li>
         </ul>
       </div>
       <div>

@@ -25,7 +25,7 @@ import { createHash } from 'node:crypto';
 import path from 'node:path';
 import {
   crpsOf, pointOf, pitOf, exceedanceOf, quantileOf, histogram, reliabilityBins, brierDecomposition,
-  dieboldMariano, blockBootstrapMeanCI, seededRandom,
+  dieboldMariano, seededRandom, insideCentral, rawGaussian, crpsEnsemble,
   fitEmosNormal, predictEmosNormal, fitEmosCensored, predictEmosCensored, fitNgrSkill, predictNgrSkill, skillWeights, fitCensoredPower, predictCensoredPower,
   fitAstraeusV1, predictAstraeusV1, biasCorrectedEnsemble, applyBiasCorrection,
   type PredictiveForecast, type TrainingRow, type VariableKind,
@@ -292,8 +292,11 @@ V['astraeus-v2'] = {
   fit: (t, k) => (k === 'temperature' ? V['ngr-skill-90'] : V['weighted-ensemble-90']).fit(t, k),
 };
 
+/** Zero-training reference: Gaussian (zero-censored for rain) with the members' mean and sd. */
+V['raw-gauss'] = { id: 'raw-gauss', label: 'Raw-ensemble Gaussian (no training)', applies: 'both', window: 0, fit: (_t, k) => (f) => rawGaussian(f, k) };
+
 const SUITES: Record<string, string[]> = {
-  final: ['raw-ensemble', 'astraeus-v1', 'emos', 'astraeus-v2'],
+  final: ['raw-ensemble', 'raw-gauss', 'astraeus-v1', 'emos', 'astraeus-v2'],
   run1: ['raw-ensemble', 'astraeus-v1', 'bias-corrected', 'emos', 'emos-weighted'],
   dev: ['raw-ensemble', 'astraeus-v1', 'emos',
     'ngr-skill-40', 'ngr-skill-60', 'ngr-skill-90', 'ngr-skill-clim-60', 'ngr-skill-clim-90', 'weighted-ensemble-40', 'weighted-ensemble-90',
@@ -304,14 +307,18 @@ const arg = (name: string, dflt: string) => {
   const i = process.argv.indexOf(`--${name}`);
   return i >= 0 && process.argv[i + 1] ? process.argv[i + 1] : dflt;
 };
-const PERIOD = arg('period', 'all') as 'dev' | 'confirm' | 'all';
+const PERIOD = arg('period', 'all') as 'dev' | 'confirm' | 'prospective' | 'all';
+/** Forecasts issued after this date had not been seen by anyone when Astraeus v2 was frozen. */
+const PROSPECTIVE_START = '2026-11-16';
+const DM_LAG = 14; // Newey–West bandwidth (days); robustness reported at lead, 7 and 21
+const BOOT_BLOCK = 7;
 const SUITE = arg('suite', 'run1');
 const DEV_END = '2026-03-31';
 const MAX_WINDOW = 90;
 
 interface Record_ {
   site: string; variable: Variable; lead: number; date: string; method: string; fallback: boolean;
-  crps: number; err: number; pit: number; inside80: boolean; prob: number; event: boolean;
+  crps: number; crpsFair: number; members: number; err: number; pit: number; inside80: boolean; prob: number; event: boolean;
 }
 
 async function main() {
@@ -325,7 +332,7 @@ async function main() {
   const methodsFor = (k: VariableKind) => ['climatology', ...suite.filter((v) => v.applies === 'both' || v.applies === k).map((v) => v.id)];
   // every variant is scored on the same days: the first day on which the longest window is available
   const firstTestDay = (lead: number) => addDays(CONFIG.forecastStart, Math.max(...suite.map((v) => v.window), CONFIG.trainingWindowDays) + CONFIG.era5LagDays + lead + 1);
-  const inPeriod = (d: string) => (PERIOD === 'dev' ? d <= DEV_END : PERIOD === 'confirm' ? d > DEV_END : true);
+  const inPeriod = (d: string) => (PERIOD === 'dev' ? d <= DEV_END : PERIOD === 'confirm' ? d > DEV_END : PERIOD === 'prospective' ? d > PROSPECTIVE_START : true);
 
   const records: Record_[] = [];
   const singleModel: Array<{ site: string; variable: Variable; lead: number; model: string; date: string; err: number }> = [];
@@ -397,10 +404,16 @@ async function main() {
               if (!fcst) { fcst = raw; fallback = true; }
             }
             if (!fcst) continue;
+            const pit = pitOf(fcst, row.y, rnd());
             records.push({
               site: site.id, variable: v.id, lead, date: d, method: m, fallback,
-              crps: crpsOf(fcst, row.y), err: pointOf(fcst) - row.y, pit: pitOf(fcst, row.y, rnd()),
-              inside80: row.y >= quantileOf(fcst, 0.1) && row.y <= quantileOf(fcst, 0.9),
+              crps: crpsOf(fcst, row.y),
+              // fair (finite-ensemble-unbiased) CRPS is recorded for the raw ensemble only (Ferro 2014)
+              crpsFair: m === 'raw-ensemble' ? crpsEnsemble(row.f, row.y, true) : NaN,
+              members: row.f.length,
+              err: pointOf(fcst) - row.y, pit,
+              // coverage from the PIT, identical in meaning for Gaussian, censored and ensemble forecasts
+              inside80: insideCentral(pit),
               prob: exceedanceOf(fcst, threshold + (v.kind === 'precipitation' ? 0 : 1e-9)), event,
             });
           }
@@ -439,11 +452,40 @@ async function main() {
     }
     const dates = [...keysByDate.keys()].sort();
     const crpsMean = (m: string) => avg(common.map((k) => byMethod.get(m)!.get(k)!.crps));
-    const dailyMean = (m: string) => dates.map((d) => avg(keysByDate.get(d)!.map((k) => byMethod.get(m)!.get(k)!.crps)));
-    const refs = { climatology: crpsMean('climatology'), raw: crpsMean('raw-ensemble'), v1: methods.includes('astraeus-v1') ? crpsMean('astraeus-v1') : NaN };
-    const dRaw = dailyMean('raw-ensemble');
-    const dV1 = methods.includes('astraeus-v1') ? dailyMean('astraeus-v1') : null;
-    const dClim = dailyMean('climatology');
+    // per-day sums and counts: the pooled estimand is 1 − Σ CRPS_m / Σ CRPS_ref over all cases
+    const daySum = (m: string) => dates.map((d) => keysByDate.get(d)!.reduce((a, k) => a + byMethod.get(m)!.get(k)!.crps, 0));
+    const dayN = dates.map((d) => keysByDate.get(d)!.length);
+    const nBar = avg(dayN);
+    const sums = new Map(methods.map((m) => [m, daySum(m)] as const));
+    const refs = { climatology: crpsMean('climatology'), raw: crpsMean('raw-ensemble'), gauss: methods.includes('raw-gauss') ? crpsMean('raw-gauss') : NaN, v1: methods.includes('astraeus-v1') ? crpsMean('astraeus-v1') : NaN };
+    // moving-block bootstrap over days, recomputing the pooled ratio from resampled cases
+    const rnd2 = seededRandom(424242 + lead);
+    const B = 2000;
+    const draws: number[][] = [];
+    for (let b = 0; b < B; b++) {
+      const pick: number[] = [];
+      while (pick.length < dates.length) {
+        const start = Math.floor(rnd2() * Math.max(1, dates.length - BOOT_BLOCK + 1));
+        for (let j = 0; j < BOOT_BLOCK && pick.length < dates.length; j++) pick.push(Math.min(dates.length - 1, start + j));
+      }
+      draws.push(pick);
+    }
+    const ratioCI = (num: string, den: string): [number, number] => {
+      const a = sums.get(num);
+      const c = sums.get(den);
+      if (!a || !c) return [NaN, NaN];
+      const vals = draws.map((pick) => 1 - pick.reduce((x, i) => x + a[i], 0) / pick.reduce((x, i) => x + c[i], 0)).sort((x, y) => x - y);
+      return [vals[Math.floor(0.025 * B)], vals[Math.min(B - 1, Math.floor(0.975 * B))]];
+    };
+    // case-weighted daily loss differential (Σ_cases Δ / n̄), so each case counts equally as in the point estimate
+    const dmTest = (m: string, ref: string) => {
+      const a = sums.get(m)!;
+      const c = sums.get(ref)!;
+      const d = a.map((x, i) => (x - c[i]) / nBar);
+      const main = dieboldMariano(d, DM_LAG);
+      const robust = [Math.max(1, lead), 7, 21].map((lag) => dieboldMariano(d, lag).pValue);
+      return { ...main, robustMaxP: Math.max(main.pValue, ...robust) };
+    };
     const climRows = common.map((k) => byMethod.get('climatology')!.get(k)!);
     const climBrier = avg(climRows.map((r) => (r.prob - (r.event ? 1 : 0)) ** 2));
     for (const m of methods) {
@@ -452,27 +494,28 @@ async function main() {
       const probs = rows.map((r) => r.prob);
       const events = rows.map((r) => r.event);
       const brier = avg(rows.map((r) => (r.prob - (r.event ? 1 : 0)) ** 2));
-      const dm = dailyMean(m);
-      const diffRaw = dm.map((x, i) => x - dRaw[i]);
-      const ciRaw = blockBootstrapMeanCI(diffRaw, { block: 7, resamples: 1000 });
       const dec = brierDecomposition(probs, events);
+      const ciRaw = m === 'raw-ensemble' ? [0, 0] : ratioCI(m, 'raw-ensemble');
+      const ciGauss = m === 'raw-gauss' || !methods.includes('raw-gauss') ? [NaN, NaN] : ratioCI(m, 'raw-gauss');
       summary.push({
         variable: v.id, lead, method: m, label: m === 'climatology' ? `Climatology (ERA5 ${CONFIG.climatologyYears.join('–')}, ±${CONFIG.climatologyHalfWindowDays} d)` : V[m].label,
         window: m === 'climatology' ? null : V[m].window, cases: rows.length, days: dates.length, fallbacks: rows.filter((r) => r.fallback).length,
-        crps: r3(crps), crpssVsClimatology: r3(1 - crps / refs.climatology), crpssVsRaw: r3(1 - crps / refs.raw), crpssVsV1: r3(1 - crps / refs.v1),
-        crpssVsRawCI: [r3(-ciRaw.hi / refs.raw), r3(-ciRaw.lo / refs.raw)],
+        members: r3(avg(rows.map((r) => r.members))), minSitesPerDay: Math.min(...dayN), maxSitesPerDay: Math.max(...dayN),
+        crps: r3(crps), crpsFair: m === 'raw-ensemble' ? r3(avg(rows.map((r) => r.crpsFair))) : null,
+        crpssVsClimatology: r3(1 - crps / refs.climatology), crpssVsRaw: r3(1 - crps / refs.raw), crpssVsRawGauss: r3(1 - crps / refs.gauss), crpssVsV1: r3(1 - crps / refs.v1),
+        crpssVsRawCI: ciRaw.map(r3), crpssVsRawGaussCI: ciGauss.map(r3),
         mae: r3(avg(rows.map((r) => Math.abs(r.err)))), rmse: r3(Math.sqrt(avg(rows.map((r) => r.err ** 2)))), bias: r3(avg(rows.map((r) => r.err))),
         coverage80: r3(avg(rows.map((r) => (r.inside80 ? 1 : 0)))),
+        pitLowest: r3(rows.filter((r) => r.pit < 0.1).length / rows.length), pitHighest: r3(rows.filter((r) => r.pit > 0.9).length / rows.length),
         brier: r3(brier), brierSkillVsClimatology: r3(1 - brier / climBrier),
         brierReliability: r3(dec.reliability), brierResolution: r3(dec.resolution), eventBaseRate: r3(dec.baseRate),
         pit: histogram(rows.map((r) => r.pit), 10).map((c) => r3(c / Math.max(1, rows.length))),
         reliability: reliabilityBins(probs, events, 10).map((b) => ({ p: r3(b.meanForecast), o: r3(b.observedFrequency), n: b.n })),
       });
-      const tests: Array<[string, number[] | null]> = [['raw-ensemble', dRaw], ['astraeus-v1', dV1], ['climatology', dClim]];
-      for (const [versus, ref] of tests) {
-        if (!ref || versus === m) continue;
-        const res = dieboldMariano(dm.map((x, i) => x - ref[i]), Math.max(1, lead));
-        significance.push({ variable: v.id, lead, method: m, versus, meanDiff: r3(res.meanDiff), statistic: r3(res.statistic), pValue: res.pValue, days: res.n });
+      for (const versus of ['raw-ensemble', 'raw-gauss', 'astraeus-v1', 'climatology']) {
+        if (versus === m || !methods.includes(versus)) continue;
+        const res = dmTest(m, versus);
+        significance.push({ variable: v.id, lead, method: m, versus, meanDiff: r3(res.meanDiff), statistic: r3(res.statistic), pValue: res.pValue, robustMaxP: res.robustMaxP, lag: DM_LAG, days: res.n });
       }
     }
   }
@@ -503,7 +546,7 @@ async function main() {
   const result = {
     version: CONFIG.version, suite: SUITE, period: PERIOD, periodLabel,
     generatedAt: new Date().toISOString(),
-    config: { ...CONFIG, maxWindowDays: MAX_WINDOW, devEnd: DEV_END },
+    config: { ...CONFIG, maxWindowDays: MAX_WINDOW, devEnd: DEV_END, prospectiveStart: PROSPECTIVE_START, dmLagDays: DM_LAG, bootstrapBlockDays: BOOT_BLOCK, bootstrapResamples: 2000 },
     models: MODELS, sites: siteMeta, variables: VARIABLES,
     methods: [{ id: 'climatology', label: 'Climatology' }, ...suite.map((x) => ({ id: x.id, label: x.label, window: x.window, applies: x.applies }))],
     provenance: {
@@ -521,7 +564,10 @@ async function main() {
       'ECMWF AIFS is trained on ERA5, so verification against ERA5 is expected to favour it; its advantage against station observations may be smaller.',
       'Single grid points stand in for each region; production-weighted areal averages would score differently.',
       'Previous-Runs data stitch successive runs issued N days earlier, so a "day-3" forecast mixes run times within the target day.',
-      'Diebold–Mariano tests use the cross-site daily mean loss; sites are not independent, so the effective sample is the number of days.',
+      'Diebold–Mariano tests use the case-weighted daily loss differential with a 14-day Newey–West bandwidth (robustness at the lead, 7 and 21 days reported); sites are not independent, so the effective sample is the number of days, and a handful of calendar days with no complete cases are skipped.',
+      'Raw-ensemble CRPS treats the m members (7 at day 1, 5–6 at longer leads) as an empirical distribution, which carries a finite-ensemble penalty; the zero-training Gaussian baseline and the fair CRPS isolate how much of the gain is learned from past errors.',
+      'Model membership per region and lead is fixed from availability over the whole archive (no truth or skill information is used).',
+      `An exploratory first run scored early methods over the whole period, including the confirmation days; only forecasts after ${PROSPECTIVE_START} are strictly unseen (--period prospective).`,
     ],
   };
   const tag = `${SUITE}-${PERIOD}`;

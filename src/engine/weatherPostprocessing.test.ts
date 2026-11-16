@@ -6,7 +6,7 @@ import {
   crpsOf, pitOf, histogram, reliabilityBins, brierDecomposition, dieboldMariano, studentTCdf,
   blockBootstrapMeanCI, seededRandom, quantileOf, exceedanceOf, pointOf, calibrate, type TrainingRow,
   crpsWeightedEnsemble, skillWeights, fitNgrSkill, predictNgrSkill, fitCensoredPower, predictCensoredPower,
-  crpsCensoredPower, powerCdf,
+  crpsCensoredPower, powerCdf, insideCentral, rawGaussian,
 } from './weatherPostprocessing';
 
 const close = (a: number, b: number, tol: number, msg?: string) => assert.ok(Math.abs(a - b) <= tol, `${msg ?? ''} ${a} vs ${b} (tol ${tol})`);
@@ -241,4 +241,25 @@ test('square-root censored model beats the raw ensemble on skewed synthetic rain
   assert.ok(a < b, `power ${a / 250} vs raw ${b / 250}`);
   const fc = predictCensoredPower(model, [4, 6, 5, 8]);
   assert.ok(exceedanceOf(fc, 1) > 0.5 && pointOf(fc) > 0);
+});
+
+test('PIT-based coverage is ~80% for calibrated forecasts of every representation', () => {
+  const rnd = seededRandom(31);
+  const n = 20000;
+  const counts = { normal: 0, ensemble: 0, weighted: 0 };
+  for (let i = 0; i < n; i++) {
+    const y = gaussian(rnd);
+    const members = Array.from({ length: 5 }, () => gaussian(rnd)); // exchangeable with y
+    if (insideCentral(pitOf({ kind: 'normal', mu: 0, sigma: 1 }, y, rnd()))) counts.normal++;
+    if (insideCentral(pitOf({ kind: 'ensemble', members }, y, rnd()))) counts.ensemble++;
+    if (insideCentral(pitOf({ kind: 'weighted-ensemble', members, weights: members.map(() => 0.2) }, y, rnd()))) counts.weighted++;
+  }
+  for (const [k, c] of Object.entries(counts)) close(c / n, 0.8, 0.012, k);
+});
+
+test('raw Gaussian baseline uses the member mean and sample standard deviation', () => {
+  const fc = rawGaussian([1, 2, 3], 'temperature') as { mu: number; sigma: number };
+  close(fc.mu, 2, 1e-12);
+  close(fc.sigma, 1, 1e-12);
+  assert.equal(rawGaussian([0, 0, 1], 'precipitation').kind, 'censored-normal');
 });

@@ -120,3 +120,5 @@
 .as-outlook-check td.pos{color:var(--as-info)}.as-outlook-check td.neg{color:var(--as-error)}
 .as-outlook footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;font:10px 'IBM Plex Mono',monospace;color:var(--as-muted)}
 .as-outlook footer button{display:inline-flex;align-items:center;gap:4px}
+
+.sk-fair{display:block;font-size:10px;color:var(--as-muted)}

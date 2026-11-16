@@ -316,14 +316,21 @@ export function quantileOf(fc: PredictiveForecast, p: number): number {
   return x[lo] + (h - lo) * ((x[Math.min(lo + 1, x.length - 1)] ?? x[lo]) - x[lo]);
 }
 
-/** Probability integral transform; randomised at the point mass (Czado, Gneiting & Held 2009). */
+/**
+ * Probability integral transform, randomised at point masses (Czado, Gneiting & Held 2009); rank-based for
+ * ensembles. Interval coverage is defined from this PIT for every forecast type (PIT ∈ [0.1, 0.9] ⇔ inside the
+ * central 80 %), so a calibrated forecast covers 80 % regardless of its representation.
+ */
 export function pitOf(fc: PredictiveForecast, y: number, u: number): number {
   if (fc.kind === 'censored-power') return pitCensoredPower(fc, y, u);
   if (fc.kind === 'weighted-ensemble') {
+    // Weighted analogue of the randomised rank: (m·F_w(y⁻) + u·(1 + m·w_tie)) / (m + 1). With equal
+    // weights it reduces exactly to the rank PIT (rank + u)/(m + 1), so a calibrated ensemble is uniform.
+    const m = fc.members.length;
     let below = 0;
     let at = 0;
     fc.members.forEach((v, i) => { if (v < y) below += fc.weights[i]; else if (v === y) at += fc.weights[i]; });
-    return below + u * at;
+    return (m * below + u * (1 + m * at)) / (m + 1);
   }
   if (fc.kind === 'censored-normal' && y <= 0) return u * Phi(-fc.mu / fc.sigma);
   if (fc.kind === 'ensemble') {
@@ -831,9 +838,20 @@ export function powerMean(fc: PowerCensoredForecast): number {
 /** CRPS on the original scale by Simpson integration of the CDF (split at the observation). */
 export function crpsCensoredPower(fc: PowerCensoredForecast, y: number): number {
   const hi = Math.max(y, powerQuantile(fc, 0.99995)) + 1;
-  return crpsNumeric((x) => powerCdf(fc, x), y, 0, hi, 400);
+  return crpsNumeric((x) => powerCdf(fc, x), y, 0, hi, 1600);
 }
 
 export function pitCensoredPower(fc: PowerCensoredForecast, y: number, u: number): number {
   return y <= 0 ? u * Phi(-fc.mu / fc.sigma) : powerCdf(fc, y);
 }
+
+/** Zero-training baseline: a Gaussian (zero-censored for rain) with the members' mean and standard deviation. */
+export function rawGaussian(f: number[], kind: VariableKind): PredictiveForecast {
+  const m = avg(f);
+  const sd = Math.sqrt(f.reduce((a, v) => a + (v - m) ** 2, 0) / Math.max(1, f.length - 1));
+  const sigma = Math.max(kind === 'precipitation' ? 0.1 : 0.05, sd);
+  return kind === 'precipitation' ? { kind: 'censored-normal', mu: m, sigma } : { kind: 'normal', mu: m, sigma };
+}
+
+/** Coverage of the central interval [α, 1−α] judged from the (randomised) PIT — consistent across forecast types. */
+export const insideCentral = (pit: number, alpha = 0.1) => pit >= alpha && pit <= 1 - alpha;

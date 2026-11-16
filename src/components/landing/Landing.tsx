@@ -51,13 +51,13 @@ function headline(w: WeatherSkill | null) {
   const m = w.headlineMethod ?? 'astraeus-v2';
   const row = (v: string, lead: number) => w.summary.find((s) => s.variable === v && s.lead === lead && s.method === m);
   const cases = w.summary.filter((s) => s.method === m).reduce((a, s) => a + s.cases, 0);
-  return { method: m, cases, tmax1: row('tmax', 1), tmean1: row('tmean', 1), precip1: row('precip', 1), tmax3: row('tmax', 3) };
+  return { method: m, cases, tmax1: row('tmax', 1), tmean1: row('tmean', 1), precip1: row('precip', 1), tmax3: row('tmax', 3), tmax7: row('tmax', 7) };
 }
 
 const STEPS = [
   { n: '01', icon: Layers, title: 'Ingest seven global models', body: 'ECMWF IFS and its machine-learning sibling AIFS, NOAA GFS, DWD ICON, the UK Met Office, JMA and Environment Canada. Runs older than 24 hours are rejected, never back-filled.' },
   { n: '02', icon: Gauge, title: 'Score every model against the record', body: 'Each model’s past forecasts are verified against ERA5 reanalysis at the same lead time, region by region. Skill is measured, then earned: accurate models gain weight.' },
-  { n: '03', icon: Sparkles, title: 'Calibrate into probabilities', body: 'Bias-corrected, skill-weighted and spread-adjusted by non-homogeneous Gaussian regression fitted on minimum CRPS (Gneiting et al., 2005). The output is a distribution — with an honest interval.' },
+  { n: '03', icon: Sparkles, title: 'Calibrate into probabilities', body: 'Bias-corrected, skill-weighted and spread-adjusted by non-homogeneous Gaussian regression fitted on minimum CRPS (Gneiting et al., 2005). The output is a distribution, and its interval coverage is published, warts and all.' },
   { n: '04', icon: Waves, title: 'Trace the shock into markets', body: 'Calibrated anomalies feed explicit, literature-backed mechanisms: heat at corn pollination, frost in Brazilian coffee, heating demand in the US Northeast — each with its own invalidation test.' },
 ];
 
@@ -133,7 +133,7 @@ export function Landing({ onEnter }: { onEnter: (view: WorkspaceView) => void })
 
   const leadSeries = useMemo(() => {
     if (!weather) return [];
-    const methods: Array<[string, string, string, boolean?]> = [['astraeus-v2', 'Astraeus v2', 'var(--viz-1)'], ['raw-ensemble', 'Raw ensemble', 'var(--viz-2)'], ['climatology', 'Climatology', 'var(--viz-ref)', true]];
+    const methods: Array<[string, string, string, boolean?]> = [['astraeus-v2', 'Astraeus v2', 'var(--viz-1)'], ['raw-ensemble', 'Raw ensemble', 'var(--viz-2)'], ['raw-gauss', 'No-training Gaussian', 'var(--viz-3)'], ['climatology', 'Climatology', 'var(--viz-ref)', true]];
     return methods.map(([id, label, color, dashed]) => ({ id, label, color, dashed, emphasis: id === 'astraeus-v2', points: weather.config.leads.map((l) => ({ x: l, y: weather.summary.find((s) => s.variable === 'tmax' && s.lead === l && s.method === id)?.crps ?? null })) }));
   }, [weather]);
 
@@ -166,7 +166,7 @@ export function Landing({ onEnter }: { onEnter: (view: WorkspaceView) => void })
         <div><dt>Global weather models</dt><dd><CountUp value={7} /></dd><small>incl. ECMWF’s AI model AIFS</small></div>
         <div><dt>Commodity regions verified</dt><dd><CountUp value={weather?.sites.length ?? 16} /></dd><small>corn belts to gas-demand hubs</small></div>
         <div><dt>Held-out forecasts scored</dt><dd><CountUp value={h?.cases ?? 0} /></dd><small>Apr–Nov 2026, scored once</small></div>
-        <div><dt>Lower forecast error</dt><dd><CountUp value={(h?.tmax1?.crpssVsRaw ?? 0) * 100} decimals={0} suffix="%" /></dd><small>day-1 max temperature CRPS vs raw models</small></div>
+        <div><dt>Lower forecast error</dt><dd><CountUp value={(h?.tmax1?.crpssVsRawGauss ?? h?.tmax1?.crpssVsRaw ?? 0) * 100} decimals={0} suffix="%" /></dd><small>day-1 max temperature vs a no-training forecast</small></div>
       </dl>
     </section>
 
@@ -188,20 +188,24 @@ export function Landing({ onEnter }: { onEnter: (view: WorkspaceView) => void })
     <section className="lp-section lp-proof">
       <header className="lp-section-head" data-reveal>
         <p className="lp-eyebrow">Measured, not claimed</p>
-        <h2>Verified on forecasts it had never seen.</h2>
-        <p>The method was chosen on October 2025 – March 2026 and frozen. It was then scored once on April – November 2026 across sixteen commodity regions, against ERA5 reanalysis. Every interval below is a 95% moving-block bootstrap.</p>
+        <h2>Tested on a held-out period — and independently reviewed.</h2>
+        <p>The method was chosen on October 2025 – March 2026, frozen, then scored on April – November 2026 across sixteen commodity regions against ERA5 reanalysis. Temperature is compared with a no-training forecast built from the same models; rain with the raw ensemble. Every interval is a 95% block bootstrap. A strictly prospective test — forecasts issued after the freeze — will be scored as those forecasts verify.</p>
       </header>
       <div className="lp-proof-grid">
         <div className="lp-proof-numbers" data-reveal>
-          {[[h?.tmax1, 'Max temperature · day 1'], [h?.tmean1, 'Mean temperature · day 1'], [h?.tmax3, 'Max temperature · day 3'], [h?.precip1, 'Rainfall · day 1']].map(([r, label]: any) => <div key={label}>
-            <strong>{r ? <CountUp value={r.crpssVsRaw * 100} decimals={1} suffix="%" /> : '—'}</strong>
-            <span>{label}</span>
-            <small>{r ? `CRPS skill vs raw ensemble · 95% CI ${pct(r.crpssVsRawCI[0], 1)} to ${pct(r.crpssVsRawCI[1], 1)}` : ''}</small>
-          </div>)}
+          {([[h?.tmax1, 'Max temperature · day 1', true], [h?.tmean1, 'Mean temperature · day 1', true], [h?.tmax7, 'Max temperature · day 7', true], [h?.precip1, 'Rainfall · day 1', false]] as any[]).map(([r, label, gauss]) => {
+            const val = r ? (gauss && r.crpssVsRawGauss != null ? r.crpssVsRawGauss : r.crpssVsRaw) : null;
+            const ci = r ? (gauss && r.crpssVsRawGaussCI ? r.crpssVsRawGaussCI : r.crpssVsRawCI) : null;
+            return <div key={label}>
+              <strong>{val != null ? <CountUp value={val * 100} decimals={1} suffix="%" /> : '—'}</strong>
+              <span>{label}</span>
+              <small>{r ? `lower CRPS vs ${gauss ? 'no-training forecast' : 'raw ensemble'} · 95% CI ${pct(ci[0], 1)} to ${pct(ci[1], 1)}` : ''}</small>
+            </div>;
+          })}
         </div>
         <div className="lp-proof-chart" data-reveal>
           {leadSeries.length ? <LineChart caption="Probabilistic error (CRPS, °C) of daily maximum temperature by forecast lead — lower is better" series={leadSeries} xFormat={(x) => LEAD_LABEL(x)} yFormat={(y) => y.toFixed(1)} xLabel="Lead" yLabel="CRPS (°C)" height={280} /> : null}
-          <p className="lp-footnote">Rainfall gains are small (1–2%) but statistically significant at every lead; temperature gains are 7–17%. ERA5 verification is expected to favour ECMWF’s AIFS, which is trained on ERA5. <a href="#accuracy" onClick={go('accuracy')}>Full skill report <ArrowUpRight size={12} /></a></p>
+          <p className="lp-footnote">Temperature gains over a no-training forecast fall from about 15% at day 1 to 3–5% at day 7; rainfall gains over the raw ensemble are small (1–2%) but significant at every lead. Astraeus v2 is slightly under-dispersive: its 80% intervals cover about 75% of outcomes. ERA5 verification favours ECMWF’s AIFS, which is trained on it. <a href="#accuracy" onClick={go('accuracy')}>Full skill report <ArrowUpRight size={12} /></a></p>
         </div>
       </div>
     </section>

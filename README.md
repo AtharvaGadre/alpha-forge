@@ -19,15 +19,18 @@ Astraeus combines seven global weather models, calibrates them against the ERA5 
 
 ## Headline results
 
-Held-out confirmation period (April–November 2026), 16 commodity regions, 7 models, truth = ERA5. The method was selected on a separate development period and scored once. CRPS skill of **Astraeus v2** relative to the raw multi-model ensemble:
+Confirmation period (April–November 2026), 16 commodity regions, 7 models, truth = ERA5. The method was selected on a separate development period and frozen before this period was scored; an exploratory first run had also covered it, so a strictly prospective test (`--period prospective`, forecasts after 16 Nov 2026) is specified. The benchmark was independently code-reviewed; revision 2 of the report lists the corrections.
+
+CRPS reduction of **Astraeus v2** (higher is better):
 
 | | Day 1 | Day 3 | Day 5 | Day 7 |
 |---|---|---|---|---|
-| Daily maximum temperature | +17.2% | +14.8% | +11.0% | +8.7% |
-| Daily mean temperature | +16.9% | +14.8% | +8.9% | +6.9% |
-| Daily precipitation | +2.3% | +1.8% | +1.2% | +1.1% |
+| Max temperature vs no-training Gaussian of the same models | 14.8% | 11.3% | 7.4% | 4.5% |
+| Mean temperature vs no-training Gaussian | 15.0% | 12.5% | 5.5% | 2.7% (n.s.) |
+| Max temperature vs raw ensemble (5–7 members) | 17.2% | 14.8% | 11.0% | 8.7% |
+| Rainfall vs raw ensemble (like-for-like) | 2.3% | 1.8% | 1.2% | 1.1% |
 
-All differences are significant (Diebold–Mariano with HAC/HLN correction, p < 0.01); 95% block-bootstrap intervals are in `public/research/weather-skill.json`. The pre-registered first run and the development comparison are archived in `docs/results/archive/`.
+Significance: Diebold–Mariano on case-weighted daily losses, largest p across Newey–West bandwidths; 95% block-bootstrap intervals in `public/research/weather-skill.json`. The gains come from bias correction and skill weighting; v2 is mildly under-dispersive (80% intervals cover ~74–78% of temperature outcomes), while the raw ensemble is over-dispersive at short leads. The development comparison and the first run replayed on development days are archived in `docs/results/archive/`.
 
 A companion walk-forward study (`docs/results/PRICE_STUDY.md`, 6 commodities, 2008–2026) finds that weather information almost never improves out-of-sample weekly futures-return forecasts. The single cell surviving Benjamini–Hochberg correction — natural-gas weather forecasts at a 1-week horizon — beats a market-only model (Clark–West q = 0.004) but not a no-change forecast (Diebold–Mariano p = 0.21) on 88 weeks, so it is reported as a hypothesis to monitor, not a signal.
 

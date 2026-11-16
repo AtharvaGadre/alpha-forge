@@ -1,11 +1,12 @@
 /**
- * Live calibrated 7-day outlook.
+ * Live calibrated 7-day outlook (Astraeus v2).
  *
- * For the region being analysed, EMOS (Gneiting et al. 2005) is fitted on the most recent ~40 days of
- * what each global model forecast at a matching lead time, verified against ERA5. It is then applied to
- * today's model run to give calibrated daily quantiles and event probabilities. A time-ordered
- * held-out check (fit on the older half, score on the newer half) is published alongside, so every
- * calibrated number carries its own local evidence of whether calibration helped.
+ * For the region being analysed, the frozen v2 method — skill-weighted NGR for temperature (minimum CRPS,
+ * cf. Gneiting et al. 2005) and a skill-weighted ensemble for rain — is fitted on up to 90 days of what each
+ * global model forecast at the matching lead, verified against ERA5, using the same membership (≥ 90 %
+ * availability) and day-aggregation rules as the benchmark. It is applied to today's run to give calibrated
+ * daily quantiles and event probabilities. A time-ordered held-out check (older half → newer half) is
+ * published alongside as local, small-sample evidence.
  */
 import {
   fitNgrSkill, predictNgrSkill, skillWeights, crpsOf, crpsEnsemble,
@@ -79,7 +80,7 @@ const VARS: Array<{ id: OutlookVariable; hourly: string; agg: 'mean' | 'max' | '
 const avg = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
 const r2 = (x: number) => Math.round(x * 100) / 100;
 
-/** Hourly → UTC daily aggregate. Sums need all 24 hours (no gap scaling); means/maxima need ≥ 20. */
+/** Hourly → UTC daily aggregate; all 24 hours are required, exactly as in the benchmark. */
 export function hourlyAggregate(times: string[] | undefined, values: Array<number | null> | undefined, mode: 'mean' | 'max' | 'sum'): Map<string, number> {
   const groups = new Map<string, number[]>();
   (times ?? []).forEach((t, i) => {
@@ -91,14 +92,18 @@ export function hourlyAggregate(times: string[] | undefined, values: Array<numbe
   });
   const out = new Map<string, number>();
   for (const [d, xs] of groups) {
-    if (xs.length < (mode === 'sum' ? 24 : 20)) continue;
+    if (xs.length < 24) continue;
     out.set(d, mode === 'sum' ? xs.reduce((a, b) => a + b, 0) : mode === 'max' ? Math.max(...xs) : avg(xs));
   }
   return out;
 }
 
-/** Lead whose verification best matches forecast day i (0 = today); only 1, 3 and 5 are fetched live. */
-export const trainingLeadFor = (dayIndex: number) => (dayIndex <= 1 ? 1 : dayIndex <= 3 ? 3 : 5);
+/** Leads fetched live (previous_dayN); forecast day i (0 = today) is calibrated with lead max(1, i). */
+export const OUTLOOK_LEADS = [1, 2, 3, 4, 5, 6];
+export const trainingLeadFor = (dayIndex: number) => Math.min(6, Math.max(1, dayIndex));
+/** Same membership rule as the benchmark, and a minimum training size well above the parameter count. */
+const MIN_AVAILABILITY = 0.9;
+const MIN_TRAINING_ROWS = 60;
 
 function areal(values: Array<number | undefined>): number | null {
   return values.every((v) => v !== undefined && Number.isFinite(v)) && values.length ? avg(values as number[]) : null;
@@ -160,12 +165,13 @@ export function buildCalibratedOutlook(input: {
 
   for (const v of VARS) {
     const t = truth.get(v.id)!;
-    for (const lead of [1, 3, 5]) {
+    for (const lead of OUTLOOK_LEADS) {
       const dayIdx = days.map((d, i) => (d.trainingLead === lead ? i : -1)).filter((i) => i >= 0);
       if (!dayIdx.length) continue;
       const series = live.map((m) => ({ m, s: prev(v, lead, m.apiId) }));
       // members with training history AND a value for every day this lead serves
-      const members = series.filter(({ m, s }) => s.size >= 10 && dayIdx.every((i) => current(v, m.apiId, days[i].date) !== null));
+      const truthDays = verifyDates.filter((d) => t.has(d));
+      const members = series.filter(({ m, s }) => truthDays.length > 0 && truthDays.filter((d) => s.has(d)).length >= MIN_AVAILABILITY * truthDays.length && dayIdx.every((i) => current(v, m.apiId, days[i].date) !== null));
       if (members.length < 2) continue;
       const rows: Array<TrainingRow & { date: string }> = [];
       for (const d of verifyDates) {
@@ -193,7 +199,7 @@ export function buildCalibratedOutlook(input: {
         }
       }
 
-      const model = fit(rows);
+      const model = rows.length >= MIN_TRAINING_ROWS ? fit(rows) : null;
       members.forEach(({ m }) => usedModels.add(m.name));
       for (const i of dayIdx) {
         const f = members.map(({ m }) => current(v, m.apiId, days[i].date) as number);
@@ -220,7 +226,8 @@ export function buildCalibratedOutlook(input: {
     days,
     heldOut,
     notes: [
-      'Day 0–1 use lead-1 training, days 2–3 lead-3 and days 4–6 lead-5: the nearest verified lead, slightly conservative for the earlier day of each pair.',
+      'Day 0 and day 1 use lead-1 training; day i (2–6) uses lead-i training, matching each forecast to previous runs of the same age.',
+      `Models enter only with ≥ ${Math.round(MIN_AVAILABILITY * 100)} % availability in the training window, and calibration needs ≥ ${MIN_TRAINING_ROWS} complete training days; otherwise the raw spread is shown and labelled uncalibrated.`,
       'Quantiles are marginal for each day; they do not add up to a weekly total distribution.',
       'Calibration is local and recent (≤90 days): it corrects the current regime’s biases but cannot anticipate a regime change.',
       'Where a calibration model could not be fitted (e.g. a bone-dry training window), the raw model spread is shown and labelled uncalibrated.',

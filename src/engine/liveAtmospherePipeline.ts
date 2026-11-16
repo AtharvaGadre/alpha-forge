@@ -1264,14 +1264,14 @@ export async function runLiveAtmospherePipeline(opts: RunLivePipelineOptions): P
   // Same-calendar 30-day precipitation minus reference ET₀ windows for water-balance context.
   const climRanges = Array.from({ length: climYears }, (_, k) => [shiftYears(waterBalanceDates[0], -(k + 1)), shiftYears(waterBalanceDates[waterBalanceDates.length - 1], -(k + 1))]);
   const lastFullYear = now.getUTCFullYear() - 1;
-  const prevVars = [1, 3, 5].flatMap((l) => [`precipitation_previous_day${l}`, `temperature_2m_previous_day${l}`]).join(',');
+  const prevVars = [1, 2, 3, 4, 5, 6].flatMap((l) => [`precipitation_previous_day${l}`, `temperature_2m_previous_day${l}`]).join(','); // leads 1–6 feed the calibrated outlook
   const prevUrl = `https://previous-runs-api.open-meteo.com/v1/forecast?latitude=${latList(pts)}&longitude=${lngList(pts)}&hourly=${prevVars}&models=${modelIds}&start_date=${verifyDates[0]}&end_date=${verifyDates[verifyDates.length - 1]}&timezone=UTC`;
 
   const [fcRaw, ensRaw, eraRaw, prevRaw, metas, climRaw] = await Promise.all([
     cached(`fc-agro-v1|${locKey}|${hourKey}`, 30 * 60_000, () => logged<any>(log, 'Open-Meteo Forecast (8 models)', fcUrl, 15000, fetchJson, () => 'daily precip, temperature, wind, reference ET₀'),),
     cached(`ens|${locKey}|${hourKey}`, 30 * 60_000, () => logged<any>(log, 'Open-Meteo Ensemble (ECMWF ENS + GEFS)', ensUrl, 15000, fetchJson, () => 'member precipitation')),
     cached(`era-agro-v2|${locKey}|${today}`, 12 * 3_600_000, () => logged<any>(log, 'Open-Meteo Historical (ERA5, verification truth and soil moisture)', eraUrl(eraTruthStart, eraTruthEnd), 20000, fetchJson, () => `${eraTruthStart}…${eraTruthEnd}`)),
-    cached(`prev|${locKey}|${today}`, 6 * 3_600_000, () => logged<any>(log, 'Open-Meteo Previous Runs (lead 1/3/5 d)', prevUrl, 25000, fetchJson, () => `${verifyDates[0]}…${verifyDates[verifyDates.length - 1]}`)),
+    cached(`prev-v2|${locKey}|${today}`, 6 * 3_600_000, () => logged<any>(log, 'Open-Meteo Previous Runs (lead 1–6 d)', prevUrl, 25000, fetchJson, () => `${verifyDates[0]}…${verifyDates[verifyDates.length - 1]}`)),
     Promise.all(
       LIVE_MODEL_SPECS.map((m) =>
         cached(`meta|${m.metaId}|${hourKey}`, 20 * 60_000, () =>

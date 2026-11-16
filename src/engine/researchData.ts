@@ -5,20 +5,22 @@ export interface SkillRow {
   variable: 'tmean' | 'tmax' | 'precip'; lead: number; method: string; label: string; window: number | null;
   cases: number; days: number; fallbacks: number;
   crps: number; crpssVsClimatology: number; crpssVsRaw: number; crpssVsV1: number; crpssVsRawCI: [number, number];
+  crpssVsRawGauss?: number | null; crpssVsRawGaussCI?: [number | null, number | null]; crpsFair?: number | null; members?: number;
+  pitLowest?: number; pitHighest?: number; minSitesPerDay?: number; maxSitesPerDay?: number;
   mae: number; rmse: number; bias: number; coverage80: number;
   brier: number; brierSkillVsClimatology: number; brierReliability: number; brierResolution: number; eventBaseRate: number;
   pit: number[]; reliability: Array<{ p: number | null; o: number | null; n: number }>;
 }
 export interface WeatherSkill {
   version: string; suite: string; period: string; periodLabel: string; generatedAt: string; headlineMethod: string | null;
-  config: { leads: number[]; forecastStart: string; forecastEnd: string; devEnd: string; trainingWindowDays: number; era5LagDays: number; refitEveryDays: number; climatologyYears: [number, number]; climatologyHalfWindowDays: number; minModelAvailability: number; precipEventMm: number; temperatureEventPercentile: number };
+  config: { leads: number[]; forecastStart: string; forecastEnd: string; devEnd: string; trainingWindowDays: number; era5LagDays: number; refitEveryDays: number; climatologyYears: [number, number]; climatologyHalfWindowDays: number; minModelAvailability: number; precipEventMm: number; temperatureEventPercentile: number; prospectiveStart?: string; dmLagDays?: number; bootstrapBlockDays?: number };
   models: Array<{ api: string; name: string; kind: string }>;
   sites: Array<{ id: string; name: string; lat: number; lng: number; commodities: string[]; modelsByLead: Record<string, string[]> }>;
   variables: Array<{ id: string; label: string; unit: string; kind: string }>;
   methods: Array<{ id: string; label: string; window?: number }>;
   provenance: Record<string, string | number>;
   summary: SkillRow[];
-  significance: Array<{ variable: string; lead: number; method: string; versus: string; meanDiff: number; statistic: number; pValue: number; days: number }>;
+  significance: Array<{ variable: string; lead: number; method: string; versus: string; meanDiff: number; statistic: number; pValue: number; robustMaxP?: number; lag?: number; days: number }>;
   bySite: Array<Record<string, number | string>>;
   singleModels: Array<{ variable: string; lead: number; model: string; name: string; kind: string; cases: number; mae: number; rmse: number; bias: number }>;
   examples?: Array<{ site: string; variable: string; lead: number; days: Array<{ date: string; truth: number; members: Record<string, number>; p10: number; p50: number; p90: number; mean: number }> }>;

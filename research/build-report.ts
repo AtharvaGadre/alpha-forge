@@ -19,7 +19,7 @@ if (fullPrice) {
   writeFileSync(path.join(ROOT, 'public', 'research', 'price-summary.json'), JSON.stringify({ ...rest, source: '/research/price-skill.json', rows: rows.map(({ cumulativeSseGain, predictions, paths, ...r }: any) => r) }));
 }
 if (!weather) throw new Error('public/research/weather-skill.json missing — run the benchmark first.');
-const doc = buildReport(weather, read<PriceSkill>('public/research/price-skill.json'), read<WeatherSkill>('public/research/archive/weather-dev-period.json'), read<WeatherSkill>('public/research/archive/weather-run1-preregistered.json'));
+const doc = buildReport(weather, read<PriceSkill>('public/research/price-skill.json'), read<WeatherSkill>('public/research/archive/weather-dev-period.json'), read<WeatherSkill>('public/research/archive/weather-run1-devonly.json'));
 const byId = new Map(RESEARCH_LIBRARY.map((r) => [r.id, r]));
 const cite = (t: string) => t.replace(/\[(@[a-z0-9-]+(?:;\s*@[a-z0-9-]+)*)\]/g, (_m, ids: string) => `(${ids.split(/;\s*/).map((i) => { const r = byId.get(i.slice(1)); return r ? citeLabel(r) : i; }).join('; ')})`);
 const esc = (t: string) => t.replace(/\|/g, '\\|');

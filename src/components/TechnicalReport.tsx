@@ -16,7 +16,7 @@ export function TechnicalReport({ onSkill }: { onSkill?: () => void }) {
   useEffect(() => {
     let live = true;
     void loadJson<WeatherSkill>('/research/archive/weather-dev-period.json').then((d) => live && setDev(d));
-    void loadJson<WeatherSkill>('/research/archive/weather-run1-preregistered.json').then((d) => live && setRun1(d));
+    void loadJson<WeatherSkill>('/research/archive/weather-run1-devonly.json').then((d) => live && setRun1(d));
     void import('../engine/researchLibrary').then((m) => live && setLib(m.RESEARCH_LIBRARY));
     return () => { live = false; };
   }, []);
@@ -42,7 +42,7 @@ export function TechnicalReport({ onSkill }: { onSkill?: () => void }) {
     const w = weather;
     const v = b.variable ?? 'tmax';
     if (b.kind === 'skill-by-lead') {
-      const styles: Array<[string, string, string, boolean?]> = [['astraeus-v2', 'Astraeus v2', 'var(--viz-1)'], ['raw-ensemble', 'Raw ensemble', 'var(--viz-2)'], ['astraeus-v1', 'Astraeus v1', 'var(--viz-3)'], ['climatology', 'Climatology', 'var(--viz-ref)', true]];
+      const styles: Array<[string, string, string, boolean?]> = [['astraeus-v2', 'Astraeus v2', 'var(--viz-1)'], ['raw-ensemble', 'Raw ensemble', 'var(--viz-2)'], ['raw-gauss', 'No-training Gaussian', 'var(--viz-3)'], ['climatology', 'Climatology', 'var(--viz-ref)', true]];
       return <LineChart caption={b.caption} series={styles.map(([id, label, color, dashed]) => ({ id, label, color, dashed, emphasis: id === 'astraeus-v2', points: w.config.leads.map((l) => ({ x: l, y: w.summary.find((s) => s.variable === v && s.lead === l && s.method === id)?.crps ?? null })) }))} xFormat={(x) => `Day ${x}`} yFormat={(y) => y.toFixed(2)} xLabel="Lead" yLabel="CRPS" />;
     }
     if (b.kind === 'reliability') {
