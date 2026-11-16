@@ -14,7 +14,8 @@
     "smoke:live": "tsx scripts/live-smoke.ts",
     "bench:weather": "tsx research/weather-benchmark.ts --suite final --period confirm --offline",
     "report": "tsx research/build-report.ts",
-    "track-record": "tsx research/track-record.ts"
+    "track-record": "tsx research/track-record.ts",
+    "test:e2e": "npm run build && node --test --test-concurrency=1 --test-timeout=240000 e2e/app.e2e.test.mjs"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
@@ -40,6 +41,7 @@
     "@types/topojson-client": "^3.1.5",
     "autoprefixer": "^10.4.21",
     "esbuild": "^0.27.0",
+    "puppeteer-core": "^25.16.0",
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2"
   }

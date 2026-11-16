@@ -1,0 +1,370 @@
+/* ───────────────────────── Astraeus workspace design layer ─────────────────────────
+   One visual system for every workspace view, matching the landing page (#home):
+   ink surfaces, a single gold accent, Cormorant Garamond display headings, Plus Jakarta Sans
+   body and IBM Plex Mono labels. Colours come from the --as-* tokens in astraeus.css (both
+   themes, WCAG AA checked); data-visualisation colours stay in components/charts/charts.css.
+   Loaded after the older per-feature stylesheets, so rules here are the source of truth for
+   type, buttons, surfaces, tabs, states and focus. */
+
+/* ── shell ── */
+.af-app{font-family:var(--as-font-body);font-size:13px;line-height:1.6;background:var(--as-bg);color:var(--as-ink);-webkit-font-smoothing:antialiased}
+.af-app ::selection{background:color-mix(in srgb,var(--as-gold) 30%,transparent);color:var(--as-ink)}
+.af-app :focus-visible,.lp :focus-visible,.as-tour :focus-visible{outline:2px solid var(--as-gold);outline-offset:3px}
+.af-app :focus:not(:focus-visible){outline:none}
+
+.af-app .af-sidebar{background:var(--as-bg);border-right:1px solid var(--as-line);padding:28px 16px 22px;overflow-y:auto;scrollbar-width:none}
+.af-app .af-brand{gap:11px;color:var(--as-ink);font:500 25px/1 var(--as-font-display);letter-spacing:.06em}
+.af-app .af-brand>span:last-child{display:grid;gap:6px}
+.af-app .af-brand small{font:500 9px/1.2 var(--as-font-mono);letter-spacing:.12em;white-space:nowrap;color:var(--as-muted);margin:0}
+.af-app .af-logo{width:34px;height:34px;border:1px solid var(--as-line);border-radius:50%;background:transparent;color:var(--as-gold)}
+.af-app .af-nav-caption{font:500 10px/1.4 var(--as-font-mono);letter-spacing:.22em;color:var(--as-muted);margin:44px 12px 12px}
+.af-app .af-sidebar nav{gap:2px}
+.af-app .af-sidebar nav button{font-size:13px;font-weight:500;color:var(--as-muted);padding:10px 12px;border-radius:var(--as-radius-sm);gap:12px;transition:color .25s,background .25s}
+.af-app .af-sidebar nav button:hover{color:var(--as-ink);background:var(--as-soft)}
+.af-app .af-sidebar nav button.active,.af-app .af-sidebar nav button[aria-current=page]{color:var(--as-gold);background:var(--as-soft);box-shadow:inset 2px 0 var(--as-gold)}
+.af-app .af-sidebar nav button>svg:last-child:not(:first-child){opacity:.6}
+.af-app .af-nav-count{font:500 10px/18px var(--as-font-mono);min-width:22px;text-align:center;padding:0 6px;border-radius:999px;background:transparent;border:1px solid var(--as-line);color:var(--as-muted)}
+.af-app .af-sidebar-note{border:1px solid var(--as-line);border-radius:var(--as-radius);padding:16px 14px;font:500 10px/1.5 var(--as-font-mono);letter-spacing:.16em;color:var(--as-gold);background:transparent}
+.af-app .af-sidebar-note p{font:400 13px/1.7 var(--as-font-body);letter-spacing:0;color:var(--as-ink);margin:10px 0 8px}
+.af-app .af-sidebar-note>div{font:400 11px/1.5 var(--as-font-body);letter-spacing:0;color:var(--as-muted)}
+.af-app .af-sidebar-bottom{margin:18px 4px 0;font-size:12px;color:var(--as-muted);gap:10px}
+.af-app .af-sidebar-bottom svg{color:var(--as-gold);flex-shrink:0}
+.af-app .af-sidebar-bottom small{font-size:11px;color:var(--as-muted)}
+.af-app .af-sidebar-credit{display:block;margin:14px 4px 0;font:400 11px/1.6 var(--as-font-body);color:var(--as-muted)}
+.af-app .af-sidebar-credit a{color:var(--as-ink);text-decoration:underline;text-decoration-color:var(--as-line-strong);text-underline-offset:3px}
+.af-app .af-sidebar-credit a:hover{color:var(--as-gold);text-decoration-color:currentColor}
+.af-app .af-sidebar-credit button{border:0;background:none;padding:0;color:var(--as-gold);font:inherit;text-decoration:underline;text-underline-offset:3px}
+.af-app .af-live-dot{background:var(--as-gold)}
+.af-app .af-live-dot.muted{background:var(--as-line-strong)}
+
+.af-app .af-topbar{height:72px;background:color-mix(in srgb,var(--as-bg) 86%,transparent);backdrop-filter:blur(14px) saturate(1.2);border-bottom:1px solid var(--as-line);position:sticky;top:0;z-index:15;gap:14px}
+.af-app .af-breadcrumb{font:500 11px/1 var(--as-font-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--as-muted);gap:10px}
+.af-app .af-breadcrumb strong{color:var(--as-ink);font-weight:500}
+.af-app .af-top-home{display:flex;align-items:center;gap:7px;margin:0 auto 0 12px;padding:6px 0;border:0;border-radius:4px;background:none;font-size:12px;color:var(--as-muted)}
+.af-app .af-top-home:hover{color:var(--as-gold)}
+.af-app .af-top-label{font-size:12px;color:var(--as-muted)}
+.af-app .af-avatar{width:32px;height:32px;margin-left:14px;border:1px solid var(--as-line);background:transparent;color:var(--as-gold);font:500 10px var(--as-font-mono);letter-spacing:.08em}
+.af-app .as-tools{gap:8px}
+.af-app .as-tools button{min-height:36px;padding:8px 14px;border-radius:999px;border:1px solid var(--as-line);background:transparent;color:var(--as-ink);font-size:12px;font-weight:500;transition:border-color .25s,color .25s}
+.af-app .as-tools button:hover{border-color:var(--as-gold);color:var(--as-gold)}
+
+.af-app .af-content{padding:40px clamp(16px,3vw,48px) 24px;max-width:1680px}
+
+/* ── page header: eyebrow, display title, lede, actions (same pattern as .sk-hero) ── */
+.af-app :is(.af-eyebrow,.af-section-kicker){font:500 11px/1.4 var(--as-font-mono);letter-spacing:.22em;text-transform:uppercase;color:var(--as-gold)}
+.af-app .af-label{font:500 10px/1.5 var(--as-font-mono);letter-spacing:.16em;text-transform:uppercase;color:var(--as-gold)}
+.af-app :is(.af-page-heading,.af-earth-heading,.af-learning-heading){display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin:0 0 32px}
+.af-app :is(.af-page-heading,.af-earth-heading,.af-learning-heading)>div:first-child{max-width:980px}
+.af-app :is(.af-page-heading h1,.af-earth-heading h1,.af-learning-heading h1){font:500 clamp(36px,4vw,58px)/1.05 var(--as-font-display);letter-spacing:-.01em;margin:14px 0 14px;color:var(--as-ink)}
+.af-app :is(.af-page-heading p,.af-earth-heading p,.af-learning-heading p){font-size:14px;line-height:1.85;color:var(--as-muted);max-width:760px;margin:0}
+.af-app :is(.af-page-heading,.af-earth-heading,.af-learning-heading)>.af-button{flex-shrink:0}
+
+/* ── buttons (pill, like .lp-btn) ── */
+.af-app .af-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:10px 18px;border-radius:999px;border:1px solid var(--as-line-strong);background:transparent;color:var(--as-ink);font-size:13px;font-weight:500;line-height:1.2;white-space:nowrap;transition:transform .3s var(--as-ease),background .25s,border-color .25s,color .25s}
+.af-app .af-button:hover:not(:disabled){border-color:var(--as-gold);color:var(--as-gold);transform:translateY(-1px)}
+.af-app .af-button:disabled{opacity:.5}
+.af-app .af-button.af-primary,.af-app .af-primary{background:var(--as-gold);border-color:var(--as-gold);color:var(--as-on-gold)}
+.af-app .af-button.af-primary:hover:not(:disabled){background:color-mix(in srgb,var(--as-gold) 86%,var(--as-ink));border-color:color-mix(in srgb,var(--as-gold) 86%,var(--as-ink));color:var(--as-on-gold)}
+.af-app .af-outline{background:transparent;color:var(--as-ink)}
+.af-app .af-analysis-controls .af-button{min-height:36px;padding:8px 16px;font-size:12px}
+.af-app .af-text-button{display:inline-flex;align-items:center;gap:6px;border:0;background:none;padding:6px 0;color:var(--as-gold);font-size:12px;font-weight:500;text-decoration:underline;text-decoration-color:transparent;text-underline-offset:4px;transition:text-decoration-color .25s}
+.af-app .af-text-button:hover:not(:disabled){text-decoration-color:currentColor}
+/* icon-only controls share one size and hover treatment */
+.af-app :is(.af-star,.af-detail-title button,.af-search button){display:grid;place-items:center;min-width:36px;min-height:36px;border-radius:999px;border:0;background:transparent;color:var(--as-muted);transition:color .25s,background .25s}
+.af-app :is(.af-star,.af-detail-title button,.af-search button):hover:not(:disabled){color:var(--as-gold);background:var(--as-soft)}
+.af-app .af-star.saved{color:var(--as-gold)}
+.af-app .af-search button{min-width:28px;min-height:28px}
+
+/* ── chips, segmented filters and tabs ── */
+.af-app :is(.af-filters,.af-earth-filters,.af-channel-buttons,.as-range-presets){gap:8px}
+.af-app :is(.af-filters button,.af-earth-filters button,.af-channel-buttons button,.as-range-presets button){min-height:32px;padding:6px 14px;border:1px solid var(--as-line);border-radius:999px;background:transparent;color:var(--as-muted);font-size:12px;font-weight:500;white-space:nowrap;transition:border-color .25s,color .25s,background .25s}
+.af-app :is(.af-filters button,.af-earth-filters button,.af-channel-buttons button,.as-range-presets button):hover{border-color:var(--as-gold);color:var(--as-ink)}
+.af-app :is(.af-filters button.active,.af-earth-filters button.active,.af-channel-buttons button.active,.as-range-presets button[aria-pressed=true]){background:var(--as-gold);border-color:var(--as-gold);color:var(--as-on-gold)}
+.af-app :is(.af-detail-tabs,.af-lab-tabs){display:flex;gap:24px;border-bottom:1px solid var(--as-line);overflow-x:auto;scrollbar-width:none}
+.af-app :is(.af-detail-tabs button,.af-lab-tabs button){border:0;border-bottom:2px solid transparent;margin-bottom:-1px;padding:12px 0;background:none;color:var(--as-muted);font-size:13px;font-weight:500;white-space:nowrap;transition:color .25s,border-color .25s}
+.af-app :is(.af-detail-tabs button,.af-lab-tabs button):hover{color:var(--as-ink)}
+.af-app :is(.af-detail-tabs button.active,.af-lab-tabs button.active){color:var(--as-gold);border-bottom-color:var(--as-gold);font-weight:600}
+.af-app .af-detail-tabs{padding:0 24px}
+.af-app .as-test-modes button{border-radius:var(--as-radius);padding:16px 18px;font-size:13px;font-weight:500;transition:border-color .25s,background .25s}
+.af-app .as-test-modes button:hover{border-color:var(--as-line-strong)}
+.af-app .as-test-modes button[aria-pressed=true]{border-color:var(--as-gold);background:var(--as-gold-soft)}
+.af-app .as-test-modes small{font-size:11px;font-weight:400}
+.af-app .af-status{gap:6px;padding:4px 10px;border-radius:999px;font-size:11px;font-weight:500}
+.af-app .af-status i{width:6px;height:6px}
+.af-app :is(.af-evidence-badge,.af-path-effect,.af-exposure-role){border-radius:999px;padding:4px 10px;font:500 10px/1.5 var(--as-font-mono);letter-spacing:.08em}
+.af-app .af-exposure-role{color:var(--as-gold);background:var(--as-gold-soft);text-transform:uppercase}
+.af-app .af-teaching-header>span{border-radius:999px;padding:5px 10px;font-size:10px;letter-spacing:.08em}
+
+/* ── form controls ── */
+.af-app :is(select,input[type=text],input[type=search],input[type=date],input[type=number],input:not([type])){border-radius:var(--as-radius-sm);border:1px solid var(--as-line-strong);background-color:var(--as-panel);color:var(--as-ink);font-size:13px}
+.af-app :is(.af-search,.af-region,.af-paper-search>div){border-radius:999px;border:1px solid var(--as-line-strong);background:var(--as-panel);color:var(--as-muted);padding:8px 14px;transition:border-color .25s}
+.af-app :is(.af-search,.af-region,.af-paper-search>div):focus-within{border-color:var(--as-gold)}
+.af-app :is(.af-search input,.af-region select,.af-paper-search input,.af-earth-search input){border:0;background:none;font-size:13px;color:var(--as-ink);outline:none}
+.af-app .af-region select{color:var(--as-ink)}
+.af-app :is(.af-lab-controls label,.af-scenario-controls label,.af-learning-selectors label,.af-earth-region-label,.as-backtest-controls label){font-size:12px;font-weight:500;color:var(--as-muted)}
+.af-app :is(.af-lab-controls select,.af-scenario-controls select,.af-learning-selectors select,.af-earth-region-label select,.as-backtest-controls select,.as-backtest-controls input){min-height:42px;padding:9px 12px;font-size:13px;color:var(--as-ink);background-color:var(--as-panel);border:1px solid var(--as-line-strong);border-radius:var(--as-radius-sm)}
+.af-app input[type=range]{accent-color:var(--as-gold)}
+.af-app .af-teaching-inputs input{accent-color:var(--as-gold)}
+
+/* ── surfaces ── */
+.af-app :is(.af-panel,.af-stats>div,.af-process,.af-learning-card,.af-paper-card,.af-link-card,.af-earth-toolbar,.as-price-timeline,.af-methodology){background:var(--as-panel);border:1px solid var(--as-line);color:var(--as-ink)}
+.af-app :is(.af-panel,.af-process,.af-learning-card,.as-price-timeline){border-radius:var(--as-radius-lg)}
+.af-app :is(.af-stats>div,.af-paper-card,.af-link-card,.af-method-grid article,.af-scenario-paths article,.af-causal-ribbon article,.af-teaching-inputs,.af-teaching-results div,.af-evidence-grid>div,.af-outlook-summary,.af-provenance,.af-revision-summary,.af-scenario-seed,.af-paper-search,.as-test-chart,.as-weather-baseline,.as-context-grid article,.af-network-center,.af-region-evidence){border-radius:var(--as-radius)}
+.af-app :is(.af-method-grid article,.af-scenario-paths article,.af-causal-ribbon article,.af-teaching-inputs,.af-teaching-results div,.af-evidence-grid>div,.af-outlook-summary,.af-provenance,.af-revision-summary,.af-scenario-seed,.af-paper-search,.as-test-chart,.as-weather-baseline,.as-context-grid article,.af-network-center){background:var(--as-soft);border:1px solid var(--as-line)}
+.af-app :is(.af-panel,.af-stats>div,.af-paper-card,.af-link-card,.af-learning-card,.af-process){transition:border-color .3s}
+.af-app :is(.af-paper-card,.af-link-card):hover{border-color:var(--as-line-strong)}
+.af-app .af-paper-card.active{border-color:var(--as-gold);box-shadow:0 0 0 1px var(--as-gold)}
+
+/* section and card headings */
+.af-app :is(.af-panel h2,.af-lab-intro h2,.af-learning-card h3,.af-process h2){font:500 clamp(24px,2.2vw,30px)/1.15 var(--as-font-display);letter-spacing:-.005em;color:var(--as-ink)}
+.af-app .af-panel h2{margin:8px 0 0}
+.af-app .af-panel h2>span{font:500 11px/1 var(--as-font-mono);letter-spacing:.04em;padding:4px 8px;border-radius:999px;border:1px solid var(--as-line);background:transparent;color:var(--as-muted);vertical-align:middle;margin-left:6px}
+.af-app .af-methodology>h2{font:500 clamp(30px,3vw,42px)/1.1 var(--as-font-display);max-width:760px;margin:14px 0 18px;color:var(--as-ink)}
+.af-app .af-methodology>h3{font:500 26px/1.2 var(--as-font-display);margin:36px 0 10px;color:var(--as-ink)}
+.af-app .af-detail-name h2,.af-app .af-earth-inspector h2{font:500 32px/1.05 var(--as-font-display);letter-spacing:0;color:var(--as-ink)}
+.af-app .af-outlook-summary h3{font:500 24px/1.2 var(--as-font-display);letter-spacing:0;margin:10px 0 8px;color:var(--as-ink)}
+.af-app .af-method-grid h3{font:500 24px/1.2 var(--as-font-display);margin:12px 0 10px;color:var(--as-ink)}
+.af-app :is(.af-driver-heading h3,.af-section-title,.af-mechanism-detail h4,.af-weather-skill h3,.af-revision-summary h3,.as-weather-baseline h4,.as-backtest h3){font:600 14px/1.4 var(--as-font-body);letter-spacing:0;color:var(--as-ink)}
+.af-app .af-lab-intro h2{margin:14px 0 10px}
+.af-app .af-learning-card h3{margin:12px 0 20px}
+.af-app .af-process h2{margin:12px 0 0}
+.af-app .as-test-empty h4{font:500 28px/1.2 var(--as-font-display)}
+
+/* body copy: one readable scale */
+.af-app :is(.af-note,.af-lab-description,.af-learning-copy,.af-lab-intro>p,.af-methodology p,.af-method-grid p,.af-mechanism-detail p,.af-mechanism-detail li,.af-causal-ribbon p,.af-paper-card p,.af-link-card p,.af-scenario-paths article>p,.af-revision-summary p,.af-teaching-math,.af-palette-guide p,.af-outlook-summary p,.af-driver-preview p,.af-reading p,.as-backtest p,.af-region-evidence small,.af-evidence-empty p,.af-empty-list p){font-size:13px;line-height:1.75}
+.af-app :is(.af-note,.af-lab-description,.af-lab-intro>p,.af-methodology p,.af-method-grid p,.af-mechanism-detail p,.af-mechanism-detail li,.af-causal-ribbon p,.af-link-card p,.af-scenario-paths article>p,.af-revision-summary p,.af-outlook-summary p,.af-driver-preview p,.af-reading p,.as-backtest p,.af-evidence-empty p,.af-empty-list p){color:var(--as-muted)}
+.af-app :is(.af-paper-meta,.af-paper-scope,.af-paper-card>small,.af-link-card>small,.af-reading small,.af-reading-values,.af-observed small,.af-provenance small,.af-provenance p,.af-provenance code,.af-sources small,.af-earth-symbol,.af-earth-coordinates,.af-detail-name p,.af-stats small,.af-stats>div>span,.af-list-footer,.af-analysis-controls>span,.af-paper-badges>span:last-child,.af-snapshot-list code){font-size:11px;line-height:1.6;color:var(--as-muted)}
+.af-app :is(.af-detail-name p,.af-earth-symbol,.af-earth-coordinates,.af-provenance code,.af-snapshot-list code){font-family:var(--as-font-mono)}
+
+/* ── market overview ── */
+.af-app .af-stats{gap:16px;margin-bottom:24px}
+.af-app .af-stats>div{padding:20px 22px}
+.af-app .af-stats>div>span{font:500 10px/1.5 var(--as-font-mono);letter-spacing:.14em;text-transform:uppercase}
+.af-app .af-stats strong{font:500 44px/1 var(--as-font-display);letter-spacing:0;color:var(--as-ink);margin-top:10px;font-variant-numeric:tabular-nums}
+.af-app .af-stats small{font-family:var(--as-font-body);letter-spacing:0}
+.af-app .af-stats svg{color:var(--as-gold);opacity:.8}
+.af-app .af-workspace{gap:20px}
+.af-app .af-panel-heading{padding:24px 24px 18px}
+.af-app .af-panel-heading>svg{color:var(--as-muted)}
+.af-app .af-search{margin:0 24px 14px}
+.af-app .af-filters{padding:0 24px 18px}
+.af-app .af-table-head{padding:10px 24px;font:500 10px/1.4 var(--as-font-mono);letter-spacing:.14em;color:var(--as-muted);background:var(--as-soft);border-block:1px solid var(--as-line)}
+.af-app .af-table-head,.af-app .af-commodity-row{grid-template-columns:minmax(0,1fr) 150px 40px}
+.af-app .af-commodity-row{padding:14px 18px 14px 24px;min-height:72px;border-bottom:1px solid var(--as-line);transition:background .2s}
+.af-app .af-commodity-row:hover{background:var(--as-soft)}
+.af-app .af-commodity-row.selected{background:var(--as-soft);box-shadow:inset 2px 0 var(--as-gold)}
+.af-app .af-select-commodity{gap:14px;border-radius:var(--as-radius-sm)}
+.af-app .af-select-commodity strong{font-size:14px;font-weight:600}
+.af-app .af-select-commodity small{font-size:11px;margin-top:3px;max-width:none}
+.af-app .af-select-commodity small i{background:var(--as-line-strong)}
+.af-app :is(.af-commodity-icon,.af-large-icon){border:1px solid var(--as-line);background:transparent;color:var(--as-gold)}
+.af-app .af-commodity-icon{width:36px;height:36px;border-radius:50%}
+.af-app .af-large-icon{width:52px;height:52px;border-radius:50%}
+.af-app .af-row-outlook{border-radius:999px}
+.af-app .af-list-footer{padding:14px 24px;border-top:1px solid var(--as-line);background:transparent}
+.af-app .af-detail-title{padding:22px 24px 12px}
+.af-app .af-detail-name{gap:14px;padding:0 24px 18px}
+.af-app .af-region{margin:0 24px 18px}
+.af-app .af-detail-body{padding:20px 24px 24px}
+.af-app .af-analysis-controls{margin-bottom:18px}
+.af-app .af-outlook-summary{padding:20px;margin-bottom:22px}
+.af-app .af-driver-heading{margin:4px 0 12px}
+.af-app .af-driver-heading>span{font:500 10px/1.4 var(--as-font-mono);letter-spacing:.12em;color:var(--as-muted)}
+.af-app .af-driver-preview>div{gap:14px;margin-bottom:16px}
+.af-app .af-driver-preview>div>span{width:28px;height:28px;border-radius:50%;border-color:var(--as-line);font:500 11px var(--as-font-mono);color:var(--as-gold)}
+.af-app .af-driver-preview strong{font-size:14px;font-weight:600}
+.af-app .af-reading>div:first-child{font-size:13px;color:var(--as-ink)}
+.af-app .af-reading>div:first-child>span{font-family:var(--as-font-mono);color:var(--as-gold)}
+.af-app .af-anomaly-track{height:4px;background:linear-gradient(90deg,color-mix(in srgb,var(--viz-2) 55%,transparent),var(--as-line) 50%,color-mix(in srgb,var(--viz-1) 70%,transparent))}
+.af-app .af-anomaly-track i{background:var(--as-line-strong)}
+.af-app .af-anomaly-track b{width:10px;height:10px;top:-3px;border:2px solid var(--as-panel);background:var(--as-ink)}
+.af-app .af-fundamentals{margin-top:24px;padding:18px 0 0;border-top:1px solid var(--as-line);background:transparent}
+.af-app .af-fundamentals p{font-size:13px;color:var(--as-muted);gap:10px}
+.af-app .af-check-circle{width:12px;height:12px;border-color:var(--as-gold);margin-top:4px}
+.af-app .af-open-research{margin-top:20px}
+.af-app .af-observed{font-size:12px}
+.af-app .af-observed strong{font:500 18px var(--as-font-mono);color:var(--as-ink)}
+.af-app .af-evidence-grid span{font:500 10px/1.5 var(--as-font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--as-muted)}
+.af-app .af-evidence-grid strong{font:500 26px/1.1 var(--as-font-display);margin-top:8px}
+.af-app .af-limitations{font-size:13px;line-height:1.75;color:var(--as-muted)}
+.af-app .af-sources a{font-size:12px;color:var(--as-ink);border-color:var(--as-line)}
+.af-app .af-sources a:hover{color:var(--as-gold)}
+.af-app .af-process{padding:26px 28px;gap:24px}
+.af-app .af-process article{border-left:1px solid var(--as-line);padding-left:20px}
+.af-app .af-process article>span{font:500 12px var(--as-font-mono);color:var(--as-gold);letter-spacing:.1em}
+.af-app .af-process strong{font-size:14px;font-weight:600;color:var(--as-ink)}
+.af-app .af-process p{font-size:12px;line-height:1.7}
+
+/* ── methodology ── */
+.af-app .af-methodology{padding:clamp(22px,3vw,40px);max-width:1100px;border-radius:var(--as-radius-lg)}
+.af-app .af-method-grid{gap:16px;margin:30px 0 8px}
+.af-app .af-method-grid article{padding:24px}
+.af-app .af-method-grid article>span{font:500 12px var(--as-font-mono);color:var(--as-gold);letter-spacing:.1em}
+
+/* ── notices: caution, error, loading, empty ── */
+.af-app .af-caution{border:1px solid color-mix(in srgb,var(--as-up) 45%,transparent);border-radius:var(--as-radius);padding:14px 16px;gap:12px;background:var(--as-up-bg)}
+.af-app .af-caution p{font-size:12px;line-height:1.75}
+.af-app .af-error{border-radius:var(--as-radius);padding:14px 16px;font-size:13px}
+.af-app .af-error p{font-size:12px}.af-app .af-error small{font-size:11px}
+.af-app .as-test-warning{border-left:2px solid var(--as-up);border-radius:0 var(--as-radius) var(--as-radius) 0;font-size:13px}
+.af-app .af-loading{font-size:12px;color:var(--as-muted);padding:2px 0 14px}
+.af-app .af-loading-line{height:2px;border-radius:2px;background:linear-gradient(90deg,transparent,var(--as-gold),transparent) 0 0/40% 100% no-repeat,var(--as-line);animation:as-scan 1.6s var(--as-ease) infinite}
+@keyframes as-scan{from{background-position:-40% 0,0 0}to{background-position:140% 0,0 0}}
+.af-app :is(.af-evidence-empty,.af-empty-list,.as-test-empty){display:grid;justify-items:center;gap:6px;text-align:center;padding:44px 24px;border:1px dashed var(--as-line-strong);border-radius:var(--as-radius);background:transparent;color:var(--as-muted)}
+.af-app :is(.af-evidence-empty,.af-empty-list)>svg{color:var(--as-gold);margin:0 0 6px}
+.af-app :is(.af-evidence-empty h3,.af-empty-list strong){font:500 24px/1.2 var(--as-font-display);color:var(--as-ink);margin:0}
+.af-app .af-empty-list{margin:20px 24px}
+.af-app .sk-loading,.af-app .af-view-loading{display:flex;align-items:center;justify-content:center;gap:12px;padding:96px 24px;font:500 11px/1.4 var(--as-font-mono);letter-spacing:.2em;text-transform:uppercase;color:var(--as-muted)}
+.af-app .sk-loading::before,.af-app .af-view-loading::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--as-gold);animation:as-pulse 1.4s ease-in-out infinite}
+@keyframes as-pulse{0%,100%{opacity:.25;transform:scale(.8)}50%{opacity:1;transform:scale(1.15)}}
+
+/* ── forecast lab ── */
+.af-app .af-forecast-lab{padding:clamp(20px,2.6vw,36px)}
+.af-app .af-lab-controls{gap:14px;margin:26px 0}
+.af-app .af-lab-panel{padding-top:22px;background:transparent!important;border:0!important}
+.af-app .af-lab-description{margin:0 0 22px}
+.af-app .af-network{background:transparent!important;gap:20px}
+.af-app .af-network-center{padding:26px 16px}
+.af-app .af-network-center>svg{color:var(--as-gold)}
+.af-app .af-network-center h3{font:500 28px/1.1 var(--as-font-display);color:var(--as-ink)}
+.af-app .af-link-card{padding:16px 18px;margin:12px 0}
+.af-app .af-link-card-title>span{font:500 10px/1.4 var(--as-font-mono);letter-spacing:.12em;color:var(--as-gold)}
+.af-app .af-node-button{font-size:14px;font-weight:600;color:var(--as-ink)}
+.af-app .af-node-button:hover{color:var(--as-gold)}
+.af-app :is(.af-link-card summary,.af-scenario-paths summary,.as-test-details summary,.as-outlook-check summary,.af-weather-provenance summary,.af-teaching-math summary,.af-palette-guide summary){color:var(--as-gold);font-size:12px;font-weight:500;cursor:pointer}
+.af-app .af-link-card details a{color:var(--as-ink);font-size:12px}
+.af-app .af-scenario-seed{padding:22px}
+.af-app .af-scenario-seed>svg{color:var(--as-gold);flex-shrink:0}
+.af-app .af-scenario-seed strong{font:500 10px/1.5 var(--as-font-mono);letter-spacing:.16em;color:var(--as-gold)}
+.af-app .af-scenario-seed p{font:500 22px/1.3 var(--as-font-display)}
+.af-app .af-scenario-paths article{padding:20px}
+.af-app .af-path-chain{font-size:13px}
+.af-app .af-lab-table-wrap{border-radius:var(--as-radius);border-color:var(--as-line)}
+.af-app .af-lab-table{font-size:13px}
+.af-app .af-lab-table th{font:500 10px/1.4 var(--as-font-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--as-muted);padding:12px 14px}
+.af-app .af-lab-table td{font-size:13px;padding:14px;color:var(--as-ink)}
+.af-app .af-lab-table small{font-size:11px}
+.af-app .af-revision-summary h3{font:500 24px/1.2 var(--as-font-display)}
+.af-app .af-snapshot-list article{font-size:12px}
+.af-app .af-snapshot-list strong{color:var(--as-ink)}
+.af-app .af-weather-skill .af-evidence-grid strong{font-size:26px}
+.af-app .as-backtest-intro>svg{color:var(--as-gold)}
+.af-app .as-backtest h3{font:500 26px/1.2 var(--as-font-display)}
+.af-app .as-test-empty{margin:24px 0}
+.af-app .as-test-empty p{font-size:13px}
+.af-app .as-test-chart figcaption{font-size:13px;font-weight:600}
+.af-app .as-test-details{border-radius:var(--as-radius);font-size:12px}
+.af-app .as-test-details a{color:var(--as-gold);font-size:11px}
+.af-app .as-price-legend,.af-app .as-price-readout,.af-app .as-price-options label{font-size:12px}
+.af-app .as-context-grid article>span{font:500 10px/1.5 var(--as-font-mono);letter-spacing:.14em;color:var(--as-gold)}
+.af-app .as-context-grid small,.af-app .as-context-grid article>p{font-size:11px}
+
+/* ── weather & evidence ── */
+.af-app .af-learning-selectors{border-radius:var(--as-radius-lg) var(--as-radius-lg) 0 0;padding:22px 24px;background:var(--as-panel)}
+.af-app .af-region-evidence{border-radius:0 0 var(--as-radius-lg) var(--as-radius-lg);padding:20px 24px;background:var(--as-panel);font-size:13px}
+.af-app .af-region-evidence strong{font:500 24px/1.2 var(--as-font-display)}
+.af-app .af-region-evidence a{font-size:12px}
+.af-app .af-learning-card{padding:clamp(20px,2.6vw,32px);background:var(--as-panel)}
+.af-app .af-section-kicker{font-size:11px}
+.af-app .af-causal-ribbon article>span{font:500 10px/1.5 var(--as-font-mono);letter-spacing:.16em;color:var(--as-gold)}
+.af-app .af-causal-ribbon strong{font-size:15px;font-weight:600}
+.af-app .af-causal-ribbon>svg{color:var(--as-gold)}
+.af-app .af-evidence-links button{border-radius:var(--as-radius);padding:8px 14px;text-align:left;font-size:12px;border:1px solid var(--as-line-strong);background:transparent;color:var(--as-ink);transition:border-color .25s,color .25s}
+.af-app .af-evidence-links button:hover{border-color:var(--as-gold);color:var(--as-gold)}
+.af-app .af-evidence-links button>svg{color:var(--as-gold)}
+.af-app .af-evidence-links span{font:500 10px var(--as-font-mono);letter-spacing:.06em;color:var(--as-muted)}
+.af-app .af-teaching-inputs label{font-size:12px}
+.af-app .af-teaching-inputs label strong{font:500 22px var(--as-font-mono);color:var(--as-ink)}
+.af-app .af-teaching-results span{font:500 10px/1.5 var(--as-font-mono);letter-spacing:.1em;text-transform:uppercase}
+.af-app .af-teaching-results strong{font:500 28px/1.1 var(--as-font-display)}
+.af-app .af-chart-legend{font-size:12px}
+.af-app .af-chart-legend .demand:before{background:var(--as-down)}
+.af-app .af-chart-legend .baseline:before{border-bottom-color:var(--as-muted)}
+.af-app .af-chart-legend .shifted:before{background:var(--as-up)}
+.af-app .af-paper-card{padding:22px 24px}
+.af-app .af-paper-card h4{font:500 21px/1.3 var(--as-font-display)}
+.af-app .af-paper-card h4 a:hover{color:var(--as-gold)}
+.af-app .af-paper-card h4 svg{color:var(--as-gold)}
+.af-app .af-paper-limit{border-radius:0 var(--as-radius-sm) var(--as-radius-sm) 0;font-size:12px}
+.af-app .af-paper-actions a{font-size:12px;color:var(--as-gold)}
+.af-app .af-paper-search{padding:24px}
+.af-app .af-paper-search>label{font:500 22px/1.2 var(--as-font-display)}
+.af-app .af-paper-search>div{padding:6px 6px 6px 16px}
+.af-app :is(.af-paper-search>a,.af-palette-guide>a,.af-region-evidence a){color:var(--as-ink);text-decoration-color:var(--as-line-strong);text-underline-offset:3px}
+.af-app :is(.af-paper-search>a,.af-palette-guide>a,.af-region-evidence a):hover{color:var(--as-gold)}
+
+/* technical report: long DOIs and titles wrap instead of running off narrow screens */
+.af-app .tr-refs li{overflow-wrap:anywhere}
+.af-app .tr-refs a{white-space:normal;overflow-wrap:anywhere}
+
+/* ── calibrated outlook panel + charts inside the workspace ── */
+.af-app .as-outlook{border-radius:var(--as-radius)}
+
+/* ── workspace footer + data attribution ── */
+.af-app .af-footer{display:block;margin-top:40px;padding:28px 0 8px;border-top:1px solid var(--as-line);font-size:12px;color:var(--as-muted)}
+.af-app .af-footer-line{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:18px;font:500 10px/1.6 var(--as-font-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--as-muted)}
+.as-attribution{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:14px 32px;font:400 12px/1.7 var(--as-font-body);color:var(--as-muted);text-transform:none;letter-spacing:0}
+.as-attribution h2{grid-column:1/-1;margin:0;font:500 10px/1.5 var(--as-font-mono);letter-spacing:.2em;text-transform:uppercase;color:var(--as-gold)}
+.as-attribution p{margin:0}
+.as-attribution strong{color:var(--as-ink);font-weight:600}
+/* links stay underlined (not colour-only), including inside .lp where links are otherwise undecorated */
+:is(.lp,.af-app) .as-attribution a{color:var(--as-ink);text-decoration:underline;text-decoration-color:var(--as-line-strong);text-underline-offset:3px;transition:color .25s,text-decoration-color .25s}
+:is(.lp,.af-app) .as-attribution a:hover{color:var(--as-gold);text-decoration-color:currentColor}
+
+/* ── tour dialog ── */
+/* Tailwind's preflight zeroes margins, which pinned the modal to the top-left corner; margin:auto re-centres it */
+.as-tour{margin:auto;border-radius:var(--as-radius-lg)}
+.as-tour .as-tour-actions button{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:10px 18px;border-radius:999px;border:1px solid var(--as-line-strong);background:transparent;color:var(--as-ink);font-size:13px;font-weight:500;cursor:pointer}
+.as-tour .as-tour-actions button.af-primary{background:var(--as-gold);border-color:var(--as-gold);color:var(--as-on-gold)}
+.as-tour .as-tour-close{display:grid;place-items:center;width:36px;height:36px;border-radius:999px;border:1px solid var(--as-line);background:transparent;color:var(--as-muted);cursor:pointer}
+.as-tour p:not(.as-tour-number){font-size:14px;line-height:1.85}
+.as-tour small{font-size:11px}
+.as-tour .as-tour-progress button{cursor:pointer}
+
+/* ── responsive ── */
+@media(max-width:1200px){
+  .af-app .af-sidebar{padding:24px 12px}
+  .af-app .af-brand{font-size:22px}
+  .af-app .af-table-head,.af-app .af-commodity-row{grid-template-columns:minmax(0,1fr) 136px 36px}
+}
+@media(max-width:980px){
+  .af-app .af-sidebar{padding:24px 10px}
+  .af-app .af-sidebar nav button{font-size:0;gap:0;justify-content:center;padding:12px}
+  .af-app .af-sidebar-credit{display:none}
+  .af-app :is(.af-page-heading,.af-earth-heading,.af-learning-heading){flex-wrap:wrap;align-items:flex-start}
+}
+@media(max-width:760px){
+  .af-app .af-sidebar{height:auto;min-height:60px;flex-wrap:wrap;gap:8px;padding:10px 16px;border-right:0;border-bottom:1px solid var(--as-line);overflow:visible}
+  .af-app .af-sidebar nav{gap:2px}
+  .af-app .af-sidebar nav button{padding:9px}
+  .af-app .af-sidebar nav button svg{min-width:17px;width:17px}
+  .af-app .af-brand{font-size:21px}
+  .af-app .af-topbar{height:auto;min-height:56px;padding:10px 16px;position:static}
+  .af-app .af-content{padding:28px 16px 20px}
+  .af-app :is(.af-page-heading,.af-earth-heading,.af-learning-heading){margin-bottom:24px;gap:16px}
+  .af-app :is(.af-page-heading h1,.af-earth-heading h1,.af-learning-heading h1){font-size:36px}
+  .af-app .af-stats{gap:10px}
+  .af-app .af-stats>div{padding:16px}
+  .af-app .af-stats strong{font-size:36px}
+  .af-app .af-stats small{display:block;margin:6px 0 0}
+  .af-app .af-table-head,.af-app .af-commodity-row{grid-template-columns:minmax(0,1fr) 128px 36px}
+  .af-app .af-commodity-row{padding:12px 12px 12px 16px}
+  .af-app :is(.af-panel-heading,.af-detail-title){padding-inline:16px}
+  .af-app :is(.af-search,.af-region,.af-empty-list){margin-inline:16px}
+  .af-app :is(.af-filters,.af-detail-name){padding-inline:16px}
+  .af-app .af-table-head,.af-app .af-list-footer{padding-inline:16px}
+  .af-app .af-detail-tabs{padding:0 16px;gap:18px}
+  .af-app .af-detail-body{padding:18px 16px 20px}
+  .af-app .af-process{padding:20px 16px}
+  .af-app .af-forecast-lab,.af-app .af-learning-card,.af-app .af-methodology{padding:20px 16px}
+  .af-app .af-paper-card{padding:18px 16px}
+  .af-app .af-learning-selectors,.af-app .af-region-evidence{padding:16px}
+  .af-app .af-footer{margin-top:28px}
+}
+@media(prefers-reduced-motion:reduce){
+  .af-app .af-loading-line,.af-app .sk-loading::before,.af-app .af-view-loading::before{animation:none}
+  .af-app .af-button:hover:not(:disabled){transform:none}
+}
+/* the printed technical report keeps the attribution block */
+@media print{.af-app .af-footer{display:block!important;border-top:1px solid #ccc}.af-app .af-footer-line{display:none}.as-attribution a{text-decoration:none}}
+@media(max-width:760px){.af-app .af-stats svg{display:none}}

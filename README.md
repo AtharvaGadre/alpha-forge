@@ -56,6 +56,7 @@ A companion walk-forward study (`docs/results/PRICE_STUDY.md`, 6 commodities, 20
 npm install
 npm run dev          # http://localhost:3000 (Express + Vite)
 npm test             # 100+ deterministic unit tests (offline)
+npm run test:e2e     # build + browser tests in Chrome, no outbound weather calls (CHROME_PATH to override)
 npm run lint         # TypeScript
 npm run build        # production bundle
 npm start            # production server (daily precompute + track record on; see DEPLOYMENT.md)

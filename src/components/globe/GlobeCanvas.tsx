@@ -76,6 +76,20 @@ const CONTINENT_POLYGONS: Array<Array<[number, number]>> = [
   ],
 ];
 
+/** Stage palette: the ink-and-gold ground of the landing globe, kept dark in both themes so the
+ *  precipitation and wind layers (data colours, unchanged) read the same everywhere. */
+const STAGE = {
+  bgCenter: '#141412', bgMid: '#0b0b0c', bgEdge: '#060607',
+  haloInner: 'rgba(223,196,132,0.20)', haloMid: 'rgba(223,196,132,0.07)', haloOuter: 'rgba(6,6,7,0)',
+  oceanLight: 'rgba(25,25,27,0.97)', oceanMid: 'rgba(15,15,17,0.97)', oceanEdge: 'rgba(8,8,9,0.98)', oceanLowBandwidth: 'rgba(17,17,19,0.97)',
+  graticule: 'rgba(232,227,216,0.08)',
+  land: 'rgba(62,58,51,0.92)', coast: 'rgba(223,196,132,0.30)',
+  markerHalo: 'rgba(232,227,216,0.08)', markerHaloSelected: 'rgba(223,196,132,0.24)',
+  markerRing: 'rgba(255,255,255,0.45)', markerRingSelected: '#f3e6c4',
+  labelBg: 'rgba(11,11,12,0.9)', labelLine: 'rgba(223,196,132,0.45)', labelInk: '#ece7db',
+  rim: 'rgba(223,196,132,0.28)',
+} as const;
+
 export interface CommodityGlobePoint { key: string; label: string; lat: number; lng: number; color: string }
 export interface CommodityGlobeOverlay { points: CommodityGlobePoint[]; selectedKey: string; onSelect: (key: string) => void }
 export interface GlobeWeatherOverlay { frame: WeatherFrame; nextFrame?: WeatherFrame; blend?: number; wind: boolean; precipitation: boolean; opacity: number; animateWind: boolean }
@@ -345,9 +359,9 @@ export const GlobeCanvas: React.FC<{ commodityOverlay?: CommodityGlobeOverlay; w
         cy,
         Math.max(width, height) * 0.85
       );
-      bgGrad.addColorStop(0, '#071428');
-      bgGrad.addColorStop(0.55, '#030914');
-      bgGrad.addColorStop(1, '#010409');
+      bgGrad.addColorStop(0, STAGE.bgCenter);
+      bgGrad.addColorStop(0.55, STAGE.bgMid);
+      bgGrad.addColorStop(1, STAGE.bgEdge);
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, width, height);
 
@@ -360,9 +374,9 @@ export const GlobeCanvas: React.FC<{ commodityOverlay?: CommodityGlobeOverlay; w
         cy,
         globeRadius * 1.15
       );
-      haloGrad.addColorStop(0, 'rgba(56, 189, 248, 0.32)');
-      haloGrad.addColorStop(0.5, 'rgba(14, 165, 233, 0.14)');
-      haloGrad.addColorStop(1, 'rgba(2, 6, 23, 0)');
+      haloGrad.addColorStop(0, STAGE.haloInner);
+      haloGrad.addColorStop(0.5, STAGE.haloMid);
+      haloGrad.addColorStop(1, STAGE.haloOuter);
       ctx.fillStyle = haloGrad;
       ctx.beginPath();
       ctx.arc(cx, cy, globeRadius * 1.15, 0, Math.PI * 2);
@@ -384,13 +398,13 @@ export const GlobeCanvas: React.FC<{ commodityOverlay?: CommodityGlobeOverlay; w
       const isLowBandwidth = state.mapProvider.activeStackId === 'osm';
       oceanGrad.addColorStop(
         0,
-        isLowBandwidth ? 'rgba(15, 23, 42, 0.96)' : 'rgba(12, 48, 88, 0.96)'
+        isLowBandwidth ? STAGE.oceanLowBandwidth : STAGE.oceanLight
       );
       oceanGrad.addColorStop(
         0.65,
-        isLowBandwidth ? 'rgba(9, 14, 28, 0.96)' : 'rgba(6, 26, 52, 0.96)'
+        isLowBandwidth ? STAGE.oceanLowBandwidth : STAGE.oceanMid
       );
-      oceanGrad.addColorStop(1, 'rgba(2, 10, 24, 0.98)');
+      oceanGrad.addColorStop(1, STAGE.oceanEdge);
       ctx.fillStyle = oceanGrad;
       ctx.fillRect(
         cx - globeRadius,
@@ -400,7 +414,7 @@ export const GlobeCanvas: React.FC<{ commodityOverlay?: CommodityGlobeOverlay; w
       );
 
       // Graticule lines
-      ctx.strokeStyle = 'rgba(148, 163, 184, 0.13)';
+      ctx.strokeStyle = STAGE.graticule;
       ctx.lineWidth = 0.75;
       for (let lat = -60; lat <= 60; lat += 30) {
         ctx.beginPath();
@@ -450,9 +464,9 @@ export const GlobeCanvas: React.FC<{ commodityOverlay?: CommodityGlobeOverlay; w
           .precision(0.4);
         ctx.beginPath();
         geoPath(projection, ctx)(landGeo as any);
-        ctx.fillStyle = isLowBandwidth ? 'rgba(30, 41, 59, 0.78)' : 'rgba(22, 66, 56, 0.86)';
+        ctx.fillStyle = STAGE.land;
         ctx.fill();
-        ctx.strokeStyle = 'rgba(126, 219, 208, 0.38)';
+        ctx.strokeStyle = STAGE.coast;
         ctx.lineWidth = 0.9;
         ctx.stroke();
       } else {
@@ -467,7 +481,7 @@ export const GlobeCanvas: React.FC<{ commodityOverlay?: CommodityGlobeOverlay; w
           });
           ctx.closePath();
           if (visibleCount > 2) {
-            ctx.fillStyle = isLowBandwidth ? 'rgba(30, 41, 59, 0.78)' : 'rgba(22, 66, 56, 0.86)';
+            ctx.fillStyle = STAGE.land;
             ctx.fill();
           }
         }
@@ -653,15 +667,16 @@ export const GlobeCanvas: React.FC<{ commodityOverlay?: CommodityGlobeOverlay; w
         markerHits.current.push({ key: point.key, x: p.x, y: p.y });
         const selected = point.key === commodityOverlay?.selectedKey;
         ctx.beginPath(); ctx.arc(p.x, p.y, selected ? 12 : 7, 0, Math.PI * 2);
-        ctx.fillStyle = selected ? 'rgba(45,212,191,0.18)' : 'rgba(117,166,151,0.09)'; ctx.fill();
+        ctx.fillStyle = selected ? STAGE.markerHaloSelected : STAGE.markerHalo; ctx.fill();
         ctx.beginPath(); ctx.arc(p.x, p.y, selected ? 5 : 3, 0, Math.PI * 2);
         ctx.fillStyle = point.color; ctx.fill();
-        ctx.strokeStyle = selected ? '#99f6e4' : 'rgba(255,255,255,0.45)'; ctx.lineWidth = 1; ctx.stroke();
+        ctx.strokeStyle = selected ? STAGE.markerRingSelected : STAGE.markerRing; ctx.lineWidth = 1; ctx.stroke();
         if (selected) {
-          ctx.font = '500 11px system-ui, sans-serif';
+          ctx.font = "500 12px 'Plus Jakarta Sans', system-ui, sans-serif";
           const w = ctx.measureText(point.label).width;
-          ctx.fillStyle = 'rgba(10,26,35,0.88)'; ctx.fillRect(p.x+12,p.y-12,w+15,24);
-          ctx.fillStyle = '#f5e7d5'; ctx.fillText(point.label,p.x+19,p.y+4);
+          ctx.fillStyle = STAGE.labelBg; ctx.beginPath(); ctx.roundRect?.(p.x+12,p.y-13,w+18,26,13); if (!ctx.roundRect) ctx.rect(p.x+12,p.y-13,w+18,26); ctx.fill();
+          ctx.strokeStyle = STAGE.labelLine; ctx.stroke();
+          ctx.fillStyle = STAGE.labelInk; ctx.fillText(point.label,p.x+21,p.y+4);
         }
       }
       // Legacy hubs are suppressed in the commodity workspace.
@@ -702,7 +717,7 @@ export const GlobeCanvas: React.FC<{ commodityOverlay?: CommodityGlobeOverlay; w
       ctx.restore();
 
       // Specular inner rim highlight
-      ctx.strokeStyle = 'rgba(125, 211, 252, 0.35)';
+      ctx.strokeStyle = STAGE.rim;
       ctx.lineWidth = 1.4;
       ctx.beginPath();
       ctx.arc(cx, cy, globeRadius, 0, Math.PI * 2);
@@ -864,7 +879,7 @@ export const GlobeCanvas: React.FC<{ commodityOverlay?: CommodityGlobeOverlay; w
 
   return (
     <div
-      className="relative w-full h-full overflow-hidden bg-[#020617] select-none"
+      className="relative w-full h-full overflow-hidden bg-[#0a0a0b] select-none"
       data-testid="earth-globe-viewport"
     >
       <div
