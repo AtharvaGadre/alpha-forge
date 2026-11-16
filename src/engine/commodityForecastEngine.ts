@@ -74,6 +74,8 @@ export interface CommodityForecast {
   };
   sources: LiveAtmosphereInvestigation['dataLog'];
   fundamentals: string[]; weatherWindow: string; target: ResolvedTarget;
+  /** EMOS-calibrated daily outlook for the region (absent when calibration inputs were unavailable). */
+  outlook?: LiveAtmosphereInvestigation['calibratedOutlook'];
 }
 
 export function commodityTarget(commodity: CommodityDefinition, region: CommodityRegion): ResolvedTarget {
@@ -140,5 +142,5 @@ export function buildCommodityForecast(commodity: CommodityDefinition, region: C
     evidence: { engineVersion: COMMODITY_ENGINE_VERSION, modelCount: live.modelForecasts.filter(m => m.includedInEnsemble).length, climateYears: live.climatology.years, weatherVerification: !!live.verification, priceModelValidated: false, inputHash: live.reproducibility.inputsSha256, experimentId: `CF-${commodity.id}-${region.id}-${live.reproducibility.inputsSha256.slice(0,12)}` },
     market: live.consequences.find(c => c.exposure.symbol === commodity.symbol)?.observedMove ?? null,
     diagnostics: { models: live.modelForecasts, verification: live.verification, signals: live.signals, provenance: live.provenance ?? [] },
-    sources: live.dataLog, fundamentals: commodity.fundamentals, weatherWindow: live.windows.forecastLabel, target: live.target };
+    sources: live.dataLog, fundamentals: commodity.fundamentals, weatherWindow: live.windows.forecastLabel, target: live.target, outlook: live.calibratedOutlook ?? null };
 }

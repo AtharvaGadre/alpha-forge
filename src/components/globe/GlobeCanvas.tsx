@@ -10,6 +10,8 @@ import { type WeatherFrame } from '../../engine/liveGlobeWeather';
 // ============================================================================
 
 import React, { useEffect, useRef, useState } from 'react';
+import { geoOrthographic, geoPath } from 'd3-geo';
+import { useLand } from '../../engine/geoLand';
 import { atmosphereStore, useAtmosphereStore } from '../../state/atmosphereStore';
 import {
   ESRI_WORLD_IMAGERY_URL,
@@ -92,6 +94,10 @@ export const GlobeCanvas: React.FC<{ commodityOverlay?: CommodityGlobeOverlay; w
   const weatherOverlayRef=useRef(weatherOverlay);
   weatherOverlayRef.current=weatherOverlay;
   const markerHits = useRef<Array<{ key: string; x: number; y: number }>>([]);
+  // Natural Earth coastlines (110m first, 50m once loaded) replace the schematic continent outlines.
+  const land = useLand(true);
+  const landRef = useRef(land);
+  landRef.current = land;
 
   // Sync external store camera updates into targetCameraRef
   useEffect(() => {
@@ -433,25 +439,37 @@ export const GlobeCanvas: React.FC<{ commodityOverlay?: CommodityGlobeOverlay; w
         ctx.stroke();
       }
 
-      // Continental landmasses
-      for (const poly of CONTINENT_POLYGONS) {
+      // Continental landmasses — Natural Earth polygons, clipped exactly at the horizon by d3-geo
+      const landGeo = landRef.current;
+      if (landGeo) {
+        const projection = geoOrthographic()
+          .rotate([-cur.lng, -cur.lat])
+          .scale(globeRadius)
+          .translate([cx, cy])
+          .clipAngle(90)
+          .precision(0.4);
         ctx.beginPath();
-        let visibleCount = 0;
-        poly.forEach(([lon, lat], idx) => {
-          const p = projectLatLon(lat, lon);
-          if (p.cosC > -0.15) visibleCount++;
-          if (idx === 0) ctx.moveTo(p.x, p.y);
-          else ctx.lineTo(p.x, p.y);
-        });
-        ctx.closePath();
-        if (visibleCount > 2) {
-          ctx.fillStyle = isLowBandwidth
-            ? 'rgba(30, 41, 59, 0.78)'
-            : 'rgba(22, 66, 56, 0.86)';
-          ctx.fill();
-          ctx.strokeStyle = 'rgba(56, 189, 248, 0.36)';
-          ctx.lineWidth = 1.15;
-          ctx.stroke();
+        geoPath(projection, ctx)(landGeo as any);
+        ctx.fillStyle = isLowBandwidth ? 'rgba(30, 41, 59, 0.78)' : 'rgba(22, 66, 56, 0.86)';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(126, 219, 208, 0.38)';
+        ctx.lineWidth = 0.9;
+        ctx.stroke();
+      } else {
+        for (const poly of CONTINENT_POLYGONS) {
+          ctx.beginPath();
+          let visibleCount = 0;
+          poly.forEach(([lon, lat], idx) => {
+            const p = projectLatLon(lat, lon);
+            if (p.cosC > -0.15) visibleCount++;
+            if (idx === 0) ctx.moveTo(p.x, p.y);
+            else ctx.lineTo(p.x, p.y);
+          });
+          ctx.closePath();
+          if (visibleCount > 2) {
+            ctx.fillStyle = isLowBandwidth ? 'rgba(30, 41, 59, 0.78)' : 'rgba(22, 66, 56, 0.86)';
+            ctx.fill();
+          }
         }
       }
 

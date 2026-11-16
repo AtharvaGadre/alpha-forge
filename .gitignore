@@ -13,3 +13,7 @@ worldpulse-*.png
 
 # Local issued-forecast ledger
 .astraeus-data/
+
+# Research data caches (regenerable)
+research/cache/
+research/out/

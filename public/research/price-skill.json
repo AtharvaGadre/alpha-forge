@@ -1,0 +1,3367 @@
+{
+ "study": "astraeus-weather-price-walkforward-v1",
+ "generatedAt": "2026-11-15T23:53:54.093Z",
+ "config": {
+  "study": "astraeus-weather-price-walkforward-v1",
+  "priceStart": "2004-06-01",
+  "era5Start": "2000-01-01",
+  "longTierFirstOrigin": "2005-01-07",
+  "forecastTierStart": "2024-03-01",
+  "forecastTierFirstOrigin": "2024-03-08",
+  "era5LagDays": 7,
+  "normal": {
+   "normalYears": 10,
+   "minYears": 5
+  },
+  "minTrainLong": 156,
+  "minTrainForecast": 52,
+  "lambdaPerObs": 0.1,
+  "horizonsWeeks": [
+   1,
+   4
+  ],
+  "forecastDays": {
+   "first": 1,
+   "last": 6,
+   "leadOffset": 1,
+   "revisionDays": 5,
+   "revisionOldLead": 7
+  },
+  "bootstrap": {
+   "resamples": 1000,
+   "seed": 20261115
+  },
+  "degreeDayBaseC": 18,
+  "openMeteoWeightBudget": 2500
+ },
+ "provenance": {
+  "prices": "https://query1.finance.yahoo.com/v8/finance/chart/{SYMBOL}?period1={unix}&period2={unix}&interval=1d (unofficial endpoint, daily closes)",
+  "era5": "https://archive-api.open-meteo.com/v1/archive?latitude={lat}&longitude={lng}&start_date={start}&end_date={end}&daily={vars}&models=era5&timezone=GMT",
+  "forecasts": "https://previous-runs-api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lng}&start_date={start}&end_date={end}&hourly={var}_previous_day{2..7}&models={ecmwf_ifs025|gfs_seamless}&timezone=GMT",
+  "points": [
+   {
+    "id": "iowa",
+    "label": "Iowa, US Corn Belt",
+    "lat": 42.03,
+    "lng": -93.62,
+    "era5": [
+     "temperature_2m_max",
+     "temperature_2m_min",
+     "precipitation_sum"
+    ],
+    "forecast": {
+     "models": [
+      "ecmwf_ifs025"
+     ],
+     "vars": [
+      "temperature_2m",
+      "precipitation"
+     ]
+    }
+   },
+   {
+    "id": "illinois",
+    "label": "Illinois, US",
+    "lat": 40.11,
+    "lng": -88.24,
+    "era5": [
+     "temperature_2m_max",
+     "temperature_2m_min",
+     "precipitation_sum"
+    ],
+    "forecast": {
+     "models": [
+      "ecmwf_ifs025"
+     ],
+     "vars": [
+      "temperature_2m",
+      "precipitation"
+     ]
+    }
+   },
+   {
+    "id": "nebraska",
+    "label": "Nebraska, US",
+    "lat": 40.81,
+    "lng": -96.7,
+    "era5": [
+     "temperature_2m_max",
+     "temperature_2m_min",
+     "precipitation_sum"
+    ],
+    "forecast": null
+   },
+   {
+    "id": "kansas",
+    "label": "Kansas, US Plains",
+    "lat": 38.84,
+    "lng": -97.61,
+    "era5": [
+     "temperature_2m_max",
+     "temperature_2m_min",
+     "precipitation_sum"
+    ],
+    "forecast": {
+     "models": [
+      "ecmwf_ifs025"
+     ],
+     "vars": [
+      "temperature_2m",
+      "precipitation"
+     ]
+    }
+   },
+   {
+    "id": "matoGrosso",
+    "label": "Mato Grosso, Brazil",
+    "lat": -12.54,
+    "lng": -55.72,
+    "era5": [
+     "precipitation_sum"
+    ],
+    "forecast": null
+   },
+   {
+    "id": "beauce",
+    "label": "Beauce, France",
+    "lat": 48.45,
+    "lng": 1.49,
+    "era5": [
+     "precipitation_sum"
+    ],
+    "forecast": null
+   },
+   {
+    "id": "minas",
+    "label": "Sul de Minas Gerais, Brazil",
+    "lat": -21.55,
+    "lng": -45.43,
+    "era5": [
+     "temperature_2m_min",
+     "precipitation_sum"
+    ],
+    "forecast": {
+     "models": [
+      "ecmwf_ifs025"
+     ],
+     "vars": [
+      "temperature_2m",
+      "precipitation"
+     ]
+    }
+   },
+   {
+    "id": "daloa",
+    "label": "Daloa, Côte d’Ivoire",
+    "lat": 6.88,
+    "lng": -6.45,
+    "era5": [
+     "precipitation_sum"
+    ],
+    "forecast": null
+   },
+   {
+    "id": "kumasi",
+    "label": "Kumasi, Ghana",
+    "lat": 6.69,
+    "lng": -1.62,
+    "era5": [
+     "precipitation_sum"
+    ],
+    "forecast": null
+   },
+   {
+    "id": "chicago",
+    "label": "Chicago (Midwest gas demand)",
+    "lat": 41.88,
+    "lng": -87.63,
+    "era5": [
+     "temperature_2m_mean"
+    ],
+    "forecast": {
+     "models": [
+      "ecmwf_ifs025",
+      "gfs_seamless"
+     ],
+     "vars": [
+      "temperature_2m"
+     ]
+    }
+   },
+   {
+    "id": "newYork",
+    "label": "New York (Northeast gas demand)",
+    "lat": 40.71,
+    "lng": -74.01,
+    "era5": [
+     "temperature_2m_mean"
+    ],
+    "forecast": {
+     "models": [
+      "ecmwf_ifs025",
+      "gfs_seamless"
+     ],
+     "vars": [
+      "temperature_2m"
+     ]
+    }
+   },
+   {
+    "id": "boston",
+    "label": "Boston (New England gas demand)",
+    "lat": 42.36,
+    "lng": -71.06,
+    "era5": [
+     "temperature_2m_mean"
+    ],
+    "forecast": {
+     "models": [
+      "ecmwf_ifs025",
+      "gfs_seamless"
+     ],
+     "vars": [
+      "temperature_2m"
+     ]
+    }
+   },
+   {
+    "id": "dallas",
+    "label": "Dallas (Texas gas/power demand)",
+    "lat": 32.78,
+    "lng": -96.8,
+    "era5": [
+     "temperature_2m_mean"
+    ],
+    "forecast": {
+     "models": [
+      "ecmwf_ifs025",
+      "gfs_seamless"
+     ],
+     "vars": [
+      "temperature_2m"
+     ]
+    }
+   }
+  ],
+  "coverage": {
+   "corn": {
+    "firstPrice": "2004-06-01",
+    "lastPrice": "2026-11-13"
+   },
+   "soybeans": {
+    "firstPrice": "2004-06-01",
+    "lastPrice": "2026-11-13"
+   },
+   "wheat": {
+    "firstPrice": "2004-06-01",
+    "lastPrice": "2026-11-13"
+   },
+   "coffee": {
+    "firstPrice": "2004-06-01",
+    "lastPrice": "2026-11-13"
+   },
+   "natural-gas": {
+    "firstPrice": "2004-06-01",
+    "lastPrice": "2026-11-13"
+   },
+   "cocoa": {
+    "firstPrice": "2004-06-01",
+    "lastPrice": "2026-11-13"
+   }
+  },
+  "dataEnd": "2026-11-14",
+  "inputsSha256": "5d8da2928c8c9d907a067ae71fe85cfe1d145faa8381fb3233d6dac6fc7d8e18",
+  "estimatedOpenMeteoWeight": 2221,
+  "openMeteoWeightFetchedThisRun": 2221
+ },
+ "commodities": [
+  {
+   "id": "corn",
+   "name": "Corn",
+   "symbol": "ZC=F",
+   "rationale": "US Corn Belt summer heat (extreme degree-days above 29 °C, Schlenker & Roberts 2009) and rainfall around pollination/grain fill.",
+   "features": [
+    {
+     "key": "edd29",
+     "label": "Extreme degree-days >29 °C (7-day)",
+     "quantity": "edd29",
+     "points": [
+      "iowa",
+      "illinois",
+      "nebraska"
+     ],
+     "agg": "sum",
+     "windowDays": 7,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "sdFloor": 1,
+     "forecast": false
+    },
+    {
+     "key": "precip",
+     "label": "Precipitation (28-day)",
+     "quantity": "precip",
+     "points": [
+      "iowa",
+      "illinois",
+      "nebraska"
+     ],
+     "agg": "sum",
+     "windowDays": 28,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "sdFloor": 5,
+     "forecast": false
+    },
+    {
+     "key": "edd29_fc",
+     "label": "Extreme degree-days >29 °C",
+     "quantity": "edd29",
+     "points": [
+      "iowa",
+      "illinois"
+     ],
+     "agg": "sum",
+     "windowDays": 7,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "sdFloor": 1,
+     "forecast": true
+    },
+    {
+     "key": "precip_fc",
+     "label": "Precipitation",
+     "quantity": "precip",
+     "points": [
+      "iowa",
+      "illinois"
+     ],
+     "agg": "sum",
+     "windowDays": 7,
+     "months": [
+      6,
+      7,
+      8
+     ],
+     "sdFloor": 3,
+     "forecast": true
+    }
+   ]
+  },
+  {
+   "id": "soybeans",
+   "name": "Soybeans",
+   "symbol": "ZS=F",
+   "rationale": "US July–August heat (>30 °C degree-days) and rainfall during pod set; Mato Grosso rainy-season rainfall (Nov–Feb).",
+   "features": [
+    {
+     "key": "edd30",
+     "label": "Extreme degree-days >30 °C (7-day, US)",
+     "quantity": "edd30",
+     "points": [
+      "iowa",
+      "illinois"
+     ],
+     "agg": "sum",
+     "windowDays": 7,
+     "months": [
+      7,
+      8
+     ],
+     "sdFloor": 1,
+     "forecast": false
+    },
+    {
+     "key": "precip_us",
+     "label": "Precipitation (28-day, US)",
+     "quantity": "precip",
+     "points": [
+      "iowa",
+      "illinois"
+     ],
+     "agg": "sum",
+     "windowDays": 28,
+     "months": [
+      7,
+      8
+     ],
+     "sdFloor": 5,
+     "forecast": false
+    },
+    {
+     "key": "precip_mt",
+     "label": "Precipitation (28-day, Mato Grosso)",
+     "quantity": "precip",
+     "points": [
+      "matoGrosso"
+     ],
+     "agg": "sum",
+     "windowDays": 28,
+     "months": [
+      11,
+      12,
+      1,
+      2
+     ],
+     "sdFloor": 10,
+     "forecast": false
+    },
+    {
+     "key": "edd30_fc",
+     "label": "Extreme degree-days >30 °C (US)",
+     "quantity": "edd30",
+     "points": [
+      "iowa",
+      "illinois"
+     ],
+     "agg": "sum",
+     "windowDays": 7,
+     "months": [
+      7,
+      8
+     ],
+     "sdFloor": 1,
+     "forecast": true
+    },
+    {
+     "key": "precip_fc",
+     "label": "Precipitation (US)",
+     "quantity": "precip",
+     "points": [
+      "iowa",
+      "illinois"
+     ],
+     "agg": "sum",
+     "windowDays": 7,
+     "months": [
+      7,
+      8
+     ],
+     "sdFloor": 3,
+     "forecast": true
+    }
+   ]
+  },
+  {
+   "id": "wheat",
+   "name": "Wheat (Chicago SRW)",
+   "symbol": "ZW=F",
+   "rationale": "Kansas spring rainfall and May–June heat during grain fill; Beauce (France) spring rainfall. Kansas is a hard-red-winter region, a proxy for the SRW contract.",
+   "features": [
+    {
+     "key": "precip_ks",
+     "label": "Precipitation (28-day, Kansas)",
+     "quantity": "precip",
+     "points": [
+      "kansas"
+     ],
+     "agg": "sum",
+     "windowDays": 28,
+     "months": [
+      3,
+      4,
+      5,
+      6
+     ],
+     "sdFloor": 5,
+     "forecast": false
+    },
+    {
+     "key": "edd30_ks",
+     "label": "Extreme degree-days >30 °C (7-day, Kansas)",
+     "quantity": "edd30",
+     "points": [
+      "kansas"
+     ],
+     "agg": "sum",
+     "windowDays": 7,
+     "months": [
+      5,
+      6
+     ],
+     "sdFloor": 1,
+     "forecast": false
+    },
+    {
+     "key": "precip_fr",
+     "label": "Precipitation (28-day, Beauce)",
+     "quantity": "precip",
+     "points": [
+      "beauce"
+     ],
+     "agg": "sum",
+     "windowDays": 28,
+     "months": [
+      4,
+      5,
+      6
+     ],
+     "sdFloor": 5,
+     "forecast": false
+    },
+    {
+     "key": "precip_ks_fc",
+     "label": "Precipitation (Kansas)",
+     "quantity": "precip",
+     "points": [
+      "kansas"
+     ],
+     "agg": "sum",
+     "windowDays": 7,
+     "months": [
+      3,
+      4,
+      5,
+      6
+     ],
+     "sdFloor": 3,
+     "forecast": true
+    },
+    {
+     "key": "edd30_ks_fc",
+     "label": "Extreme degree-days >30 °C (Kansas)",
+     "quantity": "edd30",
+     "points": [
+      "kansas"
+     ],
+     "agg": "sum",
+     "windowDays": 7,
+     "months": [
+      5,
+      6
+     ],
+     "sdFloor": 1,
+     "forecast": true
+    }
+   ]
+  },
+  {
+   "id": "coffee",
+   "name": "Arabica coffee",
+   "symbol": "KC=F",
+   "rationale": "Sul de Minas winter cold (frost risk, May–Sep) and rainfall during flowering/fruit set (Sep–Mar).",
+   "features": [
+    {
+     "key": "cold6",
+     "label": "Cold degree-days below 6 °C Tmin (7-day)",
+     "quantity": "cold6",
+     "points": [
+      "minas"
+     ],
+     "agg": "sum",
+     "windowDays": 7,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "sdFloor": 0.5,
+     "forecast": false
+    },
+    {
+     "key": "precip",
+     "label": "Precipitation (28-day)",
+     "quantity": "precip",
+     "points": [
+      "minas"
+     ],
+     "agg": "sum",
+     "windowDays": 28,
+     "months": [
+      9,
+      10,
+      11,
+      12,
+      1,
+      2,
+      3
+     ],
+     "sdFloor": 10,
+     "forecast": false
+    },
+    {
+     "key": "cold6_fc",
+     "label": "Cold degree-days below 6 °C Tmin",
+     "quantity": "cold6",
+     "points": [
+      "minas"
+     ],
+     "agg": "sum",
+     "windowDays": 7,
+     "months": [
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "sdFloor": 0.5,
+     "forecast": true
+    },
+    {
+     "key": "precip_fc",
+     "label": "Precipitation",
+     "quantity": "precip",
+     "points": [
+      "minas"
+     ],
+     "agg": "sum",
+     "windowDays": 7,
+     "months": [
+      9,
+      10,
+      11,
+      12,
+      1,
+      2,
+      3
+     ],
+     "sdFloor": 3,
+     "forecast": true
+    }
+   ]
+  },
+  {
+   "id": "natural-gas",
+   "name": "Natural gas (Henry Hub)",
+   "symbol": "NG=F",
+   "rationale": "Heating + cooling degree-days (base 18 °C) at four US demand centres; NWP forecast level and week-on-week forecast revision (Mu 2007).",
+   "features": [
+    {
+     "key": "dd18",
+     "label": "HDD+CDD base 18 °C (7-day)",
+     "quantity": "dd18",
+     "points": [
+      "chicago",
+      "newYork",
+      "boston",
+      "dallas"
+     ],
+     "agg": "sum",
+     "windowDays": 7,
+     "months": null,
+     "sdFloor": 2,
+     "forecast": false
+    },
+    {
+     "key": "dd18_fc",
+     "label": "HDD+CDD base 18 °C",
+     "quantity": "dd18",
+     "points": [
+      "chicago",
+      "newYork",
+      "boston",
+      "dallas"
+     ],
+     "agg": "sum",
+     "windowDays": 7,
+     "months": null,
+     "sdFloor": 2,
+     "forecast": true
+    }
+   ]
+  },
+  {
+   "id": "cocoa",
+   "name": "Cocoa",
+   "symbol": "CC=F",
+   "rationale": "West African (Côte d’Ivoire, Ghana) 28-day rainfall anomaly, all year. Long tier only.",
+   "features": [
+    {
+     "key": "precip",
+     "label": "Precipitation (28-day, Daloa + Kumasi)",
+     "quantity": "precip",
+     "points": [
+      "daloa",
+      "kumasi"
+     ],
+     "agg": "sum",
+     "windowDays": 28,
+     "months": null,
+     "sdFloor": 10,
+     "forecast": false
+    }
+   ]
+  }
+ ],
+ "models": {
+  "rw": "Zero-return random walk (no-change price forecast).",
+  "hm": "Expanding historical mean of realised training returns (Campbell–Thompson benchmark).",
+  "mkt": "Ridge on market features: 1-week return, 4-week return, 12-week realised volatility.",
+  "wx": "Ridge on market features + weather features for the tier (nests mkt)."
+ },
+ "rows": [
+  {
+   "commodity": "corn",
+   "name": "Corn",
+   "symbol": "ZC=F",
+   "tier": "REALISED_LAGGED",
+   "horizonWeeks": 1,
+   "features": [
+    "Extreme degree-days >29 °C (7-day)",
+    "Precipitation (28-day)"
+   ],
+   "nRows": 1136,
+   "metrics": {
+    "n": 980,
+    "horizonWeeks": 1,
+    "oosStart": "2008-02-01",
+    "oosEnd": "2026-11-06",
+    "nTrainFirst": 156,
+    "oosR2Wx": -0.02629954087383113,
+    "oosR2Mkt": -0.013882789641552096,
+    "oosR2WxVsMkt": -0.012246732422264373,
+    "rmseRatioWxVsRw": 1.0159506693003189,
+    "rmseRatioMktVsRw": 1.0097861948673925,
+    "rmseRatioHmVsRw": 1.002849017743909,
+    "dmWxVsRw": {
+     "stat": -1.9166048080676106,
+     "p": 0.9722104772711141,
+     "n": 980
+    },
+    "dmWxVsHm": {
+     "stat": -1.6327955805116372,
+     "p": 0.9485832229499809,
+     "n": 980
+    },
+    "cwWxVsMkt": {
+     "stat": 0.13328057480464667,
+     "p": 0.44698573443815626,
+     "n": 980
+    },
+    "ptWx": {
+     "stat": 1.0259032367307153,
+     "p": 0.15246860654073158,
+     "n": 980,
+     "hitRate": 0.5255102040816326
+    },
+    "hitRateWx": 0.5255102040816326,
+    "hitRateMkt": 0.5265306122448979,
+    "baseRateUp": 0.5204081632653061,
+    "oosR2WxCi95": {
+     "lo": -0.05872467513891144,
+     "hi": 0.002486254000900079,
+     "median": -0.02493842682340275
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 10,
+     "seed": 20261115
+    }
+   },
+   "sensitivity": [
+    {
+     "feature": "Extreme degree-days >29 °C (7-day)",
+     "pctReturnPerSd": 0.1930602033070228,
+     "t": 0.9784852417102851,
+     "p": 0.3278344005454843
+    },
+    {
+     "feature": "Precipitation (28-day)",
+     "pctReturnPerSd": 0.2212113891444089,
+     "t": 1.5524306147161404,
+     "p": 0.12055922235505112
+    }
+   ],
+   "qCwWxVsMkt": 0.9506580535988579,
+   "qDmWxVsRw": 0.9978717539458053
+  },
+  {
+   "commodity": "corn",
+   "name": "Corn",
+   "symbol": "ZC=F",
+   "tier": "REALISED_LAGGED",
+   "horizonWeeks": 4,
+   "features": [
+    "Extreme degree-days >29 °C (7-day)",
+    "Precipitation (28-day)"
+   ],
+   "nRows": 1133,
+   "metrics": {
+    "n": 974,
+    "horizonWeeks": 4,
+    "oosStart": "2008-02-22",
+    "oosEnd": "2026-10-16",
+    "nTrainFirst": 156,
+    "oosR2Wx": -0.06424248768014618,
+    "oosR2Mkt": -0.017935351067031036,
+    "oosR2WxVsMkt": -0.04549123533687527,
+    "rmseRatioWxVsRw": 1.043695753668425,
+    "rmseRatioMktVsRw": 1.0207366729391802,
+    "rmseRatioHmVsRw": 1.0117043560000432,
+    "dmWxVsRw": {
+     "stat": -1.615948341113565,
+     "p": 0.9467851750271499,
+     "n": 974
+    },
+    "dmWxVsHm": {
+     "stat": -1.34428283685748,
+     "p": 0.9104148656936439,
+     "n": 974
+    },
+    "cwWxVsMkt": {
+     "stat": -0.322447321310065,
+     "p": 0.6264430718581842,
+     "n": 974
+    },
+    "ptWx": {
+     "stat": 1.4890890340730034,
+     "p": 0.06823196343576743,
+     "n": 974,
+     "hitRate": 0.5390143737166324
+    },
+    "hitRateWx": 0.5390143737166324,
+    "hitRateMkt": 0.5359342915811088,
+    "baseRateUp": 0.5338809034907598,
+    "oosR2WxCi95": {
+     "lo": -0.1655762401477432,
+     "hi": 0.01352326288947625,
+     "median": -0.06127695164835112
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 10,
+     "seed": 20261115
+    }
+   },
+   "sensitivity": [
+    {
+     "feature": "Extreme degree-days >29 °C (7-day)",
+     "pctReturnPerSd": 0.6179376446912525,
+     "t": 1.5668933365178048,
+     "p": 0.11713962450934767
+    },
+    {
+     "feature": "Precipitation (28-day)",
+     "pctReturnPerSd": 0.5036751674921491,
+     "t": 0.8360537635991948,
+     "p": 0.4031246533250836
+    }
+   ],
+   "qCwWxVsMkt": 0.9506580535988579,
+   "qDmWxVsRw": 0.9978717539458053
+  },
+  {
+   "commodity": "corn",
+   "name": "Corn",
+   "symbol": "ZC=F",
+   "tier": "ORACLE_TARGET_WINDOW",
+   "horizonWeeks": 1,
+   "features": [
+    "Extreme degree-days >29 °C (7-day)",
+    "Precipitation (28-day)"
+   ],
+   "nRows": 1139,
+   "metrics": {
+    "n": 983,
+    "horizonWeeks": 1,
+    "oosStart": "2008-01-04",
+    "oosEnd": "2026-10-30",
+    "nTrainFirst": 156,
+    "oosR2Wx": -0.017859426458520122,
+    "oosR2Mkt": -0.013074740789131845,
+    "oosR2WxVsMkt": -0.004722934524713729,
+    "rmseRatioWxVsRw": 1.011331438240101,
+    "rmseRatioMktVsRw": 1.008951638575859,
+    "rmseRatioHmVsRw": 1.0024197309175638,
+    "dmWxVsRw": {
+     "stat": -1.771076477593988,
+     "p": 0.9615709385274361,
+     "n": 983
+    },
+    "dmWxVsHm": {
+     "stat": -1.4358572402739467,
+     "p": 0.924319287778405,
+     "n": 983
+    },
+    "cwWxVsMkt": {
+     "stat": 0.760816801080769,
+     "p": 0.2233832393817351,
+     "n": 983
+    },
+    "ptWx": {
+     "stat": 1.2896677358045576,
+     "p": 0.09858302901533045,
+     "n": 983,
+     "hitRate": 0.5289928789420142
+    },
+    "hitRateWx": 0.5289928789420142,
+    "hitRateMkt": 0.5198372329603256,
+    "baseRateUp": 0.5208545269582909,
+    "oosR2WxCi95": {
+     "lo": -0.04090514758782704,
+     "hi": 0.005224507862037986,
+     "median": -0.016418801845218933
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 10,
+     "seed": 20261115
+    }
+   },
+   "sensitivity": [
+    {
+     "feature": "Extreme degree-days >29 °C (7-day)",
+     "pctReturnPerSd": 0.09193331773006785,
+     "t": 0.647001179188502,
+     "p": 0.5176311397522202
+    },
+    {
+     "feature": "Precipitation (28-day)",
+     "pctReturnPerSd": -0.23331726144368894,
+     "t": -1.7954393407188682,
+     "p": 0.07258372456187767
+    }
+   ],
+   "qCwWxVsMkt": 0.38294269608297443,
+   "qDmWxVsRw": 0.9888941872389644
+  },
+  {
+   "commodity": "corn",
+   "name": "Corn",
+   "symbol": "ZC=F",
+   "tier": "ORACLE_TARGET_WINDOW",
+   "horizonWeeks": 4,
+   "features": [
+    "Extreme degree-days >29 °C (7-day)",
+    "Precipitation (28-day)"
+   ],
+   "nRows": 1136,
+   "metrics": {
+    "n": 977,
+    "horizonWeeks": 4,
+    "oosStart": "2008-01-25",
+    "oosEnd": "2026-10-09",
+    "nTrainFirst": 156,
+    "oosR2Wx": -0.010640437532593916,
+    "oosR2Mkt": -0.016923137706133184,
+    "oosR2WxVsMkt": 0.006178146548726615,
+    "rmseRatioWxVsRw": 1.0162401386191924,
+    "rmseRatioMktVsRw": 1.0193940001831017,
+    "rmseRatioHmVsRw": 1.0108762863092293,
+    "dmWxVsRw": {
+     "stat": -0.8660017370521903,
+     "p": 0.8066489821956431,
+     "n": 977
+    },
+    "dmWxVsHm": {
+     "stat": -0.32460044997634185,
+     "p": 0.6272234778568502,
+     "n": 977
+    },
+    "cwWxVsMkt": {
+     "stat": 1.2359980141110776,
+     "p": 0.10822965800440187,
+     "n": 977
+    },
+    "ptWx": {
+     "stat": 1.341894263867476,
+     "p": 0.08981514538929414,
+     "n": 977,
+     "hitRate": 0.5383828045035824
+    },
+    "hitRateWx": 0.5383828045035824,
+    "hitRateMkt": 0.534288638689867,
+    "baseRateUp": 0.5363357215967247,
+    "oosR2WxCi95": {
+     "lo": -0.06865390877421818,
+     "hi": 0.05404398349965833,
+     "median": -0.010828410319346338
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 10,
+     "seed": 20261115
+    }
+   },
+   "sensitivity": [
+    {
+     "feature": "Extreme degree-days >29 °C (7-day)",
+     "pctReturnPerSd": 1.3335291474246354,
+     "t": 2.48709786942131,
+     "p": 0.012878995570211993
+    },
+    {
+     "feature": "Precipitation (28-day)",
+     "pctReturnPerSd": -0.14380552711518393,
+     "t": -0.3396940674938737,
+     "p": 0.7340869393736913
+    }
+   ],
+   "qCwWxVsMkt": 0.2227239718112568,
+   "qDmWxVsRw": 0.9888941872389644
+  },
+  {
+   "commodity": "corn",
+   "name": "Corn",
+   "symbol": "ZC=F",
+   "tier": "NWP_FORECAST",
+   "horizonWeeks": 1,
+   "features": [
+    "Extreme degree-days >29 °C: forecast anomaly (days +1…+6)",
+    "Extreme degree-days >29 °C: forecast revision (lead k+1 minus lead 7)",
+    "Precipitation: forecast anomaly (days +1…+6)",
+    "Precipitation: forecast revision (lead k+1 minus lead 7)"
+   ],
+   "nRows": 139,
+   "metrics": {
+    "n": 87,
+    "horizonWeeks": 1,
+    "oosStart": "2025-03-07",
+    "oosEnd": "2026-11-06",
+    "nTrainFirst": 52,
+    "oosR2Wx": -0.1765075352423584,
+    "oosR2Mkt": -0.05764937166104578,
+    "oosR2WxVsMkt": -0.1123795529653131,
+    "rmseRatioWxVsRw": 1.0914685267939952,
+    "rmseRatioMktVsRw": 1.0348674290845883,
+    "rmseRatioHmVsRw": 1.0062684598670204,
+    "dmWxVsRw": {
+     "stat": -2.179761155949112,
+     "p": 0.9839959199336266,
+     "n": 87
+    },
+    "dmWxVsHm": {
+     "stat": -2.051074151386809,
+     "p": 0.9783484760741171,
+     "n": 87
+    },
+    "cwWxVsMkt": {
+     "stat": -0.8470418241240933,
+     "p": 0.801514096535507,
+     "n": 87
+    },
+    "ptWx": {
+     "stat": -0.7557661846673758,
+     "p": 0.7751053128488012,
+     "n": 87,
+     "hitRate": 0.45977011494252873
+    },
+    "hitRateWx": 0.45977011494252873,
+    "hitRateMkt": 0.367816091954023,
+    "baseRateUp": 0.4942528735632184,
+    "oosR2WxCi95": {
+     "lo": -0.35512396963468906,
+     "hi": -0.04693057849575766,
+     "median": -0.17146360172316566
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 4,
+     "seed": 20261115
+    }
+   },
+   "sensitivity": [
+    {
+     "feature": "Extreme degree-days >29 °C: forecast anomaly (days +1…+6)",
+     "pctReturnPerSd": -0.46803384287138633,
+     "t": -1.2327059010031272,
+     "p": 0.21768552374523553
+    },
+    {
+     "feature": "Extreme degree-days >29 °C: forecast revision (lead k+1 minus lead 7)",
+     "pctReturnPerSd": 0.34229747936561794,
+     "t": 0.7296818347057654,
+     "p": 0.4655846618523365
+    },
+    {
+     "feature": "Precipitation: forecast anomaly (days +1…+6)",
+     "pctReturnPerSd": -0.057401490879817926,
+     "t": -0.19666518781977785,
+     "p": 0.8440895803018591
+    },
+    {
+     "feature": "Precipitation: forecast revision (lead k+1 minus lead 7)",
+     "pctReturnPerSd": -0.01315494061097235,
+     "t": -0.02896786904964332,
+     "p": 0.9768901538448649
+    }
+   ],
+   "qCwWxVsMkt": 0.9506580535988579,
+   "qDmWxVsRw": 0.9978717539458053
+  },
+  {
+   "commodity": "corn",
+   "name": "Corn",
+   "symbol": "ZC=F",
+   "tier": "NWP_FORECAST",
+   "horizonWeeks": 4,
+   "features": [
+    "Extreme degree-days >29 °C: forecast anomaly (days +1…+6)",
+    "Extreme degree-days >29 °C: forecast revision (lead k+1 minus lead 7)",
+    "Precipitation: forecast anomaly (days +1…+6)",
+    "Precipitation: forecast revision (lead k+1 minus lead 7)"
+   ],
+   "nRows": 136,
+   "metrics": {
+    "n": 81,
+    "horizonWeeks": 4,
+    "oosStart": "2025-03-28",
+    "oosEnd": "2026-10-16",
+    "nTrainFirst": 52,
+    "oosR2Wx": -0.2900299954416583,
+    "oosR2Mkt": -0.20303186350689972,
+    "oosR2WxVsMkt": -0.07231573375052136,
+    "rmseRatioWxVsRw": 1.1634614358664925,
+    "rmseRatioMktVsRw": 1.1235454713392925,
+    "rmseRatioHmVsRw": 1.0243587664141833,
+    "dmWxVsRw": {
+     "stat": -2.345374897988327,
+     "p": 0.989257100985898,
+     "n": 81
+    },
+    "dmWxVsHm": {
+     "stat": -2.10539002730673,
+     "p": 0.9808027758361368,
+     "n": 81
+    },
+    "cwWxVsMkt": {
+     "stat": -0.4153052103239594,
+     "p": 0.6610407669953591,
+     "n": 81
+    },
+    "ptWx": {
+     "stat": -3.721697635992517,
+     "p": 0.9999010560441344,
+     "n": 81,
+     "hitRate": 0.32098765432098764
+    },
+    "hitRateWx": 0.32098765432098764,
+    "hitRateMkt": 0.2962962962962963,
+    "baseRateUp": 0.5679012345679012,
+    "oosR2WxCi95": {
+     "lo": -0.5495705769689074,
+     "hi": -0.07526336520440435,
+     "median": -0.2809257684525972
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 4,
+     "seed": 20261115
+    }
+   },
+   "sensitivity": [
+    {
+     "feature": "Extreme degree-days >29 °C: forecast anomaly (days +1…+6)",
+     "pctReturnPerSd": -0.340876535123157,
+     "t": -0.4748479968546283,
+     "p": 0.634895280681425
+    },
+    {
+     "feature": "Extreme degree-days >29 °C: forecast revision (lead k+1 minus lead 7)",
+     "pctReturnPerSd": 0.9806908684650305,
+     "t": 1.8248330660060774,
+     "p": 0.06802621965760158
+    },
+    {
+     "feature": "Precipitation: forecast anomaly (days +1…+6)",
+     "pctReturnPerSd": -0.5319849202354653,
+     "t": -0.7673097417028703,
+     "p": 0.4428973600309003
+    },
+    {
+     "feature": "Precipitation: forecast revision (lead k+1 minus lead 7)",
+     "pctReturnPerSd": 1.19010607140433,
+     "t": 1.0388004523151841,
+     "p": 0.2988975677009287
+    }
+   ],
+   "qCwWxVsMkt": 0.9506580535988579,
+   "qDmWxVsRw": 0.9978717539458053
+  },
+  {
+   "commodity": "soybeans",
+   "name": "Soybeans",
+   "symbol": "ZS=F",
+   "tier": "REALISED_LAGGED",
+   "horizonWeeks": 1,
+   "features": [
+    "Extreme degree-days >30 °C (7-day, US)",
+    "Precipitation (28-day, US)",
+    "Precipitation (28-day, Mato Grosso)"
+   ],
+   "nRows": 1136,
+   "metrics": {
+    "n": 980,
+    "horizonWeeks": 1,
+    "oosStart": "2008-02-01",
+    "oosEnd": "2026-11-06",
+    "nTrainFirst": 156,
+    "oosR2Wx": -0.03487809785173379,
+    "oosR2Mkt": -0.0025035075779806792,
+    "oosR2WxVsMkt": -0.03229374264432172,
+    "rmseRatioWxVsRw": 1.0208469591284692,
+    "rmseRatioMktVsRw": 1.0047522607223758,
+    "rmseRatioHmVsRw": 1.003496914857802,
+    "dmWxVsRw": {
+     "stat": -1.2084975921970411,
+     "p": 0.8864261326897149,
+     "n": 980
+    },
+    "dmWxVsHm": {
+     "stat": -1.0052347422627046,
+     "p": 0.8424838912335926,
+     "n": 980
+    },
+    "cwWxVsMkt": {
+     "stat": -1.1973887656089242,
+     "p": 0.8844224619122515,
+     "n": 980
+    },
+    "ptWx": {
+     "stat": 0.04474083473960563,
+     "p": 0.4821569024321155,
+     "n": 980,
+     "hitRate": 0.5122448979591837
+    },
+    "hitRateWx": 0.5122448979591837,
+    "hitRateMkt": 0.5326530612244897,
+    "baseRateUp": 0.5255102040816326,
+    "oosR2WxCi95": {
+     "lo": -0.11566491678588453,
+     "hi": 0.02520512203027192,
+     "median": -0.033838606200642385
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 10,
+     "seed": 20261115
+    }
+   },
+   "sensitivity": [
+    {
+     "feature": "Extreme degree-days >30 °C (7-day, US)",
+     "pctReturnPerSd": 0.12567805467668547,
+     "t": 1.2227700903136915,
+     "p": 0.221416560061225
+    },
+    {
+     "feature": "Precipitation (28-day, US)",
+     "pctReturnPerSd": 0.07283389505558714,
+     "t": 0.5807617244669806,
+     "p": 0.5614010074848821
+    },
+    {
+     "feature": "Precipitation (28-day, Mato Grosso)",
+     "pctReturnPerSd": 0.0996424073015467,
+     "t": 1.2361286717879996,
+     "p": 0.21641075294571177
+    }
+   ],
+   "qCwWxVsMkt": 0.9728647081034767,
+   "qDmWxVsRw": 0.9978717539458053
+  },
+  {
+   "commodity": "soybeans",
+   "name": "Soybeans",
+   "symbol": "ZS=F",
+   "tier": "REALISED_LAGGED",
+   "horizonWeeks": 4,
+   "features": [
+    "Extreme degree-days >30 °C (7-day, US)",
+    "Precipitation (28-day, US)",
+    "Precipitation (28-day, Mato Grosso)"
+   ],
+   "nRows": 1133,
+   "metrics": {
+    "n": 974,
+    "horizonWeeks": 4,
+    "oosStart": "2008-02-22",
+    "oosEnd": "2026-10-16",
+    "nTrainFirst": 156,
+    "oosR2Wx": -0.13831829500555815,
+    "oosR2Mkt": -0.04240047334564534,
+    "oosR2WxVsMkt": -0.09201628751381774,
+    "rmseRatioWxVsRw": 1.0829031251269872,
+    "rmseRatioMktVsRw": 1.0362750669927947,
+    "rmseRatioHmVsRw": 1.0149806180722776,
+    "dmWxVsRw": {
+     "stat": -1.6195301413234429,
+     "p": 0.9471713535158064,
+     "n": 974
+    },
+    "dmWxVsHm": {
+     "stat": -1.408209452141009,
+     "p": 0.9203057563143511,
+     "n": 974
+    },
+    "cwWxVsMkt": {
+     "stat": -0.9192701950813399,
+     "p": 0.821022864471741,
+     "n": 974
+    },
+    "ptWx": {
+     "stat": 0.2084601749474319,
+     "p": 0.41743485292391436,
+     "n": 974,
+     "hitRate": 0.5154004106776181
+    },
+    "hitRateWx": 0.5154004106776181,
+    "hitRateMkt": 0.5328542094455853,
+    "baseRateUp": 0.5215605749486653,
+    "oosR2WxCi95": {
+     "lo": -0.3545521860794585,
+     "hi": 0.014232408778717676,
+     "median": -0.13089163200509857
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 10,
+     "seed": 20261115
+    }
+   },
+   "sensitivity": [
+    {
+     "feature": "Extreme degree-days >30 °C (7-day, US)",
+     "pctReturnPerSd": 0.33767012909570865,
+     "t": 1.632329044365687,
+     "p": 0.1026101851982042
+    },
+    {
+     "feature": "Precipitation (28-day, US)",
+     "pctReturnPerSd": 0.0338362432873562,
+     "t": 0.1060570316416276,
+     "p": 0.9155370536140945
+    },
+    {
+     "feature": "Precipitation (28-day, Mato Grosso)",
+     "pctReturnPerSd": 0.3365224562540048,
+     "t": 1.1086068034711694,
+     "p": 0.2675998595554716
+    }
+   ],
+   "qCwWxVsMkt": 0.9506580535988579,
+   "qDmWxVsRw": 0.9978717539458053
+  },
+  {
+   "commodity": "soybeans",
+   "name": "Soybeans",
+   "symbol": "ZS=F",
+   "tier": "ORACLE_TARGET_WINDOW",
+   "horizonWeeks": 1,
+   "features": [
+    "Extreme degree-days >30 °C (7-day, US)",
+    "Precipitation (28-day, US)",
+    "Precipitation (28-day, Mato Grosso)"
+   ],
+   "nRows": 1139,
+   "metrics": {
+    "n": 983,
+    "horizonWeeks": 1,
+    "oosStart": "2008-01-04",
+    "oosEnd": "2026-10-30",
+    "nTrainFirst": 156,
+    "oosR2Wx": 0.0012726523044052085,
+    "oosR2Mkt": -0.003747698676553668,
+    "oosR2WxVsMkt": 0.005001606467021746,
+    "rmseRatioWxVsRw": 1.0023385358894032,
+    "rmseRatioMktVsRw": 1.0048546296680059,
+    "rmseRatioHmVsRw": 1.0029769595463212,
+    "dmWxVsRw": {
+     "stat": -0.22046635291927,
+     "p": 0.5872230999497539,
+     "n": 983
+    },
+    "dmWxVsHm": {
+     "stat": 0.05660307022295349,
+     "p": 0.47743645166165927,
+     "n": 983
+    },
+    "cwWxVsMkt": {
+     "stat": 2.16075356356433,
+     "p": 0.015357189010027916,
+     "n": 983
+    },
+    "ptWx": {
+     "stat": 3.0440944058610584,
+     "p": 0.0011669094990128803,
+     "n": 983,
+     "hitRate": 0.5544252288911495
+    },
+    "hitRateWx": 0.5544252288911495,
+    "hitRateMkt": 0.5340793489318413,
+    "baseRateUp": 0.5249237029501526,
+    "oosR2WxCi95": {
+     "lo": -0.04257920516559577,
+     "hi": 0.03845401354463507,
+     "median": 0.00022177177679760796
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 10,
+     "seed": 20261115
+    }
+   },
+   "sensitivity": [
+    {
+     "feature": "Extreme degree-days >30 °C (7-day, US)",
+     "pctReturnPerSd": 0.1472359500546233,
+     "t": 1.6648933331527558,
+     "p": 0.09593403523612087
+    },
+    {
+     "feature": "Precipitation (28-day, US)",
+     "pctReturnPerSd": -0.2643015115836143,
+     "t": -2.394710375556296,
+     "p": 0.016633497069584724
+    },
+    {
+     "feature": "Precipitation (28-day, Mato Grosso)",
+     "pctReturnPerSd": 0.15483018218574318,
+     "t": 1.708606004755354,
+     "p": 0.08752395167056659
+    }
+   ],
+   "qCwWxVsMkt": 0.11345887289933776,
+   "qDmWxVsRw": 0.9888941872389644
+  },
+  {
+   "commodity": "soybeans",
+   "name": "Soybeans",
+   "symbol": "ZS=F",
+   "tier": "ORACLE_TARGET_WINDOW",
+   "horizonWeeks": 4,
+   "features": [
+    "Extreme degree-days >30 °C (7-day, US)",
+    "Precipitation (28-day, US)",
+    "Precipitation (28-day, Mato Grosso)"
+   ],
+   "nRows": 1136,
+   "metrics": {
+    "n": 977,
+    "horizonWeeks": 4,
+    "oosStart": "2008-01-25",
+    "oosEnd": "2026-10-09",
+    "nTrainFirst": 156,
+    "oosR2Wx": -0.0392367313820261,
+    "oosR2Mkt": -0.040138615817292944,
+    "oosR2WxVsMkt": 0.0008670810039663746,
+    "rmseRatioWxVsRw": 1.0334534647391982,
+    "rmseRatioMktVsRw": 1.033901800251558,
+    "rmseRatioHmVsRw": 1.0137565691515638,
+    "dmWxVsRw": {
+     "stat": -1.6550700811304002,
+     "p": 0.9508841117592626,
+     "n": 977
+    },
+    "dmWxVsHm": {
+     "stat": -0.8817531940405502,
+     "p": 0.810936307576575,
+     "n": 977
+    },
+    "cwWxVsMkt": {
+     "stat": 1.9422613696512099,
+     "p": 0.026052731294191056,
+     "n": 977
+    },
+    "ptWx": {
+     "stat": 1.47416933014016,
+     "p": 0.07021800390596622,
+     "n": 977,
+     "hitRate": 0.5312180143295804
+    },
+    "hitRateWx": 0.5312180143295804,
+    "hitRateMkt": 0.534288638689867,
+    "baseRateUp": 0.5230296827021494,
+    "oosR2WxCi95": {
+     "lo": -0.12969809089291884,
+     "hi": 0.041816165468167354,
+     "median": -0.03823577258797539
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 10,
+     "seed": 20261115
+    }
+   },
+   "sensitivity": [
+    {
+     "feature": "Extreme degree-days >30 °C (7-day, US)",
+     "pctReturnPerSd": 0.5618888339802903,
+     "t": 1.6870093472299263,
+     "p": 0.09160155097589007
+    },
+    {
+     "feature": "Precipitation (28-day, US)",
+     "pctReturnPerSd": -0.4288345882524608,
+     "t": -1.7041653948489106,
+     "p": 0.0883501883092066
+    },
+    {
+     "feature": "Precipitation (28-day, Mato Grosso)",
+     "pctReturnPerSd": 0.7816165033041349,
+     "t": 2.6593452516826375,
+     "p": 0.007829268495268549
+    }
+   ],
+   "qCwWxVsMkt": 0.11345887289933776,
+   "qDmWxVsRw": 0.9888941872389644
+  },
+  {
+   "commodity": "soybeans",
+   "name": "Soybeans",
+   "symbol": "ZS=F",
+   "tier": "NWP_FORECAST",
+   "horizonWeeks": 1,
+   "features": [
+    "Extreme degree-days >30 °C (US): forecast anomaly (days +1…+6)",
+    "Extreme degree-days >30 °C (US): forecast revision (lead k+1 minus lead 7)",
+    "Precipitation (US): forecast anomaly (days +1…+6)",
+    "Precipitation (US): forecast revision (lead k+1 minus lead 7)"
+   ],
+   "nRows": 139,
+   "metrics": {
+    "n": 87,
+    "horizonWeeks": 1,
+    "oosStart": "2025-03-07",
+    "oosEnd": "2026-11-06",
+    "nTrainFirst": 52,
+    "oosR2Wx": -0.17527666687605903,
+    "oosR2Mkt": -0.022001495369222246,
+    "oosR2WxVsMkt": -0.14997548653435433,
+    "rmseRatioWxVsRw": 1.094016329918102,
+    "rmseRatioMktVsRw": 1.0201863611753508,
+    "rmseRatioHmVsRw": 1.0091454061558973,
+    "dmWxVsRw": {
+     "stat": -1.666484866748574,
+     "p": 0.950372406385226,
+     "n": 87
+    },
+    "dmWxVsHm": {
+     "stat": -1.557472068170056,
+     "p": 0.938484488336133,
+     "n": 87
+    },
+    "cwWxVsMkt": {
+     "stat": -0.568684802181514,
+     "p": 0.7152149922023823,
+     "n": 87
+    },
+    "ptWx": {
+     "stat": -0.5136935051551412,
+     "p": 0.6962668759309827,
+     "n": 87,
+     "hitRate": 0.4482758620689655
+    },
+    "hitRateWx": 0.4482758620689655,
+    "hitRateMkt": 0.4367816091954023,
+    "baseRateUp": 0.5977011494252874,
+    "oosR2WxCi95": {
+     "lo": -0.3844336704540683,
+     "hi": 0.015113169289445949,
+     "median": -0.16821483368451995
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 4,
+     "seed": 20261115
+    }
+   },
+   "sensitivity": [
+    {
+     "feature": "Extreme degree-days >30 °C (US): forecast anomaly (days +1…+6)",
+     "pctReturnPerSd": 0.13618004825233523,
+     "t": 0.37796063245435085,
+     "p": 0.7054598324749115
+    },
+    {
+     "feature": "Extreme degree-days >30 °C (US): forecast revision (lead k+1 minus lead 7)",
+     "pctReturnPerSd": -0.27068721560224784,
+     "t": -1.5727501090228246,
+     "p": 0.11577669091171283
+    },
+    {
+     "feature": "Precipitation (US): forecast anomaly (days +1…+6)",
+     "pctReturnPerSd": -0.5612463189427247,
+     "t": -1.9467683850916584,
+     "p": 0.05156250437989662
+    },
+    {
+     "feature": "Precipitation (US): forecast revision (lead k+1 minus lead 7)",
+     "pctReturnPerSd": 0.5383777184906473,
+     "t": 1.377659308660676,
+     "p": 0.16830850725911128
+    }
+   ],
+   "qCwWxVsMkt": 0.9506580535988579,
+   "qDmWxVsRw": 0.9978717539458053
+  },
+  {
+   "commodity": "soybeans",
+   "name": "Soybeans",
+   "symbol": "ZS=F",
+   "tier": "NWP_FORECAST",
+   "horizonWeeks": 4,
+   "features": [
+    "Extreme degree-days >30 °C (US): forecast anomaly (days +1…+6)",
+    "Extreme degree-days >30 °C (US): forecast revision (lead k+1 minus lead 7)",
+    "Precipitation (US): forecast anomaly (days +1…+6)",
+    "Precipitation (US): forecast revision (lead k+1 minus lead 7)"
+   ],
+   "nRows": 136,
+   "metrics": {
+    "n": 81,
+    "horizonWeeks": 4,
+    "oosStart": "2025-03-28",
+    "oosEnd": "2026-10-16",
+    "nTrainFirst": 52,
+    "oosR2Wx": -0.27078978136764875,
+    "oosR2Mkt": 0.006165625333003799,
+    "oosR2WxVsMkt": -0.2786736037314588,
+    "rmseRatioWxVsRw": 1.1701797210455434,
+    "rmseRatioMktVsRw": 1.0348388332842662,
+    "rmseRatioHmVsRw": 1.038043876005283,
+    "dmWxVsRw": {
+     "stat": -1.9651402800113975,
+     "p": 0.9735655512255377,
+     "n": 81
+    },
+    "dmWxVsHm": {
+     "stat": -1.5678981515185633,
+     "p": 0.939573961600247,
+     "n": 81
+    },
+    "cwWxVsMkt": {
+     "stat": -0.9098340020766931,
+     "p": 0.8185449668399752,
+     "n": 81
+    },
+    "ptWx": {
+     "stat": 0.5328780627784626,
+     "p": 0.297058972330954,
+     "n": 81,
+     "hitRate": 0.49382716049382713
+    },
+    "hitRateWx": 0.49382716049382713,
+    "hitRateMkt": 0.5185185185185185,
+    "baseRateUp": 0.5802469135802469,
+    "oosR2WxCi95": {
+     "lo": -0.6472428938645227,
+     "hi": -0.01032785537742087,
+     "median": -0.2645017159160865
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 4,
+     "seed": 20261115
+    }
+   },
+   "sensitivity": [
+    {
+     "feature": "Extreme degree-days >30 °C (US): forecast anomaly (days +1…+6)",
+     "pctReturnPerSd": 0.014724598130696652,
+     "t": 0.024522605461015357,
+     "p": 0.9804356981622737
+    },
+    {
+     "feature": "Extreme degree-days >30 °C (US): forecast revision (lead k+1 minus lead 7)",
+     "pctReturnPerSd": 0.09884123305346358,
+     "t": 0.21293123059753374,
+     "p": 0.8313806342236931
+    },
+    {
+     "feature": "Precipitation (US): forecast anomaly (days +1…+6)",
+     "pctReturnPerSd": -0.8675709156304556,
+     "t": -1.210417476583477,
+     "p": 0.22611875434501583
+    },
+    {
+     "feature": "Precipitation (US): forecast revision (lead k+1 minus lead 7)",
+     "pctReturnPerSd": 1.4544411484051059,
+     "t": 2.5118137449423026,
+     "p": 0.01201124573158241
+    }
+   ],
+   "qCwWxVsMkt": 0.9506580535988579,
+   "qDmWxVsRw": 0.9978717539458053
+  },
+  {
+   "commodity": "wheat",
+   "name": "Wheat (Chicago SRW)",
+   "symbol": "ZW=F",
+   "tier": "REALISED_LAGGED",
+   "horizonWeeks": 1,
+   "features": [
+    "Precipitation (28-day, Kansas)",
+    "Extreme degree-days >30 °C (7-day, Kansas)",
+    "Precipitation (28-day, Beauce)"
+   ],
+   "nRows": 1136,
+   "metrics": {
+    "n": 980,
+    "horizonWeeks": 1,
+    "oosStart": "2008-02-01",
+    "oosEnd": "2026-11-06",
+    "nTrainFirst": 156,
+    "oosR2Wx": -0.01691158847243046,
+    "oosR2Mkt": -0.010580387610809483,
+    "oosR2WxVsMkt": -0.00626491562594933,
+    "rmseRatioWxVsRw": 1.0116542158391082,
+    "rmseRatioMktVsRw": 1.008500064343198,
+    "rmseRatioHmVsRw": 1.0032068697485386,
+    "dmWxVsRw": {
+     "stat": -2.462589820190379,
+     "p": 0.9930174820721027,
+     "n": 980
+    },
+    "dmWxVsHm": {
+     "stat": -1.7381603861470827,
+     "p": 0.9587515149551213,
+     "n": 980
+    },
+    "cwWxVsMkt": {
+     "stat": -0.028675070579067836,
+     "p": 0.5114381616454944,
+     "n": 980
+    },
+    "ptWx": {
+     "stat": -0.5072003646188267,
+     "p": 0.6939929027036329,
+     "n": 980,
+     "hitRate": 0.4887755102040816
+    },
+    "hitRateWx": 0.4887755102040816,
+    "hitRateMkt": 0.46938775510204084,
+    "baseRateUp": 0.49183673469387756,
+    "oosR2WxCi95": {
+     "lo": -0.0374611063278667,
+     "hi": 0.00039223305586078006,
+     "median": -0.015776896235928373
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 10,
+     "seed": 20261115
+    }
+   },
+   "sensitivity": [
+    {
+     "feature": "Precipitation (28-day, Kansas)",
+     "pctReturnPerSd": 0.034556496383310875,
+     "t": 0.24139772511125546,
+     "p": 0.8092469112628256
+    },
+    {
+     "feature": "Extreme degree-days >30 °C (7-day, Kansas)",
+     "pctReturnPerSd": -0.23259784275290388,
+     "t": -1.8412627727223425,
+     "p": 0.06558305560758315
+    },
+    {
+     "feature": "Precipitation (28-day, Beauce)",
+     "pctReturnPerSd": -0.0585983690708465,
+     "t": -0.3677285108231374,
+     "p": 0.7130756769297182
+    }
+   ],
+   "qCwWxVsMkt": 0.9506580535988579,
+   "qDmWxVsRw": 0.9978717539458053
+  },
+  {
+   "commodity": "wheat",
+   "name": "Wheat (Chicago SRW)",
+   "symbol": "ZW=F",
+   "tier": "REALISED_LAGGED",
+   "horizonWeeks": 4,
+   "features": [
+    "Precipitation (28-day, Kansas)",
+    "Extreme degree-days >30 °C (7-day, Kansas)",
+    "Precipitation (28-day, Beauce)"
+   ],
+   "nRows": 1133,
+   "metrics": {
+    "n": 974,
+    "horizonWeeks": 4,
+    "oosStart": "2008-02-22",
+    "oosEnd": "2026-10-16",
+    "nTrainFirst": 156,
+    "oosR2Wx": -0.061039762301297484,
+    "oosR2Mkt": -0.03168370089359707,
+    "oosR2WxVsMkt": -0.02845451700193924,
+    "rmseRatioWxVsRw": 1.0462369652727253,
+    "rmseRatioMktVsRw": 1.031662192868845,
+    "rmseRatioHmVsRw": 1.0156971425048322,
+    "dmWxVsRw": {
+     "stat": -2.8652503593414944,
+     "p": 0.9978717539458053,
+     "n": 974
+    },
+    "dmWxVsHm": {
+     "stat": -2.3799305549187775,
+     "p": 0.9912461296645434,
+     "n": 974
+    },
+    "cwWxVsMkt": {
+     "stat": -1.69171494206773,
+     "p": 0.9546498328339232,
+     "n": 974
+    },
+    "ptWx": {
+     "stat": 0.1925188692758261,
+     "p": 0.4236679065728537,
+     "n": 974,
+     "hitRate": 0.49075975359342916
+    },
+    "hitRateWx": 0.49075975359342916,
+    "hitRateMkt": 0.4938398357289528,
+    "baseRateUp": 0.47433264887063653,
+    "oosR2WxCi95": {
+     "lo": -0.11003769876155678,
+     "hi": -0.01678602241238525,
+     "median": -0.05964961972614091
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 10,
+     "seed": 20261115
+    }
+   },
+   "sensitivity": [
+    {
+     "feature": "Precipitation (28-day, Kansas)",
+     "pctReturnPerSd": -0.04224397185695823,
+     "t": -0.09360670957660282,
+     "p": 0.9254215181874463
+    },
+    {
+     "feature": "Extreme degree-days >30 °C (7-day, Kansas)",
+     "pctReturnPerSd": 0.1341219733053351,
+     "t": 0.3808439506878086,
+     "p": 0.7033190366097117
+    },
+    {
+     "feature": "Precipitation (28-day, Beauce)",
+     "pctReturnPerSd": 0.10204802460848167,
+     "t": 0.17434564283545656,
+     "p": 0.8615938447551961
+    }
+   ],
+   "qCwWxVsMkt": 0.980866809767154,
+   "qDmWxVsRw": 0.9978717539458053
+  },
+  {
+   "commodity": "wheat",
+   "name": "Wheat (Chicago SRW)",
+   "symbol": "ZW=F",
+   "tier": "ORACLE_TARGET_WINDOW",
+   "horizonWeeks": 1,
+   "features": [
+    "Precipitation (28-day, Kansas)",
+    "Extreme degree-days >30 °C (7-day, Kansas)",
+    "Precipitation (28-day, Beauce)"
+   ],
+   "nRows": 1139,
+   "metrics": {
+    "n": 983,
+    "horizonWeeks": 1,
+    "oosStart": "2008-01-04",
+    "oosEnd": "2026-10-30",
+    "nTrainFirst": 156,
+    "oosR2Wx": -0.013350874742024121,
+    "oosR2Mkt": -0.011245250563598486,
+    "oosR2WxVsMkt": -0.002082209214087305,
+    "rmseRatioWxVsRw": 1.0095866908915792,
+    "rmseRatioMktVsRw": 1.0085372441281946,
+    "rmseRatioHmVsRw": 1.0029139990267792,
+    "dmWxVsRw": {
+     "stat": -1.736541113384849,
+     "p": 0.9586090979669902,
+     "n": 983
+    },
+    "dmWxVsHm": {
+     "stat": -1.1273470550549194,
+     "p": 0.8700644221675433,
+     "n": 983
+    },
+    "cwWxVsMkt": {
+     "stat": 1.219316846607864,
+     "p": 0.1113619859056284,
+     "n": 983
+    },
+    "ptWx": {
+     "stat": 0.012268669915649908,
+     "p": 0.4951056209758511,
+     "n": 983,
+     "hitRate": 0.49542217700915564
+    },
+    "hitRateWx": 0.49542217700915564,
+    "hitRateMkt": 0.46998982706002035,
+    "baseRateUp": 0.491353001017294,
+    "oosR2WxCi95": {
+     "lo": -0.03540076705793482,
+     "hi": 0.007893421053729366,
+     "median": -0.012944079410718512
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 10,
+     "seed": 20261115
+    }
+   },
+   "sensitivity": [
+    {
+     "feature": "Precipitation (28-day, Kansas)",
+     "pctReturnPerSd": -0.19211243034034775,
+     "t": -1.5985659559376746,
+     "p": 0.10991707740962209
+    },
+    {
+     "feature": "Extreme degree-days >30 °C (7-day, Kansas)",
+     "pctReturnPerSd": -0.3747977223509787,
+     "t": -2.2119104415629947,
+     "p": 0.026972851205788295
+    },
+    {
+     "feature": "Precipitation (28-day, Beauce)",
+     "pctReturnPerSd": -0.04846218677004658,
+     "t": -0.3884485678909041,
+     "p": 0.6976840973512097
+    }
+   ],
+   "qCwWxVsMkt": 0.2227239718112568,
+   "qDmWxVsRw": 0.9888941872389644
+  },
+  {
+   "commodity": "wheat",
+   "name": "Wheat (Chicago SRW)",
+   "symbol": "ZW=F",
+   "tier": "ORACLE_TARGET_WINDOW",
+   "horizonWeeks": 4,
+   "features": [
+    "Precipitation (28-day, Kansas)",
+    "Extreme degree-days >30 °C (7-day, Kansas)",
+    "Precipitation (28-day, Beauce)"
+   ],
+   "nRows": 1136,
+   "metrics": {
+    "n": 977,
+    "horizonWeeks": 4,
+    "oosStart": "2008-01-25",
+    "oosEnd": "2026-10-09",
+    "nTrainFirst": 156,
+    "oosR2Wx": -0.05813586964711881,
+    "oosR2Mkt": -0.03208381309393027,
+    "oosR2WxVsMkt": -0.02524219082081225,
+    "rmseRatioWxVsRw": 1.0432045757274138,
+    "rmseRatioMktVsRw": 1.030282322521644,
+    "rmseRatioHmVsRw": 1.0141419902709325,
+    "dmWxVsRw": {
+     "stat": -2.2903835934638144,
+     "p": 0.9888941872389643,
+     "n": 977
+    },
+    "dmWxVsHm": {
+     "stat": -1.6346133568866228,
+     "p": 0.9487737024778953,
+     "n": 977
+    },
+    "cwWxVsMkt": {
+     "stat": -0.30023084673780714,
+     "p": 0.6179994489182036,
+     "n": 977
+    },
+    "ptWx": {
+     "stat": -0.23960971328637634,
+     "p": 0.5946835652471002,
+     "n": 977,
+     "hitRate": 0.48618219037871035
+    },
+    "hitRateWx": 0.48618219037871035,
+    "hitRateMkt": 0.49437052200614123,
+    "baseRateUp": 0.4759467758444217,
+    "oosR2WxCi95": {
+     "lo": -0.12700743097202616,
+     "hi": 0.004601201254992748,
+     "median": -0.05698144939165384
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 10,
+     "seed": 20261115
+    }
+   },
+   "sensitivity": [
+    {
+     "feature": "Precipitation (28-day, Kansas)",
+     "pctReturnPerSd": -0.3261362783989437,
+     "t": -0.7756313125758488,
+     "p": 0.43796669045160486
+    },
+    {
+     "feature": "Extreme degree-days >30 °C (7-day, Kansas)",
+     "pctReturnPerSd": -0.867675449495316,
+     "t": -1.222215819073105,
+     "p": 0.22162603799873426
+    },
+    {
+     "feature": "Precipitation (28-day, Beauce)",
+     "pctReturnPerSd": 0.10700821390364659,
+     "t": 0.23296035519526043,
+     "p": 0.8157922259764709
+    }
+   ],
+   "qCwWxVsMkt": 0.7415993387018442,
+   "qDmWxVsRw": 0.9888941872389644
+  },
+  {
+   "commodity": "wheat",
+   "name": "Wheat (Chicago SRW)",
+   "symbol": "ZW=F",
+   "tier": "NWP_FORECAST",
+   "horizonWeeks": 1,
+   "features": [
+    "Precipitation (Kansas): forecast anomaly (days +1…+6)",
+    "Precipitation (Kansas): forecast revision (lead k+1 minus lead 7)",
+    "Extreme degree-days >30 °C (Kansas): forecast anomaly (days +1…+6)",
+    "Extreme degree-days >30 °C (Kansas): forecast revision (lead k+1 minus lead 7)"
+   ],
+   "nRows": 139,
+   "metrics": {
+    "n": 87,
+    "horizonWeeks": 1,
+    "oosStart": "2025-03-07",
+    "oosEnd": "2026-11-06",
+    "nTrainFirst": 52,
+    "oosR2Wx": -0.24170916689968713,
+    "oosR2Mkt": -0.01814696580269759,
+    "oosR2WxVsMkt": -0.21957753507690825,
+    "rmseRatioWxVsRw": 1.1199567440905527,
+    "rmseRatioMktVsRw": 1.014136797845731,
+    "rmseRatioHmVsRw": 1.0050584185547462,
+    "dmWxVsRw": {
+     "stat": -2.565030595110843,
+     "p": 0.9939744058204776,
+     "n": 87
+    },
+    "dmWxVsHm": {
+     "stat": -2.483302276261908,
+     "p": 0.9925209501588638,
+     "n": 87
+    },
+    "cwWxVsMkt": {
+     "stat": 0.28901887467872883,
+     "p": 0.38628348096335596,
+     "n": 87
+    },
+    "ptWx": {
+     "stat": -0.7536895311005659,
+     "p": 0.7744821754766968,
+     "n": 87,
+     "hitRate": 0.45977011494252873
+    },
+    "hitRateWx": 0.45977011494252873,
+    "hitRateMkt": 0.45977011494252873,
+    "baseRateUp": 0.5057471264367817,
+    "oosR2WxCi95": {
+     "lo": -0.4568164900406637,
+     "hi": -0.0799193324638523,
+     "median": -0.23650882988001554
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 4,
+     "seed": 20261115
+    }
+   },
+   "sensitivity": [
+    {
+     "feature": "Precipitation (Kansas): forecast anomaly (days +1…+6)",
+     "pctReturnPerSd": -0.5737599515792635,
+     "t": -1.3429810120473995,
+     "p": 0.1792781311238667
+    },
+    {
+     "feature": "Precipitation (Kansas): forecast revision (lead k+1 minus lead 7)",
+     "pctReturnPerSd": -0.5881181381776043,
+     "t": -1.5779059353518603,
+     "p": 0.11458721996208676
+    },
+    {
+     "feature": "Extreme degree-days >30 °C (Kansas): forecast anomaly (days +1…+6)",
+     "pctReturnPerSd": -0.13637030886468332,
+     "t": -0.6878975100936788,
+     "p": 0.4915172910726451
+    },
+    {
+     "feature": "Extreme degree-days >30 °C (Kansas): forecast revision (lead k+1 minus lead 7)",
+     "pctReturnPerSd": 0.12600707047450527,
+     "t": 0.3783817001861852,
+     "p": 0.7051470536867741
+    }
+   ],
+   "qCwWxVsMkt": 0.9506580535988579,
+   "qDmWxVsRw": 0.9978717539458053
+  },
+  {
+   "commodity": "wheat",
+   "name": "Wheat (Chicago SRW)",
+   "symbol": "ZW=F",
+   "tier": "NWP_FORECAST",
+   "horizonWeeks": 4,
+   "features": [
+    "Precipitation (Kansas): forecast anomaly (days +1…+6)",
+    "Precipitation (Kansas): forecast revision (lead k+1 minus lead 7)",
+    "Extreme degree-days >30 °C (Kansas): forecast anomaly (days +1…+6)",
+    "Extreme degree-days >30 °C (Kansas): forecast revision (lead k+1 minus lead 7)"
+   ],
+   "nRows": 136,
+   "metrics": {
+    "n": 81,
+    "horizonWeeks": 4,
+    "oosStart": "2025-03-28",
+    "oosEnd": "2026-10-16",
+    "nTrainFirst": 52,
+    "oosR2Wx": -0.14868872520586818,
+    "oosR2Mkt": 0.010500027778956311,
+    "oosR2WxVsMkt": -0.1608779762039887,
+    "rmseRatioWxVsRw": 1.087983134340201,
+    "rmseRatioMktVsRw": 1.009784911590634,
+    "rmseRatioHmVsRw": 1.0151284136064207,
+    "dmWxVsRw": {
+     "stat": -1.276944353914632,
+     "p": 0.8973420767849112,
+     "n": 81
+    },
+    "dmWxVsHm": {
+     "stat": -1.0063646185969928,
+     "p": 0.8413627706814344,
+     "n": 81
+    },
+    "cwWxVsMkt": {
+     "stat": 0.4739062248990053,
+     "p": 0.3177833706154424,
+     "n": 81
+    },
+    "ptWx": {
+     "stat": 0.40709436304111607,
+     "p": 0.34196933248165995,
+     "n": 81,
+     "hitRate": 0.5308641975308642
+    },
+    "hitRateWx": 0.5308641975308642,
+    "hitRateMkt": 0.5802469135802469,
+    "baseRateUp": 0.5308641975308642,
+    "oosR2WxCi95": {
+     "lo": -0.4548801476223425,
+     "hi": 0.09928072795657006,
+     "median": -0.13737585431565247
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 4,
+     "seed": 20261115
+    }
+   },
+   "sensitivity": [
+    {
+     "feature": "Precipitation (Kansas): forecast anomaly (days +1…+6)",
+     "pctReturnPerSd": -1.3915024153124214,
+     "t": -1.5708201208473473,
+     "p": 0.11622443593930831
+    },
+    {
+     "feature": "Precipitation (Kansas): forecast revision (lead k+1 minus lead 7)",
+     "pctReturnPerSd": -0.9431808504617007,
+     "t": -1.4659959584060855,
+     "p": 0.14264939071088856
+    },
+    {
+     "feature": "Extreme degree-days >30 °C (Kansas): forecast anomaly (days +1…+6)",
+     "pctReturnPerSd": -0.4294720962590218,
+     "t": -0.8637682367378509,
+     "p": 0.38771521994579294
+    },
+    {
+     "feature": "Extreme degree-days >30 °C (Kansas): forecast revision (lead k+1 minus lead 7)",
+     "pctReturnPerSd": -0.3940054910990636,
+     "t": -1.1076087577620348,
+     "p": 0.26803083724141086
+    }
+   ],
+   "qCwWxVsMkt": 0.9506580535988579,
+   "qDmWxVsRw": 0.9978717539458053
+  },
+  {
+   "commodity": "coffee",
+   "name": "Arabica coffee",
+   "symbol": "KC=F",
+   "tier": "REALISED_LAGGED",
+   "horizonWeeks": 1,
+   "features": [
+    "Cold degree-days below 6 °C Tmin (7-day)",
+    "Precipitation (28-day)"
+   ],
+   "nRows": 1136,
+   "metrics": {
+    "n": 980,
+    "horizonWeeks": 1,
+    "oosStart": "2008-02-01",
+    "oosEnd": "2026-11-06",
+    "nTrainFirst": 156,
+    "oosR2Wx": -0.011982747093251866,
+    "oosR2Mkt": 0.0015588737929734808,
+    "oosR2WxVsMkt": -0.01356276352284147,
+    "rmseRatioWxVsRw": 1.0068455634536664,
+    "rmseRatioMktVsRw": 1.0000864364582065,
+    "rmseRatioHmVsRw": 1.0008668532735712,
+    "dmWxVsRw": {
+     "stat": -1.037650904590781,
+     "p": 0.850155587219936,
+     "n": 980
+    },
+    "dmWxVsHm": {
+     "stat": -0.9058275773828957,
+     "p": 0.8173750014339576,
+     "n": 980
+    },
+    "cwWxVsMkt": {
+     "stat": 0.5887699933019146,
+     "p": 0.2780077652970391,
+     "n": 980
+    },
+    "ptWx": {
+     "stat": 0.8355466768448959,
+     "p": 0.2017049863875442,
+     "n": 980,
+     "hitRate": 0.5112244897959184
+    },
+    "hitRateWx": 0.5112244897959184,
+    "hitRateMkt": 0.5122448979591837,
+    "baseRateUp": 0.4928571428571429,
+    "oosR2WxCi95": {
+     "lo": -0.03834575898880521,
+     "hi": 0.008916199787621037,
+     "median": -0.01205819094578775
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 10,
+     "seed": 20261115
+    }
+   },
+   "sensitivity": [
+    {
+     "feature": "Cold degree-days below 6 °C Tmin (7-day)",
+     "pctReturnPerSd": -0.09135693080116782,
+     "t": -0.9357967316146021,
+     "p": 0.34937786422768813
+    },
+    {
+     "feature": "Precipitation (28-day)",
+     "pctReturnPerSd": 0.020965805490497712,
+     "t": 0.13681675892723788,
+     "p": 0.8911756192984241
+    }
+   ],
+   "qCwWxVsMkt": 0.9506580535988579,
+   "qDmWxVsRw": 0.9978717539458053
+  },
+  {
+   "commodity": "coffee",
+   "name": "Arabica coffee",
+   "symbol": "KC=F",
+   "tier": "REALISED_LAGGED",
+   "horizonWeeks": 4,
+   "features": [
+    "Cold degree-days below 6 °C Tmin (7-day)",
+    "Precipitation (28-day)"
+   ],
+   "nRows": 1133,
+   "metrics": {
+    "n": 974,
+    "horizonWeeks": 4,
+    "oosStart": "2008-02-22",
+    "oosEnd": "2026-10-16",
+    "nTrainFirst": 156,
+    "oosR2Wx": -0.014370339238639618,
+    "oosR2Mkt": 0.0045224908082469595,
+    "oosR2WxVsMkt": -0.01897866086620681,
+    "rmseRatioWxVsRw": 1.0104830334799888,
+    "rmseRatioMktVsRw": 1.0010285897482376,
+    "rmseRatioHmVsRw": 1.0032998678318703,
+    "dmWxVsRw": {
+     "stat": -1.0094511674247986,
+     "p": 0.8434953653754889,
+     "n": 974
+    },
+    "dmWxVsHm": {
+     "stat": -0.6939963658320235,
+     "p": 0.756074930220747,
+     "n": 974
+    },
+    "cwWxVsMkt": {
+     "stat": -2.071989890037992,
+     "p": 0.980866809767154,
+     "n": 974
+    },
+    "ptWx": {
+     "stat": 0.16996736017786118,
+     "p": 0.43251790850324734,
+     "n": 974,
+     "hitRate": 0.5010266940451745
+    },
+    "hitRateWx": 0.5010266940451745,
+    "hitRateMkt": 0.5184804928131417,
+    "baseRateUp": 0.49075975359342916,
+    "oosR2WxCi95": {
+     "lo": -0.05487619891283768,
+     "hi": 0.02646681447431254,
+     "median": -0.0137161933390606
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 10,
+     "seed": 20261115
+    }
+   },
+   "sensitivity": [
+    {
+     "feature": "Cold degree-days below 6 °C Tmin (7-day)",
+     "pctReturnPerSd": 0.0010390000514611279,
+     "t": 0.0039179233361113265,
+     "p": 0.9968739688162085
+    },
+    {
+     "feature": "Precipitation (28-day)",
+     "pctReturnPerSd": 0.27435560939308107,
+     "t": 0.6323980829358575,
+     "p": 0.527126743700177
+    }
+   ],
+   "qCwWxVsMkt": 0.980866809767154,
+   "qDmWxVsRw": 0.9978717539458053
+  },
+  {
+   "commodity": "coffee",
+   "name": "Arabica coffee",
+   "symbol": "KC=F",
+   "tier": "ORACLE_TARGET_WINDOW",
+   "horizonWeeks": 1,
+   "features": [
+    "Cold degree-days below 6 °C Tmin (7-day)",
+    "Precipitation (28-day)"
+   ],
+   "nRows": 1139,
+   "metrics": {
+    "n": 983,
+    "horizonWeeks": 1,
+    "oosStart": "2008-01-04",
+    "oosEnd": "2026-10-30",
+    "nTrainFirst": 156,
+    "oosR2Wx": -0.018484104945820645,
+    "oosR2Mkt": 0.0014928150571063004,
+    "oosR2WxVsMkt": -0.020006786434961343,
+    "rmseRatioWxVsRw": 1.0100890176072552,
+    "rmseRatioMktVsRw": 1.0001338318480597,
+    "rmseRatioHmVsRw": 1.0008811761089547,
+    "dmWxVsRw": {
+     "stat": -1.5491403225340146,
+     "p": 0.9391649046382391,
+     "n": 983
+    },
+    "dmWxVsHm": {
+     "stat": -1.4189196645629596,
+     "p": 0.9218801270867012,
+     "n": 983
+    },
+    "cwWxVsMkt": {
+     "stat": -1.3838884322834788,
+     "p": 0.9168036869869324,
+     "n": 983
+    },
+    "ptWx": {
+     "stat": -0.19058149541602287,
+     "p": 0.5755732438125913,
+     "n": 983,
+     "hitRate": 0.49542217700915564
+    },
+    "hitRateWx": 0.49542217700915564,
+    "hitRateMkt": 0.508646998982706,
+    "baseRateUp": 0.4933875890132248,
+    "oosR2WxCi95": {
+     "lo": -0.046449933397409104,
+     "hi": 0.003004967726838559,
+     "median": -0.016860258261133243
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 10,
+     "seed": 20261115
+    }
+   },
+   "sensitivity": [
+    {
+     "feature": "Cold degree-days below 6 °C Tmin (7-day)",
+     "pctReturnPerSd": 0.2260240694537785,
+     "t": 1.4265764077095586,
+     "p": 0.1537020330971126
+    },
+    {
+     "feature": "Precipitation (28-day)",
+     "pctReturnPerSd": -0.010588473489407108,
+     "t": -0.08647069818187285,
+     "p": 0.9310921804741563
+    }
+   ],
+   "qCwWxVsMkt": 0.9168036869869324,
+   "qDmWxVsRw": 0.9888941872389644
+  },
+  {
+   "commodity": "coffee",
+   "name": "Arabica coffee",
+   "symbol": "KC=F",
+   "tier": "ORACLE_TARGET_WINDOW",
+   "horizonWeeks": 4,
+   "features": [
+    "Cold degree-days below 6 °C Tmin (7-day)",
+    "Precipitation (28-day)"
+   ],
+   "nRows": 1136,
+   "metrics": {
+    "n": 977,
+    "horizonWeeks": 4,
+    "oosStart": "2008-01-25",
+    "oosEnd": "2026-10-09",
+    "nTrainFirst": 156,
+    "oosR2Wx": -0.015228586212458817,
+    "oosR2Mkt": 0.005551874878511387,
+    "oosR2WxVsMkt": -0.020896475709511142,
+    "rmseRatioWxVsRw": 1.0108240302791565,
+    "rmseRatioMktVsRw": 1.0004253907043132,
+    "rmseRatioHmVsRw": 1.0032141264227301,
+    "dmWxVsRw": {
+     "stat": -0.9771130702817881,
+     "p": 0.8356223497980806,
+     "n": 977
+    },
+    "dmWxVsHm": {
+     "stat": -0.6902183969240325,
+     "p": 0.7548895258580774,
+     "n": 977
+    },
+    "cwWxVsMkt": {
+     "stat": -0.24632497543387546,
+     "p": 0.5972846433320245,
+     "n": 977
+    },
+    "ptWx": {
+     "stat": 0.9364596589322157,
+     "p": 0.174518291680005,
+     "n": 977,
+     "hitRate": 0.5138178096212896
+    },
+    "hitRateWx": 0.5138178096212896,
+    "hitRateMkt": 0.5199590583418628,
+    "baseRateUp": 0.49334698055271237,
+    "oosR2WxCi95": {
+     "lo": -0.05751193797298204,
+     "hi": 0.02633728002989144,
+     "median": -0.012883424211544536
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 10,
+     "seed": 20261115
+    }
+   },
+   "sensitivity": [
+    {
+     "feature": "Cold degree-days below 6 °C Tmin (7-day)",
+     "pctReturnPerSd": 0.7236040034763895,
+     "t": 2.808349405438374,
+     "p": 0.004979616619698479
+    },
+    {
+     "feature": "Precipitation (28-day)",
+     "pctReturnPerSd": -0.3002325667310607,
+     "t": -0.7541353881561315,
+     "p": 0.45076790949016154
+    }
+   ],
+   "qCwWxVsMkt": 0.7415993387018442,
+   "qDmWxVsRw": 0.9888941872389644
+  },
+  {
+   "commodity": "coffee",
+   "name": "Arabica coffee",
+   "symbol": "KC=F",
+   "tier": "NWP_FORECAST",
+   "horizonWeeks": 1,
+   "features": [
+    "Cold degree-days below 6 °C Tmin: forecast anomaly (days +1…+6)",
+    "Cold degree-days below 6 °C Tmin: forecast revision (lead k+1 minus lead 7)",
+    "Precipitation: forecast anomaly (days +1…+6)",
+    "Precipitation: forecast revision (lead k+1 minus lead 7)"
+   ],
+   "nRows": 139,
+   "metrics": {
+    "n": 87,
+    "horizonWeeks": 1,
+    "oosStart": "2025-03-07",
+    "oosEnd": "2026-11-06",
+    "nTrainFirst": 52,
+    "oosR2Wx": -0.042101110244492146,
+    "oosR2Mkt": -0.023336141627489315,
+    "oosR2WxVsMkt": -0.018337052561399503,
+    "rmseRatioWxVsRw": 1.0465001978254809,
+    "rmseRatioMktVsRw": 1.0370353048330847,
+    "rmseRatioHmVsRw": 1.0251428464141858,
+    "dmWxVsRw": {
+     "stat": -1.4565155589673697,
+     "p": 0.9255542269232718,
+     "n": 87
+    },
+    "dmWxVsHm": {
+     "stat": -0.9335644465667127,
+     "p": 0.8234288129203818,
+     "n": 87
+    },
+    "cwWxVsMkt": {
+     "stat": -0.31480983863202977,
+     "p": 0.6235469696653034,
+     "n": 87
+    },
+    "ptWx": {
+     "stat": 1.357687008983839,
+     "p": 0.08728151438238196,
+     "n": 87,
+     "hitRate": 0.5402298850574713
+    },
+    "hitRateWx": 0.5402298850574713,
+    "hitRateMkt": 0.47126436781609193,
+    "baseRateUp": 0.42528735632183906,
+    "oosR2WxCi95": {
+     "lo": -0.13675400934050463,
+     "hi": 0.04396750863375842,
+     "median": -0.0398176264375929
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 4,
+     "seed": 20261115
+    }
+   },
+   "sensitivity": [
+    {
+     "feature": "Cold degree-days below 6 °C Tmin: forecast anomaly (days +1…+6)",
+     "pctReturnPerSd": -0.1613283113197647,
+     "t": -0.4317549325590553,
+     "p": 0.665919510547373
+    },
+    {
+     "feature": "Precipitation: forecast anomaly (days +1…+6)",
+     "pctReturnPerSd": -0.4193657667052821,
+     "t": -1.1399888501050006,
+     "p": 0.2542909637088455
+    },
+    {
+     "feature": "Precipitation: forecast revision (lead k+1 minus lead 7)",
+     "pctReturnPerSd": -0.03589919755433901,
+     "t": -0.11273935777965154,
+     "p": 0.9102371551462813
+    }
+   ],
+   "qCwWxVsMkt": 0.9506580535988579,
+   "qDmWxVsRw": 0.9978717539458053
+  },
+  {
+   "commodity": "coffee",
+   "name": "Arabica coffee",
+   "symbol": "KC=F",
+   "tier": "NWP_FORECAST",
+   "horizonWeeks": 4,
+   "features": [
+    "Cold degree-days below 6 °C Tmin: forecast anomaly (days +1…+6)",
+    "Cold degree-days below 6 °C Tmin: forecast revision (lead k+1 minus lead 7)",
+    "Precipitation: forecast anomaly (days +1…+6)",
+    "Precipitation: forecast revision (lead k+1 minus lead 7)"
+   ],
+   "nRows": 136,
+   "metrics": {
+    "n": 81,
+    "horizonWeeks": 4,
+    "oosStart": "2025-03-28",
+    "oosEnd": "2026-10-16",
+    "nTrainFirst": 52,
+    "oosR2Wx": -0.16655240876474187,
+    "oosR2Mkt": -0.12843151226752392,
+    "oosR2WxVsMkt": -0.033782197752184384,
+    "rmseRatioWxVsRw": 1.1591662856346603,
+    "rmseRatioMktVsRw": 1.1400692095805167,
+    "rmseRatioHmVsRw": 1.0732320011789234,
+    "dmWxVsRw": {
+     "stat": -2.1658211297129575,
+     "p": 0.9833485961116658,
+     "n": 81
+    },
+    "dmWxVsHm": {
+     "stat": -1.737842746942398,
+     "p": 0.9569567697750712,
+     "n": 81
+    },
+    "cwWxVsMkt": {
+     "stat": 0.30753726490338973,
+     "p": 0.37921724265186296,
+     "n": 81
+    },
+    "ptWx": {
+     "stat": -0.6634041383766599,
+     "p": 0.7464641408847261,
+     "n": 81,
+     "hitRate": 0.4444444444444444
+    },
+    "hitRateWx": 0.4444444444444444,
+    "hitRateMkt": 0.4444444444444444,
+    "baseRateUp": 0.4567901234567901,
+    "oosR2WxCi95": {
+     "lo": -0.3309451886063788,
+     "hi": -0.0010868944637076883,
+     "median": -0.16494509477924502
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 4,
+     "seed": 20261115
+    }
+   },
+   "sensitivity": [
+    {
+     "feature": "Cold degree-days below 6 °C Tmin: forecast anomaly (days +1…+6)",
+     "pctReturnPerSd": -1.4522798158770567,
+     "t": -1.6215675368661666,
+     "p": 0.10489597583656218
+    },
+    {
+     "feature": "Precipitation: forecast anomaly (days +1…+6)",
+     "pctReturnPerSd": 0.31491551192135414,
+     "t": 0.3520834005391913,
+     "p": 0.7247757211230041
+    },
+    {
+     "feature": "Precipitation: forecast revision (lead k+1 minus lead 7)",
+     "pctReturnPerSd": -1.5138357965680194,
+     "t": -1.5385424863260808,
+     "p": 0.12391602862882944
+    }
+   ],
+   "qCwWxVsMkt": 0.9506580535988579,
+   "qDmWxVsRw": 0.9978717539458053
+  },
+  {
+   "commodity": "natural-gas",
+   "name": "Natural gas (Henry Hub)",
+   "symbol": "NG=F",
+   "tier": "REALISED_LAGGED",
+   "horizonWeeks": 1,
+   "features": [
+    "HDD+CDD base 18 °C (7-day)"
+   ],
+   "nRows": 1139,
+   "metrics": {
+    "n": 983,
+    "horizonWeeks": 1,
+    "oosStart": "2008-01-11",
+    "oosEnd": "2026-11-06",
+    "nTrainFirst": 156,
+    "oosR2Wx": -0.0028870319980764947,
+    "oosR2Mkt": -0.002326428595676555,
+    "oosR2WxVsMkt": -0.0005593022257082136,
+    "rmseRatioWxVsRw": 1.002329329432869,
+    "rmseRatioMktVsRw": 1.0020491444460355,
+    "rmseRatioHmVsRw": 1.000885576379457,
+    "dmWxVsRw": {
+     "stat": -0.9060768198656147,
+     "p": 0.8174412730163272,
+     "n": 983
+    },
+    "dmWxVsHm": {
+     "stat": -0.605451557045962,
+     "p": 0.7274905506015641,
+     "n": 983
+    },
+    "cwWxVsMkt": {
+     "stat": 0.31837507596359554,
+     "p": 0.3751002300567591,
+     "n": 983
+    },
+    "ptWx": {
+     "stat": 0.42606368606052936,
+     "p": 0.3350307075122768,
+     "n": 983,
+     "hitRate": 0.5106815869786369
+    },
+    "hitRateWx": 0.5106815869786369,
+    "hitRateMkt": 0.5116988809766022,
+    "baseRateUp": 0.4821973550356053,
+    "oosR2WxCi95": {
+     "lo": -0.011988896023077844,
+     "hi": 0.0066336902583405966,
+     "median": -0.0028540439903446124
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 10,
+     "seed": 20261115
+    }
+   },
+   "sensitivity": [
+    {
+     "feature": "HDD+CDD base 18 °C (7-day)",
+     "pctReturnPerSd": -0.18400860028465385,
+     "t": -0.8721958827641683,
+     "p": 0.3831015265788056
+    }
+   ],
+   "qCwWxVsMkt": 0.9506580535988579,
+   "qDmWxVsRw": 0.9978717539458053
+  },
+  {
+   "commodity": "natural-gas",
+   "name": "Natural gas (Henry Hub)",
+   "symbol": "NG=F",
+   "tier": "REALISED_LAGGED",
+   "horizonWeeks": 4,
+   "features": [
+    "HDD+CDD base 18 °C (7-day)"
+   ],
+   "nRows": 1136,
+   "metrics": {
+    "n": 977,
+    "horizonWeeks": 4,
+    "oosStart": "2008-02-01",
+    "oosEnd": "2026-10-16",
+    "nTrainFirst": 156,
+    "oosR2Wx": -0.003821651040303964,
+    "oosR2Mkt": -0.001574560709381112,
+    "oosR2WxVsMkt": -0.0022435577130985873,
+    "rmseRatioWxVsRw": 1.0055906944910473,
+    "rmseRatioMktVsRw": 1.0044645387043625,
+    "rmseRatioHmVsRw": 1.0036746761486715,
+    "dmWxVsRw": {
+     "stat": -0.8668661701247485,
+     "p": 0.8068857985922786,
+     "n": 977
+    },
+    "dmWxVsHm": {
+     "stat": -0.35117193405858965,
+     "p": 0.6372324226746735,
+     "n": 977
+    },
+    "cwWxVsMkt": {
+     "stat": -0.8706321680002168,
+     "p": 0.8080224862299739,
+     "n": 977
+    },
+    "ptWx": {
+     "stat": -0.32566247174952717,
+     "p": 0.6276601219422746,
+     "n": 977,
+     "hitRate": 0.5025588536335721
+    },
+    "hitRateWx": 0.5025588536335721,
+    "hitRateMkt": 0.49948822927328557,
+    "baseRateUp": 0.4851586489252815,
+    "oosR2WxCi95": {
+     "lo": -0.02498214987148395,
+     "hi": 0.019075894589712594,
+     "median": -0.0034244262495575217
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 10,
+     "seed": 20261115
+    }
+   },
+   "sensitivity": [
+    {
+     "feature": "HDD+CDD base 18 °C (7-day)",
+     "pctReturnPerSd": -0.5531941597852971,
+     "t": -1.2370478269726974,
+     "p": 0.21606934144133305
+    }
+   ],
+   "qCwWxVsMkt": 0.9506580535988579,
+   "qDmWxVsRw": 0.9978717539458053
+  },
+  {
+   "commodity": "natural-gas",
+   "name": "Natural gas (Henry Hub)",
+   "symbol": "NG=F",
+   "tier": "ORACLE_TARGET_WINDOW",
+   "horizonWeeks": 1,
+   "features": [
+    "HDD+CDD base 18 °C (7-day)"
+   ],
+   "nRows": 1139,
+   "metrics": {
+    "n": 983,
+    "horizonWeeks": 1,
+    "oosStart": "2008-01-04",
+    "oosEnd": "2026-10-30",
+    "nTrainFirst": 156,
+    "oosR2Wx": -0.007024780742079351,
+    "oosR2Mkt": -0.002314250082852354,
+    "oosR2WxVsMkt": -0.004699654483449445,
+    "rmseRatioWxVsRw": 1.0043978647283867,
+    "rmseRatioMktVsRw": 1.002045989775096,
+    "rmseRatioHmVsRw": 1.0008885059110106,
+    "dmWxVsRw": {
+     "stat": -1.5356330566311196,
+     "p": 0.9375247419731492,
+     "n": 983
+    },
+    "dmWxVsHm": {
+     "stat": -1.3432384490294296,
+     "p": 0.910247443271305,
+     "n": 983
+    },
+    "cwWxVsMkt": {
+     "stat": -1.3064521380735359,
+     "p": 0.9043005720265841,
+     "n": 983
+    },
+    "ptWx": {
+     "stat": 0.2107425857442196,
+     "p": 0.4165440866794119,
+     "n": 983,
+     "hitRate": 0.508646998982706
+    },
+    "hitRateWx": 0.508646998982706,
+    "hitRateMkt": 0.5147507629704985,
+    "baseRateUp": 0.4821973550356053,
+    "oosR2WxCi95": {
+     "lo": -0.017225334609432874,
+     "hi": 0.0032215558423895896,
+     "median": -0.007004806849572942
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 10,
+     "seed": 20261115
+    }
+   },
+   "sensitivity": [
+    {
+     "feature": "HDD+CDD base 18 °C (7-day)",
+     "pctReturnPerSd": -0.12397220890743728,
+     "t": -0.578634489341593,
+     "p": 0.5628357803901622
+    }
+   ],
+   "qCwWxVsMkt": 0.9168036869869324,
+   "qDmWxVsRw": 0.9888941872389644
+  },
+  {
+   "commodity": "natural-gas",
+   "name": "Natural gas (Henry Hub)",
+   "symbol": "NG=F",
+   "tier": "ORACLE_TARGET_WINDOW",
+   "horizonWeeks": 4,
+   "features": [
+    "HDD+CDD base 18 °C (7-day)"
+   ],
+   "nRows": 1136,
+   "metrics": {
+    "n": 977,
+    "horizonWeeks": 4,
+    "oosStart": "2008-01-25",
+    "oosEnd": "2026-10-09",
+    "nTrainFirst": 156,
+    "oosR2Wx": -0.010718555194665802,
+    "oosR2Mkt": -0.00166815545323451,
+    "oosR2WxVsMkt": -0.009035327410739313,
+    "rmseRatioWxVsRw": 1.0089865228912038,
+    "rmseRatioMktVsRw": 1.0044589193850693,
+    "rmseRatioHmVsRw": 1.0036221692996141,
+    "dmWxVsRw": {
+     "stat": -0.7702870801537249,
+     "p": 0.7793419880245951,
+     "n": 977
+    },
+    "dmWxVsHm": {
+     "stat": -0.5062651731110324,
+     "p": 0.6936075784929943,
+     "n": 977
+    },
+    "cwWxVsMkt": {
+     "stat": 1.905389638695916,
+     "p": 0.02836471822483444,
+     "n": 977
+    },
+    "ptWx": {
+     "stat": 2.037062209123152,
+     "p": 0.02082190225251379,
+     "n": 977,
+     "hitRate": 0.5353121801432958
+    },
+    "hitRateWx": 0.5353121801432958,
+    "hitRateMkt": 0.4984646878198567,
+    "baseRateUp": 0.4851586489252815,
+    "oosR2WxCi95": {
+     "lo": -0.053196192321685265,
+     "hi": 0.03304958131723945,
+     "median": -0.010291365071076086
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 10,
+     "seed": 20261115
+    }
+   },
+   "sensitivity": [
+    {
+     "feature": "HDD+CDD base 18 °C (7-day)",
+     "pctReturnPerSd": 2.167413527133201,
+     "t": 3.461926240372173,
+     "p": 0.0005363241619837922
+    }
+   ],
+   "qCwWxVsMkt": 0.11345887289933776,
+   "qDmWxVsRw": 0.9888941872389644
+  },
+  {
+   "commodity": "natural-gas",
+   "name": "Natural gas (Henry Hub)",
+   "symbol": "NG=F",
+   "tier": "NWP_FORECAST",
+   "horizonWeeks": 1,
+   "features": [
+    "HDD+CDD base 18 °C: forecast anomaly (days +1…+6)",
+    "HDD+CDD base 18 °C: forecast revision (lead k+1 minus lead 7)"
+   ],
+   "nRows": 140,
+   "metrics": {
+    "n": 88,
+    "horizonWeeks": 1,
+    "oosStart": "2025-03-07",
+    "oosEnd": "2026-11-06",
+    "nTrainFirst": 52,
+    "oosR2Wx": 0.07132454954843115,
+    "oosR2Mkt": 0.00455388717180738,
+    "oosR2WxVsMkt": 0.06707611945655167,
+    "rmseRatioWxVsRw": 0.9758100767128906,
+    "rmseRatioMktVsRw": 1.0102810187553293,
+    "rmseRatioHmVsRw": 1.0125892582361475,
+    "dmWxVsRw": {
+     "stat": 0.8105493400053323,
+     "p": 0.20991811801665183,
+     "n": 88
+    },
+    "dmWxVsHm": {
+     "stat": 1.1675556840235488,
+     "p": 0.12308798084967576,
+     "n": 88
+    },
+    "cwWxVsMkt": {
+     "stat": 3.5773321245315675,
+     "p": 0.00017355952014541653,
+     "n": 88
+    },
+    "ptWx": {
+     "stat": 1.9238967601378514,
+     "p": 0.02718376044044213,
+     "n": 88,
+     "hitRate": 0.5795454545454546
+    },
+    "hitRateWx": 0.5795454545454546,
+    "hitRateMkt": 0.4659090909090909,
+    "baseRateUp": 0.3977272727272727,
+    "oosR2WxCi95": {
+     "lo": -0.03259114695238363,
+     "hi": 0.2220523123567787,
+     "median": 0.07526177022830416
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 4,
+     "seed": 20261115
+    }
+   },
+   "sensitivity": [
+    {
+     "feature": "HDD+CDD base 18 °C: forecast anomaly (days +1…+6)",
+     "pctReturnPerSd": -2.5711204058705484,
+     "t": -3.1121700280187494,
+     "p": 0.0018571751038725104
+    },
+    {
+     "feature": "HDD+CDD base 18 °C: forecast revision (lead k+1 minus lead 7)",
+     "pctReturnPerSd": 1.8423915853512607,
+     "t": 2.7210529423280843,
+     "p": 0.00650743374831797
+    }
+   ],
+   "qCwWxVsMkt": 0.0038183094431991638,
+   "qDmWxVsRw": 0.9978717539458053
+  },
+  {
+   "commodity": "natural-gas",
+   "name": "Natural gas (Henry Hub)",
+   "symbol": "NG=F",
+   "tier": "NWP_FORECAST",
+   "horizonWeeks": 4,
+   "features": [
+    "HDD+CDD base 18 °C: forecast anomaly (days +1…+6)",
+    "HDD+CDD base 18 °C: forecast revision (lead k+1 minus lead 7)"
+   ],
+   "nRows": 137,
+   "metrics": {
+    "n": 82,
+    "horizonWeeks": 4,
+    "oosStart": "2025-03-28",
+    "oosEnd": "2026-10-16",
+    "nTrainFirst": 52,
+    "oosR2Wx": 0.09802495029029412,
+    "oosR2Mkt": 0.05050100073466357,
+    "oosR2WxVsMkt": 0.05005160573355183,
+    "rmseRatioWxVsRw": 0.9998107738421503,
+    "rmseRatioMktVsRw": 1.025812072513777,
+    "rmseRatioHmVsRw": 1.0527386072702305,
+    "dmWxVsRw": {
+     "stat": 0.001990793634490663,
+     "p": 0.4992082362074661,
+     "n": 82
+    },
+    "dmWxVsHm": {
+     "stat": 0.5469120225086928,
+     "p": 0.29297138733151085,
+     "n": 82
+    },
+    "cwWxVsMkt": {
+     "stat": 1.8255689093175702,
+     "p": 0.03395760891917021,
+     "n": 82
+    },
+    "ptWx": {
+     "stat": 0.7419978960571348,
+     "p": 0.22904429371479396,
+     "n": 82,
+     "hitRate": 0.5365853658536586
+    },
+    "hitRateWx": 0.5365853658536586,
+    "hitRateMkt": 0.5487804878048781,
+    "baseRateUp": 0.5,
+    "oosR2WxCi95": {
+     "lo": -0.28668013333404674,
+     "hi": 0.36536544330470433,
+     "median": 0.07931953253636326
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 4,
+     "seed": 20261115
+    }
+   },
+   "sensitivity": [
+    {
+     "feature": "HDD+CDD base 18 °C: forecast anomaly (days +1…+6)",
+     "pctReturnPerSd": -4.654707725441599,
+     "t": -2.237805464229905,
+     "p": 0.025233741694560274
+    },
+    {
+     "feature": "HDD+CDD base 18 °C: forecast revision (lead k+1 minus lead 7)",
+     "pctReturnPerSd": 1.5386883098078556,
+     "t": 0.9469892037192433,
+     "p": 0.34364429113628536
+    }
+   ],
+   "qCwWxVsMkt": 0.37353369811087234,
+   "qDmWxVsRw": 0.9978717539458053
+  },
+  {
+   "commodity": "cocoa",
+   "name": "Cocoa",
+   "symbol": "CC=F",
+   "tier": "REALISED_LAGGED",
+   "horizonWeeks": 1,
+   "features": [
+    "Precipitation (28-day, Daloa + Kumasi)"
+   ],
+   "nRows": 1136,
+   "metrics": {
+    "n": 980,
+    "horizonWeeks": 1,
+    "oosStart": "2008-02-01",
+    "oosEnd": "2026-11-06",
+    "nTrainFirst": 156,
+    "oosR2Wx": -0.02255953282888168,
+    "oosR2Mkt": -0.019555127510176407,
+    "oosR2WxVsMkt": -0.0029467806474008373,
+    "rmseRatioWxVsRw": 1.0121420327882045,
+    "rmseRatioMktVsRw": 1.01065404029512,
+    "rmseRatioHmVsRw": 1.0009149128722163,
+    "dmWxVsRw": {
+     "stat": -2.6880726789293923,
+     "p": 0.9963457217455753,
+     "n": 980
+    },
+    "dmWxVsHm": {
+     "stat": -2.4835558929482935,
+     "p": 0.9934128883656933,
+     "n": 980
+    },
+    "cwWxVsMkt": {
+     "stat": -0.0999074081470296,
+     "p": 0.5397911101490551,
+     "n": 980
+    },
+    "ptWx": {
+     "stat": 1.9070970982429705,
+     "p": 0.02825400516923149,
+     "n": 980,
+     "hitRate": 0.5346938775510204
+    },
+    "hitRateWx": 0.5346938775510204,
+    "hitRateMkt": 0.5408163265306123,
+    "baseRateUp": 0.5255102040816326,
+    "oosR2WxCi95": {
+     "lo": -0.039239947600391956,
+     "hi": -0.0052902236701033445,
+     "median": -0.022632153154581447
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 10,
+     "seed": 20261115
+    }
+   },
+   "sensitivity": [
+    {
+     "feature": "Precipitation (28-day, Daloa + Kumasi)",
+     "pctReturnPerSd": -0.060452322536331954,
+     "t": -0.4062383631697734,
+     "p": 0.6845674507267538
+    }
+   ],
+   "qCwWxVsMkt": 0.9506580535988579,
+   "qDmWxVsRw": 0.9978717539458053
+  },
+  {
+   "commodity": "cocoa",
+   "name": "Cocoa",
+   "symbol": "CC=F",
+   "tier": "REALISED_LAGGED",
+   "horizonWeeks": 4,
+   "features": [
+    "Precipitation (28-day, Daloa + Kumasi)"
+   ],
+   "nRows": 1133,
+   "metrics": {
+    "n": 974,
+    "horizonWeeks": 4,
+    "oosStart": "2008-02-22",
+    "oosEnd": "2026-10-16",
+    "nTrainFirst": 156,
+    "oosR2Wx": -0.04459542066441191,
+    "oosR2Mkt": -0.03971204855000976,
+    "oosR2WxVsMkt": -0.004696850557048382,
+    "rmseRatioWxVsRw": 1.0257397399478467,
+    "rmseRatioMktVsRw": 1.0233393193241829,
+    "rmseRatioHmVsRw": 1.0036057081872956,
+    "dmWxVsRw": {
+     "stat": -1.9135987657273994,
+     "p": 0.9720176859339774,
+     "n": 974
+    },
+    "dmWxVsHm": {
+     "stat": -1.6029693815058683,
+     "p": 0.9453670182898337,
+     "n": 974
+    },
+    "cwWxVsMkt": {
+     "stat": -0.4496749576486956,
+     "p": 0.6735276009441125,
+     "n": 974
+    },
+    "ptWx": {
+     "stat": 1.1685512440098713,
+     "p": 0.12129224918004688,
+     "n": 974,
+     "hitRate": 0.5215605749486653
+    },
+    "hitRateWx": 0.5215605749486653,
+    "hitRateMkt": 0.528747433264887,
+    "baseRateUp": 0.5215605749486653,
+    "oosR2WxCi95": {
+     "lo": -0.09428653757291827,
+     "hi": 0.004688655546655318,
+     "median": -0.043506366224485005
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 10,
+     "seed": 20261115
+    }
+   },
+   "sensitivity": [
+    {
+     "feature": "Precipitation (28-day, Daloa + Kumasi)",
+     "pctReturnPerSd": -0.11432144317037302,
+     "t": -0.24336835956376188,
+     "p": 0.8077200880079276
+    }
+   ],
+   "qCwWxVsMkt": 0.9506580535988579,
+   "qDmWxVsRw": 0.9978717539458053
+  },
+  {
+   "commodity": "cocoa",
+   "name": "Cocoa",
+   "symbol": "CC=F",
+   "tier": "ORACLE_TARGET_WINDOW",
+   "horizonWeeks": 1,
+   "features": [
+    "Precipitation (28-day, Daloa + Kumasi)"
+   ],
+   "nRows": 1139,
+   "metrics": {
+    "n": 983,
+    "horizonWeeks": 1,
+    "oosStart": "2008-01-04",
+    "oosEnd": "2026-10-30",
+    "nTrainFirst": 156,
+    "oosR2Wx": -0.01917168728106966,
+    "oosR2Mkt": -0.019159831676291983,
+    "oosR2WxVsMkt": -0.000011632723748711271,
+    "rmseRatioWxVsRw": 1.0103911577970557,
+    "rmseRatioMktVsRw": 1.0103852810477192,
+    "rmseRatioHmVsRw": 1.0008427827199344,
+    "dmWxVsRw": {
+     "stat": -2.262500739131717,
+     "p": 0.9880578614527075,
+     "n": 983
+    },
+    "dmWxVsHm": {
+     "stat": -2.0950498213512074,
+     "p": 0.9817888771717133,
+     "n": 983
+    },
+    "cwWxVsMkt": {
+     "stat": 0.21205992208088575,
+     "p": 0.41603015884981576,
+     "n": 983
+    },
+    "ptWx": {
+     "stat": 2.032105362587928,
+     "p": 0.021071493371222383,
+     "n": 983,
+     "hitRate": 0.5371312309257376
+    },
+    "hitRateWx": 0.5371312309257376,
+    "hitRateMkt": 0.5422177009155646,
+    "baseRateUp": 0.5269582909460834,
+    "oosR2WxCi95": {
+     "lo": -0.034619575378879386,
+     "hi": -0.00290767336387332,
+     "median": -0.019172261250561595
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 10,
+     "seed": 20261115
+    }
+   },
+   "sensitivity": [
+    {
+     "feature": "Precipitation (28-day, Daloa + Kumasi)",
+     "pctReturnPerSd": -0.16919182932196727,
+     "t": -1.178763493348645,
+     "p": 0.2384923812476316
+    }
+   ],
+   "qCwWxVsMkt": 0.6240452382747237,
+   "qDmWxVsRw": 0.9888941872389644
+  },
+  {
+   "commodity": "cocoa",
+   "name": "Cocoa",
+   "symbol": "CC=F",
+   "tier": "ORACLE_TARGET_WINDOW",
+   "horizonWeeks": 4,
+   "features": [
+    "Precipitation (28-day, Daloa + Kumasi)"
+   ],
+   "nRows": 1136,
+   "metrics": {
+    "n": 977,
+    "horizonWeeks": 4,
+    "oosStart": "2008-01-25",
+    "oosEnd": "2026-10-09",
+    "nTrainFirst": 156,
+    "oosR2Wx": -0.03583293815569699,
+    "oosR2Mkt": -0.04098632944610414,
+    "oosR2WxVsMkt": 0.0049504889205884695,
+    "rmseRatioWxVsRw": 1.020910871576707,
+    "rmseRatioMktVsRw": 1.0234472968596886,
+    "rmseRatioHmVsRw": 1.0030970891358089,
+    "dmWxVsRw": {
+     "stat": -1.5748425439388218,
+     "p": 0.9421915671135509,
+     "n": 977
+    },
+    "dmWxVsHm": {
+     "stat": -1.3383633876660872,
+     "p": 0.9094551499963097,
+     "n": 977
+    },
+    "cwWxVsMkt": {
+     "stat": 1.221828253692125,
+     "p": 0.11088629822929719,
+     "n": 977
+    },
+    "ptWx": {
+     "stat": 1.905770238206992,
+     "p": 0.028340008628711222,
+     "n": 977,
+     "hitRate": 0.534288638689867
+    },
+    "hitRateWx": 0.534288638689867,
+    "hitRateMkt": 0.5291709314227226,
+    "baseRateUp": 0.5240532241555783,
+    "oosR2WxCi95": {
+     "lo": -0.08847300925278301,
+     "hi": 0.014392245265115955,
+     "median": -0.03414070796217583
+    },
+    "bootstrap": {
+     "resamples": 1000,
+     "blockLength": 10,
+     "seed": 20261115
+    }
+   },
+   "sensitivity": [
+    {
+     "feature": "Precipitation (28-day, Daloa + Kumasi)",
+     "pctReturnPerSd": -0.9995199239847133,
+     "t": -2.141236885050717,
+     "p": 0.03225493693542214
+    }
+   ],
+   "qCwWxVsMkt": 0.2227239718112568,
+   "qDmWxVsRw": 0.9888941872389644
+  }
+ ],
+ "caveats": [
+  "Continuous front-month (=F) Yahoo series contain roll jumps; weekly log returns are research proxies, not executable futures P&L.",
+  "Yahoo Finance chart endpoint is unofficial and may revise or omit sessions.",
+  "Weather points are equal-weighted representative coordinates, not production- or population-share weights.",
+  "ERA5 is reanalysis (modelled), lagged 7 days to respect publication latency; the ORACLE tier deliberately uses future realised weather and is an upper bound, not a forecast.",
+  "NWP tier uses Open-Meteo Previous Runs (from March 2024 only): ~2.7 years, so out-of-sample samples are small and crop features are active in only one or two seasons.",
+  "NWP anomalies are measured against ERA5 climatology without model-bias correction; the ridge intercept absorbs only a constant bias.",
+  "Many commodity × tier × horizon tests are run; Benjamini–Hochberg q-values are reported and should be used instead of raw p-values.",
+  "Sensitivity coefficients are full-sample, in-sample descriptive regressions, not forecasts.",
+  "No transaction costs, position sizing or trading rules are evaluated."
+ ]
+}

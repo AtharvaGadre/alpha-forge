@@ -1,0 +1,32 @@
+/* Chart tokens — validated with the data-viz palette checker (all-pairs, both modes). */
+:root{--viz-1:#a8842f;--viz-2:#3987e5;--viz-3:#d55181;--viz-ref:#8f8b82;--viz-grid:#262624;--viz-surface:var(--as-panel,#111112);--viz-ink:var(--as-ink,#e8e3d8)}
+:root[data-theme=light]{--viz-1:#8a6619;--viz-2:#2a78d6;--viz-3:#c2457a;--viz-ref:#7a776f;--viz-grid:#e4e0d6}
+.viz-figure{margin:0;display:grid;gap:10px;min-width:0}
+.viz-figure figcaption{font-size:13px;font-weight:600;line-height:1.5;color:var(--as-ink)}
+.viz-legend{display:flex;flex-wrap:wrap;gap:6px 16px;list-style:none;margin:0;padding:0;font-size:11px;color:var(--as-muted)}
+.viz-legend li{display:inline-flex;align-items:center;gap:7px}
+.viz-plot{position:relative}
+.viz-plot svg{display:block;width:100%;height:auto;overflow:visible;touch-action:pan-y}
+.viz-grid{stroke:var(--viz-grid);stroke-width:1}
+.viz-zero{stroke:var(--viz-ref);stroke-width:1}
+.viz-crosshair{stroke:var(--viz-ref);stroke-width:1;stroke-dasharray:3 3}
+.viz-tick{fill:var(--as-muted);font:11px 'IBM Plex Mono',monospace}
+.viz-axis-label{fill:var(--as-muted);font:11px 'Plus Jakarta Sans',sans-serif}
+.viz-direct{fill:var(--as-ink);font:500 11px 'Plus Jakarta Sans',sans-serif}
+.viz-tooltip{position:absolute;top:6px;transform:translateX(-50%);pointer-events:none;z-index:3;display:grid;gap:4px;min-width:180px;padding:10px 12px;border-radius:8px;border:1px solid var(--as-line);background:color-mix(in srgb,var(--as-panel) 94%,transparent);backdrop-filter:blur(6px);box-shadow:0 12px 32px #0006;font-size:11px;color:var(--as-ink)}
+.viz-tooltip strong{font-weight:600;margin-bottom:2px}
+.viz-tooltip span{display:grid;grid-template-columns:10px 1fr auto;align-items:center;gap:8px;color:var(--as-muted)}
+.viz-tooltip i{width:9px;height:9px;border-radius:2px}
+.viz-tooltip b{font:500 11px 'IBM Plex Mono',monospace;color:var(--as-ink);font-variant-numeric:tabular-nums}
+.viz-note{font-size:11px;color:var(--as-muted);margin:0}
+.viz-barlist ol{list-style:none;margin:0;padding:0;display:grid;gap:9px}
+.viz-barlist li{display:grid;grid-template-columns:minmax(110px,150px) 1fr 74px;align-items:center;gap:12px;font-size:12px}
+.viz-bar-label{display:grid;color:var(--as-ink)}.viz-bar-label small{font:10px 'IBM Plex Mono',monospace;color:var(--as-gold)}
+.viz-bar-track{height:10px;border-radius:0 4px 4px 0;background:var(--viz-grid)}
+.viz-bar-track span{display:block;height:100%;border-radius:0 4px 4px 0;background:var(--viz-2);transition:width 1s cubic-bezier(.2,.7,.15,1)}
+.viz-barlist li.highlight .viz-bar-track span{background:var(--viz-1)}
+.viz-bar-value{text-align:right;font:500 12px 'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;color:var(--as-ink)}
+.viz-bar-value small{color:var(--as-muted)}
+.viz-reliability .viz-plot{max-width:360px}
+.viz-pit svg{width:100%;height:auto}
+.viz-pit figcaption{font-size:11px;font-weight:500;color:var(--as-muted)}

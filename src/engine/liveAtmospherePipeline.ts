@@ -28,6 +28,7 @@ import {
   type WeatherModelId,
   type WeatherVerificationMetrics,
 } from './argonAtmosphereEngine.ts';
+import { buildCalibratedOutlook, type CalibratedOutlook } from './calibratedOutlook';
 
 // ----------------------------------------------------------------------------
 // 1. TYPES
@@ -191,6 +192,8 @@ export interface LiveAtmosphereInvestigation {
   signals: ClimateSignal[];
   verification: VerificationExperiment | null;
   skillByLead: ModelSkillRow[];
+  /** EMOS-calibrated daily quantiles + local held-out skill (null when inputs are insufficient). */
+  calibratedOutlook?: CalibratedOutlook | null;
   consequences: ConsequenceChain[];
   epistemic: {
     A_whatWeatherOccurred: string[];
@@ -1244,7 +1247,7 @@ export async function runLiveAtmospherePipeline(opts: RunLivePipelineOptions): P
   const nextDates = dateRange(today, 7); // today + next 6 days: the horizon ICON and UKMO also cover
   const waterBalancePastDates = dateRange(addDays(today, -23), 23);
   const waterBalanceDates = [...waterBalancePastDates, ...nextDates];
-  const verifyDates = dateRange(addDays(today, -46), 40);
+  const verifyDates = dateRange(addDays(today, -96), 90); // 90-day window: Astraeus v2 training length
   const climYears = 10;
   const eraTruthStart = verifyDates[0];
   const eraTruthEnd = addDays(today, -6); // ERA5 is published with a ~5-day lag
@@ -1397,6 +1400,12 @@ export async function runLiveAtmospherePipeline(opts: RunLivePipelineOptions): P
       skillByLead.push(...skillRows(pairs, LIVE_MODEL_SPECS, lead));
       if (lead === 3) verification = runVerificationExperiment(pairs, LIVE_MODEL_SPECS, usable, 3, 'ERA5 reanalysis daily totals (independent of the models under test)');
     }
+  }
+  let calibratedOutlook: CalibratedOutlook | null = null;
+  try {
+    calibratedOutlook = buildCalibratedOutlook({ models: LIVE_MODEL_SPECS, usable, fcLocs, prevLocs, eraLocs, nextDates, verifyDates });
+  } catch {
+    calibratedOutlook = null; // calibration is additive evidence; never block the raw analysis
   }
   step(
     'Verify every model against what actually happened',
@@ -1681,6 +1690,7 @@ export async function runLiveAtmospherePipeline(opts: RunLivePipelineOptions): P
     signals,
     verification,
     skillByLead,
+    calibratedOutlook,
     consequences,
     epistemic: { A_whatWeatherOccurred: A, B_whatModelsPredict: B, C_economicMechanisms: C, D_whatAssetPricesDid: D, E_modelSupportedFutureScenarios: E, F_whatRemainsUncertainOrUnverified: F },
     briefingBasic: briefingBasic.replace(/\s+/g, ' ').trim(),

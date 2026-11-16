@@ -1,7 +1,8 @@
 import {researchFor,papersFor} from './engine/commodityResearch';
 import {CommodityResearchWorkbench} from './components/CommodityResearchWorkbench';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { BookOpen, ArrowRight, Check, ChevronDown, ChevronRight, CircleHelp, Download, ExternalLink, FlaskConical, Globe2, Layers3, Loader2, Radar, RefreshCw, Search, ShieldCheck, SlidersHorizontal, Sprout, Star, Waves, X, Zap } from 'lucide-react';
+import { flushSync } from 'react-dom';
+import { FileText, Gauge, BookOpen, ArrowRight, Check, ChevronDown, ChevronRight, CircleHelp, Download, ExternalLink, FlaskConical, Globe2, Layers3, Loader2, Radar, RefreshCw, Search, ShieldCheck, SlidersHorizontal, Sprout, Star, Waves, X, Zap } from 'lucide-react';
 import { COMMODITIES, SECTORS, type CommodityDefinition, type CommodityForecast } from './engine/commodityForecastEngine';
 import { ForecastLab, LinkedMarkets } from './components/ForecastLab';
 import { appendForecastSnapshot, linksForCommodity, TRANSMISSION_VERSION } from './engine/commodityTransmissionEngine';
@@ -13,6 +14,13 @@ import './forecast-lab.css';
 import './research-workbench.css';
 import './astraeus.css';
 import { AstraeusGuide, AppearanceControls } from './components/AstraeusGuide';
+import { Landing } from './components/landing/Landing';
+import { ForecastSkill } from './components/ForecastSkill';
+import { TechnicalReport } from './components/TechnicalReport';
+import { CalibratedOutlookPanel } from './components/CalibratedOutlookPanel';
+import './landing.css';
+import './components/charts/charts.css';
+import './skill.css';
 
 const STATUS = {
   UPWARD_PRESSURE: { label: 'Upward pressure', tone: 'up' },
@@ -41,15 +49,20 @@ export function App() {
   const [search, setSearch] = useState('');
   const [sector, setSector] = useState('All commodities');
   const [view, setView] = useState<WorkspaceView>(() => workspaceViewFromHash(typeof window === 'undefined' ? '' : window.location.hash));
+  /** Cross-fades between views with the View Transitions API where available (reduced motion: instant). */
+  const transitionTo = (next: WorkspaceView) => {
+    const doc = typeof document !== 'undefined' ? (document as Document & { startViewTransition?: (cb: () => void) => unknown }) : null;
+    const reduce = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const apply = () => { flushSync(() => setView(next)); window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior }); };
+    if (doc?.startViewTransition && !reduce) doc.startViewTransition(apply); else apply();
+  };
   const navigate = (next: WorkspaceView) => {
-    setView(next);
-    if (typeof window !== 'undefined') {
-      if (window.location.hash !== `#${next}`) window.location.hash = next;
-      window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
-    }
+    if (typeof window === 'undefined') { setView(next); return; }
+    if (window.location.hash !== `#${next}`) window.location.hash = next; // hashchange → transitionTo
+    else transitionTo(next);
   };
   useEffect(() => {
-    const sync = () => setView(workspaceViewFromHash(window.location.hash));
+    const sync = () => transitionTo(workspaceViewFromHash(window.location.hash));
     window.addEventListener('hashchange', sync);
     return () => window.removeEventListener('hashchange', sync);
   }, []);
@@ -107,9 +120,10 @@ export function App() {
   };
   const analyzed = new Set(Object.values(results).map(r => r.commodityId)).size;
   const material = Object.values(results).filter(r => ['UPWARD_PRESSURE', 'DOWNWARD_PRESSURE', 'MIXED'].includes(r.status)).length;
+  if (view === 'home') return <Landing onEnter={navigate} />;
   return <div className="af-app">
     <aside className="af-sidebar">
-      <a className="af-brand" href="#" onClick={e => { e.preventDefault(); navigate('globe'); }}><span className="af-logo"><Waves size={23} /></span><span>Astraeus<small>COMMODITY INTELLIGENCE</small></span></a>
+      <a className="af-brand" href="#home" onClick={e => { e.preventDefault(); navigate('home'); }}><span className="af-logo"><Waves size={23} /></span><span>Astraeus<small>COMMODITY INTELLIGENCE</small></span></a>
       <div className="af-nav-caption">WORKSPACE</div>
       <nav aria-label="Workspace">
         <button title="Global globe explorer" aria-label="Global globe explorer" aria-current={view === 'globe' ? 'page' : undefined} className={view === 'globe' ? 'active' : ''} onClick={() => navigate('globe')}><Globe2 size={18} /> Global explorer <ChevronRight size={14} /></button>
@@ -117,16 +131,18 @@ export function App() {
         <button title="Watchlist" aria-label="Watchlist" aria-current={view === 'watchlist' ? 'page' : undefined} className={view === 'watchlist' ? 'active' : ''} onClick={() => { navigate('watchlist'); setSector('All commodities'); }}><Star size={18} /> Watchlist <span className="af-nav-count">{watchlist.length}</span></button>
         <button title="Forecast lab" aria-label="Forecast lab" aria-current={view === 'advanced' ? 'page' : undefined} className={view === 'advanced' ? 'active' : ''} onClick={() => navigate('advanced')}><SlidersHorizontal size={18} /> Forecast lab</button>
         <button title="Weather and evidence" aria-label="Weather and evidence" aria-current={view === 'research' ? 'page' : undefined} className={view === 'research' ? 'active' : ''} onClick={()=>navigate('research')}><BookOpen size={18}/> Weather & evidence</button>
+        <button title="Forecast skill" aria-label="Forecast skill" aria-current={view === 'accuracy' ? 'page' : undefined} className={view === 'accuracy' ? 'active' : ''} onClick={() => navigate('accuracy')}><Gauge size={18} /> Forecast skill</button>
+        <button title="Technical report" aria-label="Technical report" aria-current={view === 'report' ? 'page' : undefined} className={view === 'report' ? 'active' : ''} onClick={() => navigate('report')}><FileText size={18} /> Technical report</button>
         <button title="Research method" aria-label="Research method" aria-current={view === 'methodology' ? 'page' : undefined} className={view === 'methodology' ? 'active' : ''} onClick={() => navigate('methodology')}><FlaskConical size={18} /> Research method</button>
       </nav>
       <div className="af-sidebar-note"><span className="af-live-dot" /> FORECAST → FUNDAMENTALS<p>Understand the physical drivers behind commodity markets.</p><div>Weather. Supply. Demand.</div></div>
       <div className="af-sidebar-bottom"><ShieldCheck size={17} /><span>Evidence before conviction<small>No synthetic market signals</small></span></div>
     </aside>
     <AstraeusGuide onNavigate={navigate} /><main className="af-main">
-      <header className="af-topbar"><div className="af-breadcrumb">Workspace <ChevronRight size={13} /><strong>{view === 'watchlist' ? 'Watchlist' : view === 'methodology' ? 'Research method' : view === 'advanced' ? 'Forecast lab' : view === 'globe' ? 'Global explorer' : view === 'research' ? 'Weather & evidence' : 'Market overview'}</strong></div><button className="af-top-home" onClick={() => navigate('globe')}><Globe2 size={12} /> Back to globe</button><AppearanceControls /><span className="af-top-label"><Globe2 size={14} /> Global coverage <span className="af-avatar">AS</span></span></header>
-      <div className="af-content">
-        {view !== 'globe' && view !== 'research' && <div className="af-page-heading"><div><div className="af-eyebrow">THE FORECAST ADVANTAGE</div><h1>{view === 'watchlist' ? 'Your markets. In focus.' : view === 'methodology' ? 'A signal is only as good as its evidence.' : view === 'advanced' ? 'Connect the forecast to the wider market.' : 'See what moves markets.'}</h1><p>From physical forecasts to commodity outlooks. Follow the driver, understand the mechanism, check the evidence.</p></div><button className="af-button af-outline" disabled={!!scan || !watchlist.length || view === 'methodology'} onClick={() => void scanWatchlist()}>{scan ? <Loader2 className="af-spin" size={15} /> : <RefreshCw size={15} />}{scan ? `Analysing ${scan.done}/${scan.total}` : 'Analyse watchlist'}</button></div>}
-        {view === 'globe' ? <GlobeLanding commodity={selected} regionId={region.id} results={results} pending={pending} errors={errors} onSelect={(id,rid) => { select(COMMODITIES.find(c => c.id === id)!); setRegionId(rid); }} onRun={() => run(selected,region.id)} onMarkets={() => navigate('markets')} onLab={() => navigate('advanced')} onResearch={()=>navigate('research')} /> : view === 'research' ? <CommodityResearchWorkbench commodity={selected} regionId={region.id} onCommodity={id=>select(COMMODITIES.find(c=>c.id===id)!)} onRegion={setRegionId} onGlobe={()=>navigate('globe')}/> : view === 'methodology' ? <Methodology /> : view === 'advanced' ? <ForecastLab commodity={selected} regionId={region.id} results={results} history={history} pending={pending} errors={errors} onCommodity={id => select(COMMODITIES.find(c => c.id === id)!)} onRegion={setRegionId} onRun={run} /> : <>
+      <header className="af-topbar"><div className="af-breadcrumb">Workspace <ChevronRight size={13} /><strong>{view === 'watchlist' ? 'Watchlist' : view === 'accuracy' ? 'Forecast skill' : view === 'report' ? 'Technical report' : view === 'methodology' ? 'Research method' : view === 'advanced' ? 'Forecast lab' : view === 'globe' ? 'Global explorer' : view === 'research' ? 'Weather & evidence' : 'Market overview'}</strong></div><button className="af-top-home" onClick={() => navigate('globe')}><Globe2 size={12} /> Back to globe</button><AppearanceControls /><span className="af-top-label"><Globe2 size={14} /> Global coverage <span className="af-avatar">AS</span></span></header>
+      <div className="af-content" key={view}>
+        {view !== 'globe' && view !== 'research' && view !== 'accuracy' && view !== 'report' && <div className="af-page-heading"><div><div className="af-eyebrow">THE FORECAST ADVANTAGE</div><h1>{view === 'watchlist' ? 'Your markets. In focus.' : view === 'methodology' ? 'A signal is only as good as its evidence.' : view === 'advanced' ? 'Connect the forecast to the wider market.' : 'See what moves markets.'}</h1><p>From physical forecasts to commodity outlooks. Follow the driver, understand the mechanism, check the evidence.</p></div><button className="af-button af-outline" disabled={!!scan || !watchlist.length || view === 'methodology'} onClick={() => void scanWatchlist()}>{scan ? <Loader2 className="af-spin" size={15} /> : <RefreshCw size={15} />}{scan ? `Analysing ${scan.done}/${scan.total}` : 'Analyse watchlist'}</button></div>}
+        {view === 'accuracy' ? <ForecastSkill onReport={() => navigate('report')} /> : view === 'report' ? <TechnicalReport onSkill={() => navigate('accuracy')} /> : view === 'globe' ? <GlobeLanding commodity={selected} regionId={region.id} results={results} pending={pending} errors={errors} onSelect={(id,rid) => { select(COMMODITIES.find(c => c.id === id)!); setRegionId(rid); }} onRun={() => run(selected,region.id)} onMarkets={() => navigate('markets')} onLab={() => navigate('advanced')} onResearch={()=>navigate('research')} /> : view === 'research' ? <CommodityResearchWorkbench commodity={selected} regionId={region.id} onCommodity={id=>select(COMMODITIES.find(c=>c.id===id)!)} onRegion={setRegionId} onGlobe={()=>navigate('globe')}/> : view === 'methodology' ? <Methodology /> : view === 'advanced' ? <ForecastLab commodity={selected} regionId={region.id} results={results} history={history} pending={pending} errors={errors} onCommodity={id => select(COMMODITIES.find(c => c.id === id)!)} onRegion={setRegionId} onRun={run} /> : <>
           <section className="af-stats" aria-label="Coverage summary"><div><span>Commodity universe</span><strong>{COMMODITIES.length}<small>across {SECTORS.length} sectors</small></strong><Layers3 size={20} /></div><div><span>Analysed this session</span><strong>{analyzed}<small>of {COMMODITIES.length} commodities</small></strong><Radar size={20} /></div><div><span>Regional pressure signals</span><strong>{material}<small>conditional, not price targets</small></strong><Zap size={20} /></div><div><span>Forecast window</span><strong>7<small>days · weather outlook</small></strong><Globe2 size={20} /></div></section>
           <div className="af-workspace">
             <section className="af-universe af-panel">
@@ -156,6 +172,7 @@ export function App() {
                 {errors[activeKey] && <div className="af-error" role="alert"><strong>Live analysis unavailable</strong><p>{errors[activeKey]}</p><small>{result ? 'Previous result remains below; it was not refreshed.' : 'No demo result has been substituted.'}</small><button className="af-text-button" onClick={() => void run()} disabled={loading}>Retry <RefreshCw size={13} /></button></div>}
                 {tab === 'outlook' ? <>
                   <div className="af-outlook-summary"><div className="af-label">CONDITIONAL PRICE PRESSURE</div><Status result={result} /><h3>{result?.headline ?? (selected.weatherRole === 'LIMITED' ? 'Start with fundamentals. Weather is a supporting input.' : 'Every outlook starts with a physical driver.')}</h3><p>{result ? result.weatherWindow : 'Run an analysis to compare the next seven days with regional climatology. No signal is shown before the evidence arrives.'}</p></div>
+                  {result?.outlook && <CalibratedOutlookPanel outlook={result.outlook} onSkill={() => navigate('accuracy')} />}
                   <div className="af-driver-heading"><h3>What to watch</h3><span>{selected.weatherRole.toLowerCase()} weather exposure</span></div>
                   {result ? <div className="af-driver-readings">{result.drivers.map(d => <div className="af-reading" key={d.label}><div><strong>{d.label}</strong><span>{d.pressure === 'UNKNOWN' ? 'Unavailable' : d.zScore == null ? '—' : `${signed(d.zScore)}σ`}</span></div><div className="af-anomaly-track"><i /><b style={{ left: d.zScore == null ? '50%' : `${50 + Math.max(-3, Math.min(3, d.zScore)) / 3 * 46}%` }} /></div><div className="af-reading-values"><span>{d.value == null ? 'No usable climatology' : `${d.sourceType === 'REANALYSIS' ? 'ERA5 latest complete week' : 'Forecast'} ${d.value.toFixed(d.sourceType === 'REANALYSIS' ? 3 : 1)} ${d.unit} · normal ${d.normal!.toFixed(d.sourceType === 'REANALYSIS' ? 3 : 1)}`}</span><span>{d.pressure === 'UP' ? '↑ pressure' : d.pressure === 'DOWN' ? '↓ pressure' : d.pressure === 'UNKNOWN' ? 'Missing' : 'No signal'}</span></div><p>{d.mechanism}</p><small>{d.caveat}</small></div>)}{!result.drivers.length && <p className="af-note">No defensible direct weather-to-price rule is configured for {selected.name}. Follow the fundamental checklist below.</p>}</div> : <div className="af-driver-preview">{selected.rules.length ? selected.rules.map((rule, i) => <div key={rule.kind}><span>0{i + 1}</span><section><strong>{rule.label}</strong><p>{rule.mechanism}</p></section></div>) : <div><CircleHelp size={20} /><section><strong>No direct weather model</strong><p>A rainfall forecast cannot explain real yields, central-bank buying or industrial demand.</p></section></div>}</div>}
                   <button className="af-button af-outline af-open-research" onClick={()=>navigate('research')}>Explore weather mechanisms & papers <ArrowRight size={14}/></button><div className="af-fundamentals"><div className="af-label">CONFIRM WITH FUNDAMENTALS</div>{selected.fundamentals.map(f => <p key={f}><span className="af-check-circle" />{f}</p>)}</div>
