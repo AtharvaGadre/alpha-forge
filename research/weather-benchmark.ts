@@ -30,7 +30,7 @@ import {
   dieboldMariano, seededRandom, insideCentral, rawGaussian, crpsEnsemble,
   fitEmosNormal, predictEmosNormal, fitEmosCensored, predictEmosCensored, fitNgrSkill, predictNgrSkill, skillWeights, fitCensoredPower, predictCensoredPower,
   fitAstraeusV1, predictAstraeusV1, biasCorrectedEnsemble, applyBiasCorrection, fitNgrV3, predictNgrV3,
-  fitAstraeusV3, predictAstraeusV3, ASTRAEUS_V3_WINDOW_DAYS,
+  fitAstraeusV3, predictAstraeusV3, ASTRAEUS_V3_WINDOW_DAYS, ASTRAEUS_V3_TEMPERATURE,
   type PredictiveForecast, type TrainingRow, type VariableKind, type NgrV3Options,
 } from '../src/engine/weatherPostprocessing';
 
@@ -338,6 +338,18 @@ V['astraeus-v3'] = {
   fit: (t, k) => { const m = fitAstraeusV3(t, k); return m ? (f) => predictAstraeusV3(m, f) : null; },
 };
 
+/**
+ * Astraeus v3.1 candidates for temperature, pre-specified in docs/results/WEATHER_V31.md (Section 3) before any was run,
+ * and compared on the development period only. Each is v3 (C6) with one change to the NGR location model.
+ */
+const V31_CANDIDATES: Array<{ id: string; label: string; opts: NgrV3Options }> = [
+  { id: 'v31d1-unit-slope', label: 'D1 v3 with unit slope: location a + m (no pull toward the window mean)', opts: { ...ASTRAEUS_V3_TEMPERATURE, location: 'unit-slope' } },
+  { id: 'v31d2-clim-anchor', label: 'D2 v3 anchored on climatology: location a + b·m + (1 − b)·c (NGR on anomalies from the ERA5 day-of-year mean)', opts: { ...ASTRAEUS_V3_TEMPERATURE, location: 'climatology-anchored' } },
+];
+for (const c of V31_CANDIDATES) {
+  V[c.id] = { id: c.id, label: c.label, applies: 'temperature', window: 90, ownPitStream: true, fit: (t) => { const m = fitNgrV3(t, c.opts); return m ? (f, clim) => predictNgrV3(m, f, clim) : null; } };
+}
+
 const ownPitStreams = new Map<string, () => number>();
 /** Uniform draw for the randomised PIT of method `m`: the shared stream, or the method's own (Variant.ownPitStream). */
 function pitDraw(m: string, shared: () => number): number {
@@ -355,6 +367,8 @@ const SUITES: Record<string, string[]> = {
     'sqrt-censored-40', 'sqrt-censored-90', 'sqrt-censored-w-60', 'sqrt-censored-w-90', 'cbrt-censored-w-90'],
   /** v3 selection (development period only): references, v2 and the pre-specified candidates. */
   v3dev: ['raw-ensemble', 'raw-gauss', 'astraeus-v2', ...V3_CANDIDATES.map((c) => c.id)],
+  /** v3.1 selection (development period only): references, v3 and the pre-specified location candidates. */
+  v31dev: ['raw-ensemble', 'raw-gauss', 'astraeus-v3', ...V31_CANDIDATES.map((c) => c.id)],
 };
 
 const arg = (name: string, dflt: string) => {

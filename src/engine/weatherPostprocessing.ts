@@ -884,6 +884,16 @@ export function crpsLogistic(mu: number, s: number, y: number): number {
 
 export type NgrFamily = 'normal' | 'logistic';
 
+/**
+ * Location model of the NGR (Astraeus v3.1 candidates, docs/results/WEATHER_V31.md):
+ *  - 'free' (v2/v3): μ = a + b·m̄. With b < 1 the forecast is pulled toward the training window's mean temperature, which
+ *    lags the seasonal cycle in spring and autumn.
+ *  - 'unit-slope' (D1): μ = a + m̄ (b ≡ 1), no pull at all.
+ *  - 'climatology-anchored' (D2): μ = a + b·m̄ + (1 − b)·c, with c the ERA5 day-of-year climatology of the target date —
+ *    NGR on anomalies from climatology, so any pull is toward the date's normal, not the window mean.
+ */
+export type NgrLocation = 'free' | 'unit-slope' | 'climatology-anchored';
+
 /** Options of the generalised skill-weighted NGR. With every option at its default the fit is exactly v2's. */
 export interface NgrV3Options {
   /** Predictive law: Gaussian (v2) or logistic (heavier tails; candidate C5). */
@@ -896,6 +906,8 @@ export interface NgrV3Options {
   halfLifeDays?: number;
   /** Shrinkage of the inverse-MSE skill weights toward equal weights (v2: 0.25). */
   shrink?: number;
+  /** Location model (default 'free' = v2/v3). 'climatology-anchored' needs `clim` on every training row and forecast. */
+  location?: NgrLocation;
 }
 
 export interface NgrV3Model {
@@ -914,7 +926,7 @@ export interface NgrV3Model {
  * Training row with an optional age in days (0 = most recently verified day). Without `age`, rows are taken to be
  * ordered newest first and a row's age is its position — the order the benchmark builds its trailing window in.
  */
-export type AgedTrainingRow = TrainingRow & { age?: number };
+export type AgedTrainingRow = TrainingRow & { age?: number; clim?: number };
 
 const NGR_V3_FOLDS = 5;
 const KAPPA_RANGE: [number, number] = [0.5, 2.5];
@@ -924,6 +936,13 @@ const TRAIL_SEGMENT_DAYS = 10;
 const TRAIL_GAP_DAYS = 7;
 
 const crpsFamily = (family: NgrFamily, mu: number, scale: number, y: number) => (family === 'logistic' ? crpsLogistic(mu, scale, y) : crpsNormal(mu, scale, y));
+
+/** Predictive location for combined mean m and climatology c. 'free' keeps v2/v3's exact arithmetic (a + b·m + 0). */
+function ngrLocation(location: NgrLocation, a: number, b: number, m: number, c: number): number {
+  if (location === 'unit-slope') return a + m;
+  if (location === 'climatology-anchored') return a + b * m + (1 - b) * c;
+  return a + b * m + 0;
+}
 
 /** Case-weighted per-member additive bias Σω(fᵢ − y)/Σω (equal weights reproduce additiveBias exactly). */
 function weightedAdditiveBias(rows: TrainingRow[], omega: number[]): number[] {
@@ -954,7 +973,7 @@ function combine(f: number[], bias: number[], weights: number[]) {
  * Minimum-CRPS fit of (a, b, c, d) for location a + b·m and scale √(c² + d²·s² + 10⁻⁶). The fifth coordinate is inert
  * (v2's climatology slot) and is kept so that the default options follow v2's optimiser path exactly.
  */
-function fitNgrCore(prepared: Array<{ m: number; s2: number; y: number }>, omega: number[], family: NgrFamily) {
+function fitNgrCore(prepared: Array<{ m: number; s2: number; y: number; c: number }>, omega: number[], family: NgrFamily, location: NgrLocation = 'free') {
   const sd = Math.sqrt(variance(prepared.map((p) => p.y - p.m))) || 1;
   const sw = omega.reduce((a, b) => a + b, 0);
   const objective = (x: number[]) => {
@@ -962,14 +981,22 @@ function fitNgrCore(prepared: Array<{ m: number; s2: number; y: number }>, omega
     let s = 0;
     for (let j = 0; j < prepared.length; j++) {
       const p = prepared[j];
-      s += omega[j] * crpsFamily(family, a + b * p.m + 0, Math.sqrt(c * c + d * d * p.s2 + 1e-6), p.y);
+      s += omega[j] * crpsFamily(family, ngrLocation(location, a, b, p.m, p.c), Math.sqrt(c * c + d * d * p.s2 + 1e-6), p.y);
     }
     return s / sw + 1e-4 * ((b - 1) ** 2 + 0);
   };
   const x0 = family === 'logistic' ? [0, 1, 0.55 * sd, 0.55, 0] : [0, 1, sd, 1, 0];
   const res = nelderMead(objective, x0, { maxIter: 1500 });
   const [a, b, c, d] = res.x;
-  return { a, b, c: Math.abs(c), d: Math.abs(d) };
+  // unit slope: b is inert in the objective (held at 1 by the penalty) and is reported as exactly 1
+  return { a, b: location === 'unit-slope' ? 1 : b, c: Math.abs(c), d: Math.abs(d) };
+}
+
+/** Location of a fitted model; 'climatology-anchored' requires a finite climatology. */
+function locationOf(model: NgrV3Model, m: number, clim: number | undefined): number {
+  const loc = model.options.location;
+  if (loc === 'climatology-anchored' && !Number.isFinite(clim)) throw new Error('climatology-anchored NGR needs the target date\'s climatology');
+  return ngrLocation(loc, model.params.a, model.params.b, m, clim as number);
 }
 
 const scaleOf = (model: NgrV3Model, s2: number) => {
@@ -1007,9 +1034,11 @@ export function fitNgrV3(input: AgedTrainingRow[], opts: NgrV3Options = {}): Ngr
     recalibrate: opts.recalibrate ?? 'none',
     shrink: opts.shrink ?? 0.25,
     halfLifeDays: opts.halfLifeDays && opts.halfLifeDays > 0 ? opts.halfLifeDays : null,
+    location: opts.location ?? 'free',
   } as NgrV3Model['options'];
+  if (options.location === 'climatology-anchored' && !input.every((r) => Number.isFinite(r.clim))) return null;
   // newest first; a stable sort leaves rows that are already in that order untouched
-  const rows = input.map((r, j) => ({ f: r.f, y: r.y, age: Number.isFinite(r.age) ? (r.age as number) : j })).sort((p, q) => p.age - q.age);
+  const rows = input.map((r, j) => ({ f: r.f, y: r.y, clim: r.clim, age: Number.isFinite(r.age) ? (r.age as number) : j })).sort((p, q) => p.age - q.age);
   const base = fitNgrV3Base(rows, options);
   if (!base) return null;
   if (options.recalibrate === 'none') return base;
@@ -1020,7 +1049,7 @@ export function fitNgrV3(input: AgedTrainingRow[], opts: NgrV3Options = {}): Ngr
     if (!m) return;
     for (const r of test) {
       const { m: mm, s2 } = combine(r.f, m.bias, m.weights);
-      held.push({ mu: m.params.a + m.params.b * mm, scale: scaleOf(m, s2), y: r.y, omega: omegaOf(r.age) });
+      held.push({ mu: locationOf(m, mm, r.clim), scale: scaleOf(m, s2), y: r.y, omega: omegaOf(r.age) });
     }
   };
   if (options.recalibrate === 'cv') {
@@ -1038,12 +1067,12 @@ export function fitNgrV3(input: AgedTrainingRow[], opts: NgrV3Options = {}): Ngr
 }
 
 /** Bias, skill weights and (a, b, c, d) without scale recalibration (κ = 1). Rows must carry ages, newest first. */
-function fitNgrV3Base(rows: Array<TrainingRow & { age: number }>, options: NgrV3Model['options']): NgrV3Model | null {
+function fitNgrV3Base(rows: Array<TrainingRow & { age: number; clim?: number }>, options: NgrV3Model['options']): NgrV3Model | null {
   if (rows.length < 10) return null;
   const omega = rows.map((r) => (options.halfLifeDays ? 0.5 ** (r.age / options.halfLifeDays) : 1));
   const bias = weightedAdditiveBias(rows, omega);
   const weights = weightedSkillWeights(rows, omega, options.shrink, bias);
-  let prepared: Array<{ m: number; s2: number; y: number }>;
+  let prepared: Array<{ m: number; s2: number; y: number; c: number }>;
   if (options.crossFit && rows.length >= 2 * NGR_V3_FOLDS) {
     // C1: each row's predictors use bias and weights estimated without its own contiguous block
     prepared = new Array(rows.length);
@@ -1053,18 +1082,19 @@ function fitNgrV3Base(rows: Array<TrainingRow & { age: number }>, options: NgrV3
       const om = omega.filter((_, j) => block[j] !== k);
       const bk = weightedAdditiveBias(others, om);
       const wk = weightedSkillWeights(others, om, options.shrink, bk);
-      rows.forEach((r, j) => { if (block[j] === k) prepared[j] = { ...combine(r.f, bk, wk), y: r.y }; });
+      rows.forEach((r, j) => { if (block[j] === k) prepared[j] = { ...combine(r.f, bk, wk), y: r.y, c: r.clim ?? NaN }; });
     }
   } else {
-    prepared = rows.map((r) => ({ ...combine(r.f, bias, weights), y: r.y }));
+    prepared = rows.map((r) => ({ ...combine(r.f, bias, weights), y: r.y, c: r.clim ?? NaN }));
   }
-  const params = fitNgrCore(prepared, omega, options.family);
+  const params = fitNgrCore(prepared, omega, options.family, options.location);
   return { method: 'ngr-v3', family: options.family, bias, weights, params, kappa: 1, n: rows.length, options };
 }
 
-export function predictNgrV3(model: NgrV3Model, f: number[]): PredictiveForecast {
+/** `clim` (the target date's climatology) is required for 'climatology-anchored' models and ignored otherwise. */
+export function predictNgrV3(model: NgrV3Model, f: number[], clim?: number): PredictiveForecast {
   const { m, s2 } = combine(f, model.bias, model.weights);
-  const mu = model.params.a + model.params.b * m;
+  const mu = locationOf(model, m, clim);
   const scale = scaleOf(model, s2);
   return model.family === 'logistic' ? { kind: 'logistic', mu, scale } : { kind: 'normal', mu, sigma: scale };
 }

@@ -8,7 +8,7 @@ import {
   crpsWeightedEnsemble, skillWeights, fitNgrSkill, predictNgrSkill, fitCensoredPower, predictCensoredPower,
   crpsCensoredPower, powerCdf, insideCentral, rawGaussian,
   cdfOf, crpsLogistic, logisticCdf, fitNgrV3, predictNgrV3, fitScaleFactor,
-  ASTRAEUS_V3_TEMPERATURE, fitAstraeusV3, predictAstraeusV3,
+  ASTRAEUS_V3_TEMPERATURE, fitAstraeusV3, predictAstraeusV3, type NgrV3Options,
 } from './weatherPostprocessing';
 import { buildCalibratedOutlook, OUTLOOK_METHOD_VERSION } from './calibratedOutlook';
 
@@ -350,6 +350,55 @@ test('v3 options behave as specified on synthetic windows', () => {
   // the logistic family returns a logistic law with a positive scale
   const lg = predictNgrV3(fitNgrV3(flat, { family: 'logistic' })!, probe);
   assert.ok(lg.kind === 'logistic' && lg.scale > 0);
+});
+
+test('v3.1 location models: unit slope holds b = 1; climatology anchoring equals NGR on anomalies', () => {
+  const rnd = seededRandom(73);
+  const rows = Array.from({ length: 90 }, (_, age) => {
+    const clim = 10 + 0.15 * age + Math.sin(age / 9);
+    const y = clim + 3 * gaussian(rnd);
+    return { f: [0.5, -0.8, 1.2, 0, 0.3].map((b, i) => y + b + [2, 2.5, 3, 3.5, 4][i] * gaussian(rnd)), y, clim, age };
+  });
+  for (const base of [{}, { ...ASTRAEUS_V3_TEMPERATURE }] as NgrV3Options[]) {
+    const unit = fitNgrV3(rows, { ...base, location: 'unit-slope' })!;
+    assert.equal(unit.params.b, 1);
+    const anch = fitNgrV3(rows, { ...base, location: 'climatology-anchored' })!;
+    const anom = fitNgrV3(rows.map((r) => ({ ...r, f: r.f.map((v) => v - r.clim), y: r.y - r.clim, clim: undefined })), base)!;
+    close(anch.kappa, anom.kappa, 1e-4, 'kappa');
+    for (const [f, c] of [[[9, 11, 8, 10, 12], 9.5], [[20, 22, 19, 21, 18], 21]] as Array<[number[], number]>) {
+      const a = predictNgrV3(anch, f, c) as { mu: number };
+      const b = predictNgrV3(anom, f.map((v) => v - c)) as { mu: number };
+      close(a.mu, b.mu + c, 1e-4, 'anchored location = anomaly fit + climatology');
+      close(quantileOf(predictNgrV3(anch, f, c), 0.9) - a.mu, quantileOf(predictNgrV3(anom, f.map((v) => v - c)), 0.9) - b.mu, 1e-4, 'same spread');
+    }
+    // 'free' is the default and leaves v3 untouched
+    assert.deepEqual(predictNgrV3(fitNgrV3(rows, { ...base, location: 'free' })!, [9, 11, 8, 10, 12]), predictNgrV3(fitNgrV3(rows, base)!, [9, 11, 8, 10, 12]));
+  }
+  // anchoring needs a climatology on every row and at prediction time
+  assert.equal(fitNgrV3(rows.map((r, j) => (j === 3 ? { ...r, clim: undefined } : r)), { location: 'climatology-anchored' }), null);
+  assert.throws(() => predictNgrV3(fitNgrV3(rows, { location: 'climatology-anchored' })!, [9, 11, 8, 10, 12]));
+});
+
+test('in a falling season the free location runs warm; climatology anchoring does not', () => {
+  const rnd = seededRandom(79);
+  const climAt = (age: number) => 10 + 0.15 * age; // autumn: the window's older days are warmer
+  const member = (y: number) => [0.5, -0.8, 1.2, 0, 0.3].map((b, i) => y + b + [2, 2.5, 3, 3.5, 4][i] * gaussian(rnd));
+  const rows = Array.from({ length: 90 }, (_, age) => { const y = climAt(age) + 3 * gaussian(rnd); return { f: member(y), y, clim: climAt(age), age }; });
+  const free = fitNgrV3(rows, ASTRAEUS_V3_TEMPERATURE)!;
+  const anch = fitNgrV3(rows, { ...ASTRAEUS_V3_TEMPERATURE, location: 'climatology-anchored' })!;
+  const target = climAt(-10); // forecast ten days after the newest verified day
+  let eFree = 0;
+  let eAnch = 0;
+  const n = 4000;
+  for (let k = 0; k < n; k++) {
+    const y = target + 3 * gaussian(rnd);
+    const f = member(y);
+    eFree += (pointOf(predictNgrV3(free, f)) - y) / n;
+    eAnch += (pointOf(predictNgrV3(anch, f, target)) - y) / n;
+  }
+  assert.ok(free.params.b < 0.97, `free slope ${free.params.b}`);
+  assert.ok(eFree > 0.25, `free location bias ${eFree}`);
+  assert.ok(Math.abs(eAnch) < 0.12, `anchored bias ${eAnch}`);
 });
 
 test('Astraeus v3 is the frozen C6 configuration for temperature and v2 for precipitation', () => {
