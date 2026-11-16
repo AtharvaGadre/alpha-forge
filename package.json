@@ -8,19 +8,16 @@
     "build": "vite build",
     "start": "NODE_ENV=production tsx server.ts",
     "preview": "vite preview",
-    "test": "npx --yes tsx --test src/engine/quantEngine.test.ts src/engine/liveAtmospherePipeline.test.ts src/engine/commodityForecastEngine.test.ts src/engine/commodityTransmissionEngine.test.ts src/engine/workspaceNavigation.test.ts src/engine/liveGlobeWeather.test.ts src/engine/commodityResearch.test.ts src/engine/forecastPlayback.test.ts src/engine/precipitationRaster.test.ts src/engine/forecastBacktest.test.ts src/engine/priceCurve.test.ts src/engine/priceSkill.test.ts src/engine/weatherPostprocessing.test.ts",
+    "test": "npx --yes tsx --test src/engine/quantEngine.test.ts src/engine/liveAtmospherePipeline.test.ts src/engine/commodityForecastEngine.test.ts src/engine/commodityTransmissionEngine.test.ts src/engine/workspaceNavigation.test.ts src/engine/liveGlobeWeather.test.ts src/engine/commodityResearch.test.ts src/engine/forecastPlayback.test.ts src/engine/precipitationRaster.test.ts src/engine/forecastBacktest.test.ts src/engine/priceCurve.test.ts src/engine/priceSkill.test.ts src/engine/weatherPostprocessing.test.ts src/engine/trackRecord.test.ts",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
     "smoke:live": "tsx scripts/live-smoke.ts",
     "bench:weather": "tsx research/weather-benchmark.ts --suite final --period confirm --offline",
-    "report": "tsx research/build-report.ts"
+    "report": "tsx research/build-report.ts",
+    "track-record": "tsx research/track-record.ts"
   },
   "dependencies": {
-    "@google/genai": "^3.0.0",
     "@tailwindcss/vite": "^4.3.3",
-    "@types/three": "^0.187.0",
-    "@types/ws": "^8.18.2",
-    "@vis.gl/react-google-maps": "^1.10.2",
     "@vitejs/plugin-react": "^6.1.1",
     "d3-geo": "^3.1.2",
     "dotenv": "^17.2.3",
@@ -29,12 +26,10 @@
     "motion": "^12.23.24",
     "react": "^19.0.1",
     "react-dom": "^19.0.1",
-    "three": "^0.187.0",
     "topojson-client": "^3.1.0",
     "tsx": "^4.21.0",
     "vite": "^8.3.0",
-    "world-atlas": "^2.0.2",
-    "ws": "^8.22.1"
+    "world-atlas": "^2.0.2"
   },
   "devDependencies": {
     "@types/d3-geo": "^3.1.1",
