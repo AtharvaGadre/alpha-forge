@@ -1,0 +1,67 @@
+# Daily live track record: precompute today's outlooks, snapshot them into the hash-chained ledger,
+# score earlier snapshots against ERA5 and commit data/track-record.
+#
+# Use ONE writer per record: this workflow, the server's in-process scheduler (TRACK_RECORD=1) or the
+# launchd template in deploy/launchd. If the production server also writes snapshots, set TRACK_RECORD=0
+# there and let it serve the committed record instead.
+name: Track record
+
+on:
+  schedule:
+    - cron: '45 6 * * *' # 06:45 UTC, after the 00 UTC model runs are on Open-Meteo
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: track-record
+  cancel-in-progress: false
+
+jobs:
+  daily:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Stored archive / previous-runs days and yesterday's outlooks keep a run at ~750 weighted
+      # Open-Meteo calls instead of ~2,500 for a cold start.
+      - uses: actions/cache@v4
+        with:
+          path: |
+            .astraeus-data/om-days
+            data/outlooks
+          key: track-record-${{ github.run_id }}
+          restore-keys: track-record-
+
+      - name: Snapshot (precompute + ledger)
+        continue-on-error: true # a 429 defers regions; whatever was written is still committed below
+        env:
+          OPEN_METEO_API_KEY: ${{ secrets.OPEN_METEO_API_KEY }}
+          PRECOMPUTE_ALLOWANCE: '1500'
+        run: npx tsx research/track-record.ts snapshot
+
+      - name: Score against ERA5
+        env:
+          OPEN_METEO_API_KEY: ${{ secrets.OPEN_METEO_API_KEY }}
+        run: npx tsx research/track-record.ts score
+
+      - name: Verify hash chain
+        run: npx tsx research/track-record.ts verify
+
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/track-record
+          if git diff --cached --quiet; then echo "No changes."; exit 0; fi
+          git commit -m "data(track-record): daily snapshot and scores $(date -u +%F)"
+          git push
