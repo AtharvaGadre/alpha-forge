@@ -108,6 +108,7 @@
 .as-prob{display:grid;text-align:right}.as-prob b{font:500 12px 'IBM Plex Mono',monospace;color:var(--as-muted)}.as-prob.high b{color:var(--as-gold)}.as-prob small{font-size:9px;color:var(--as-muted)}
 .as-uncal{position:absolute;right:0;top:-2px;font:9px 'IBM Plex Mono',monospace;color:var(--as-error)}
 .as-outlook-legend{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:10px;color:var(--as-muted);margin:0}
+.as-outlook-scope{font-size:11px;line-height:1.55;color:var(--as-muted);margin:6px 0 0;max-width:72ch}
 .as-outlook-legend i{display:inline-block;margin-right:4px;vertical-align:middle}
 .as-outlook-legend i.band{width:16px;height:9px;background:color-mix(in srgb,var(--viz-1) 45%,transparent);border:1px solid var(--viz-1);border-radius:2px}
 .as-outlook-legend i.median{width:2px;height:12px;background:var(--as-ink)}

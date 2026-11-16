@@ -46,6 +46,9 @@ function fitMethod(method: OutlookMethod, rows: AgedTrainingRow[], kind: 'temper
 
 const DAY_MS = 86_400_000;
 /** Whole days from `date` back to `latest` (both YYYY-MM-DD): the training-row age used by recency weights. */
+/** ERA5 publication lag assumed by the live outlook (days). */
+const ERA5_LAG_DAYS = 6;
+const addDaysIso = (d: string, n: number) => new Date(Date.parse(`${d}T00:00:00Z`) + n * DAY_MS).toISOString().slice(0, 10);
 const ageInDays = (latest: string, date: string) => Math.round((Date.parse(`${latest}T00:00:00Z`) - Date.parse(`${date}T00:00:00Z`)) / DAY_MS);
 
 export type OutlookVariable = 'tmean' | 'tmax' | 'precip';
@@ -89,6 +92,8 @@ export interface CalibratedOutlook {
   models: string[];
   days: OutlookDay[];
   heldOut: OutlookHeldOut[];
+  /** How `heldOut` was computed (absent on outlooks issued before 16 Nov 2026 ~11:30 UTC = 'split'). */
+  heldOutDesign?: 'rolling' | 'split';
   notes: string[];
 }
 
@@ -142,6 +147,12 @@ export function buildCalibratedOutlook(input: {
   verifyDates: string[];
   /** Calibration method; defaults to the one chosen by the live-adoption rule. */
   method?: OutlookMethod;
+  /**
+   * Local held-out check. 'rolling' (default) mirrors the live outlook: test days in the newer half are forecast by a
+   * model refitted weekly on rows verified at least `lead + ERA5 lag` days before the test week. 'split' fits once on
+   * the older half (up to ~45 days stale, so it understates skill when biases shift with the season).
+   */
+  heldOutDesign?: 'rolling' | 'split';
 }): CalibratedOutlook | null {
   const { models, usable, fcLocs, prevLocs, eraLocs, nextDates, verifyDates } = input;
   const method = input.method ?? OUTLOOK_METHOD_VERSION;
@@ -218,15 +229,31 @@ export function buildCalibratedOutlook(input: {
       }
       const fit = (r: AgedTrainingRow[]) => fitMethod(method, r, v.kind);
 
-      // honest local check: older half → newer half
+      // honest local check on the newer half of the window (forecasts never see their own outcomes)
       if (rows.length >= 20) {
         const cut = Math.floor(rows.length / 2);
-        const model = fit(rows.slice(0, cut));
         const test = rows.slice(cut);
-        if (model) {
-          const crpsRaw = avg(test.map((r) => crpsEnsemble(r.f, r.y)));
-          const crpsCal = avg(test.map((r) => crpsOf(model(r.f), r.y)));
-          heldOut.push({ variable: v.id, lead, nTrain: cut, nTest: test.length, crpsRaw: r2(crpsRaw), crpsCalibrated: r2(crpsCal), skill: r2(1 - crpsCal / Math.max(1e-9, crpsRaw)) });
+        const pairs: Array<{ raw: number; cal: number }> = [];
+        let nTrain = cut;
+        if ((input.heldOutDesign ?? 'rolling') === 'split') {
+          const model = fit(rows.slice(0, cut));
+          if (model) test.forEach((r) => pairs.push({ raw: crpsEnsemble(r.f, r.y), cal: crpsOf(model(r.f), r.y) }));
+        } else {
+          // weekly refits; a forecast for valid day d is issued at d − lead and knows truth up to issue − ERA5 lag
+          for (let w = 0; w < test.length; w += 7) {
+            const week = test.slice(w, w + 7);
+            const cutoff = addDaysIso(week[0].date, -(lead + ERA5_LAG_DAYS));
+            const train = rows.filter((r) => r.date <= cutoff).map((r) => ({ ...r, age: ageInDays(cutoff, r.date) }));
+            if (train.length < 20) continue;
+            nTrain = Math.max(nTrain, train.length);
+            const model = fit(train);
+            if (model) week.forEach((r) => pairs.push({ raw: crpsEnsemble(r.f, r.y), cal: crpsOf(model(r.f), r.y) }));
+          }
+        }
+        if (pairs.length) {
+          const crpsRaw = avg(pairs.map((x) => x.raw));
+          const crpsCal = avg(pairs.map((x) => x.cal));
+          heldOut.push({ variable: v.id, lead, nTrain, nTest: pairs.length, crpsRaw: r2(crpsRaw), crpsCalibrated: r2(crpsCal), skill: r2(1 - crpsCal / Math.max(1e-9, crpsRaw)) });
         }
       }
 
@@ -256,6 +283,7 @@ export function buildCalibratedOutlook(input: {
     models: [...usedModels],
     days,
     heldOut,
+    heldOutDesign: input.heldOutDesign ?? 'rolling',
     notes: [
       'Day 0 and day 1 use lead-1 training; day i (2–6) uses lead-i training, matching each forecast to previous runs of the same age.',
       `Models enter only with ≥ ${Math.round(MIN_AVAILABILITY * 100)} % availability in the training window, and calibration needs ≥ ${MIN_TRAINING_ROWS} complete training days; otherwise the raw spread is shown and labelled uncalibrated.`,
