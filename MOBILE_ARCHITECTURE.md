@@ -1,5 +1,7 @@
 # MOBILE_ARCHITECTURE.md — Native iOS & Android Architecture (Flutter + Dart + Swift + Kotlin)
 
+> **Legacy:** the mobile app targets the pre-Astraeus API (ARGON assistant, trade-idea decks), most of which has been removed from the server. See `apps/mobile/README.md` and `API_CONTRACTS.md`.
+
 ## 1. Executive Overview
 AlphaForge Atmosphere includes a genuine native mobile application in `apps/mobile/` built with **Flutter + Dart**, supplemented by native **Swift** (`ios/Runner/AppDelegate.swift`) and **Kotlin** (`android/app/src/main/kotlin/com/alphaforge/atmosphere/MainActivity.kt`) platform channels for low-latency ARGON voice audio routing.
 
