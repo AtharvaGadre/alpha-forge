@@ -41,7 +41,7 @@ function ttlFor(u: URL): number {
   return 10 * MINUTE;
 }
 
-export function createOutbound(opts: { dataDir: string; dailyBudget: number; reserve: number; apiKey?: string; now?: () => Date }) {
+export function createOutbound(opts: { dataDir: string; dailyBudget: number; reserve: number; perMinute?: number; apiKey?: string; now?: () => Date }) {
   const now = opts.now ?? (() => new Date());
   const budget = new OpenMeteoBudget({ daily: opts.dailyBudget, reserve: opts.reserve, file: path.join(opts.dataDir, 'om-usage.json') }, now);
   const dayStore = new DayStore(path.join(opts.dataDir, 'om-days'), now);
@@ -49,6 +49,19 @@ export function createOutbound(opts: { dataDir: string; dailyBudget: number; res
   const inflight = new Map<string, Promise<any>>();
   const totals = newMeter();
   let cooldownUntil = 0;
+  // Open-Meteo also limits weighted calls per minute (600 on the free tier, shared by everything on this IP):
+  // requests wait so this server stays under `perMinute`.
+  const perMinute = opts.perMinute ?? 300;
+  const recent: Array<{ at: number; weight: number }> = [];
+  async function pace(weight: number) {
+    for (;;) {
+      const t = Date.now();
+      while (recent.length && t - recent[0].at >= 60_000) recent.shift();
+      const used = recent.reduce((a, x) => a + x.weight, 0);
+      if (!recent.length || used + weight <= perMinute) { recent.push({ at: t, weight }); return; }
+      await new Promise((r) => setTimeout(r, Math.max(250, 60_000 - (t - recent[0].at) + 50)));
+    }
+  }
 
   const count = (ctx: FetchContext, host: string, weight: number) => {
     for (const m of [totals, ctx.meter].filter(Boolean) as FetchMeter[]) {
@@ -72,6 +85,7 @@ export function createOutbound(opts: { dataDir: string; dailyBudget: number; res
         if (ctx.meter) ctx.meter.budgetBlocked++;
         throw new OutboundError('The daily Open-Meteo budget for this server is used up; cached data only.', 'OM_BUDGET');
       }
+      if (weight > 0) await pace(weight);
     }
     const target = om ? withOpenMeteoKey(url, opts.apiKey) : url;
     count(ctx, u.hostname, weight);

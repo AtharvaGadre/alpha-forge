@@ -28,7 +28,7 @@ export async function runDailyJob(opts: {
     log(snapshot.written ? `snapshot ${file.issueDate}: ${snapshotRegions.length} regions, chain ${snapshot.entry!.chain.slice(0, 16)}…` : `snapshot not written: ${snapshot.reason}`);
     writeSummary(opts.root);
   }
-  return { file, meter, snapshot };
+  return { file, meter, snapshot, snapshotRegions };
 }
 
 /** Stale = no outlooks, or none issued since today's 06:30 UTC (or, at startup, older than 30 hours). */

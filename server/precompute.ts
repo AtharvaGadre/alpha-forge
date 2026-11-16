@@ -16,8 +16,10 @@ import { TRACK_VARIABLES, matchMembers, type SnapshotDay, type SnapshotRegion } 
 import { newMeter, type FetchMeter, type Outbound } from './outbound.ts';
 
 export const PRECOMPUTE_JOB = 'astraeus-precompute-v1';
-/** Upper estimate of one region with nothing cached (forecast 9.3 + ensemble 8.2 + ERA5 5.1 + previous runs 54 + climatology 17). */
-export const COLD_REGION_WEIGHT = 100;
+/** Upper estimate of one region with nothing cached (8 models: forecast 10.6 + ensemble 8.2 + ERA5 5.2 + previous runs 61.7 + climatology 17.1). */
+export const COLD_REGION_WEIGHT = 105;
+/** Upper estimate with yesterday's days stored (forecast 10.6 + ensemble 8.2 + one new previous-runs day 9.6 + ERA5/climatology ≤ 3). */
+export const WARM_REGION_WEIGHT = 35;
 
 /** Same evidence fields as a live request (parameters hash and experiment id). */
 export function issueCommodityForecast(commodity: CommodityDefinition, region: CommodityRegion, live: LiveAtmosphereInvestigation): CommodityForecast {
@@ -127,9 +129,11 @@ export async function runPrecompute(opts: PrecomputeOptions): Promise<{ file: Ou
   const previous = loadLatestOutlooks(opts.root);
   const meter = newMeter();
   const base = opts.outbound.fetcher({ priority: 'scheduled', meter });
-  const prevOk = new Set(previous?.regions.filter((r) => r.status === 'ok').map((r) => r.key) ?? []);
-  // Regions missing from the previous run go first, so a deferred region is not starved two days running.
-  const groups = precomputeGroups().filter((g) => !opts.only || opts.only.includes(g.key)).sort((a, b) => Number(prevOk.has(a.key)) - Number(prevOk.has(b.key)));
+  // Regions computed in the last two days are warm (their archive / previous-runs days are stored) and run first;
+  // cold regions then use what is left of the allowance and the rest are deferred to the next run.
+  const recent = previous && issuedAt.getTime() - Date.parse(previous.issuedAtUtc) < 48 * 3_600_000;
+  const warm = new Set(recent ? previous!.regions.filter((r) => r.status === 'ok').map((r) => r.key) : []);
+  const groups = precomputeGroups().filter((g) => !opts.only || opts.only.includes(g.key)).sort((a, b) => Number(warm.has(b.key)) - Number(warm.has(a.key)));
   const results: Record<string, CommodityForecast> = {};
   const regions: OutlookRegionStatus[] = [];
   const snapshotRegions: SnapshotRegion[] = [];
@@ -139,8 +143,10 @@ export async function runPrecompute(opts: PrecomputeOptions): Promise<{ file: Ou
     const status: OutlookRegionStatus = { key: group.key, name: group.name, lat: group.lat, lng: group.lng, commodities: group.members.map((m) => m.commodity.id), status: 'ok' };
     regions.push(status);
     if (meter.rateLimited || opts.outbound.coolingDown()) { status.status = 'deferred'; status.error = 'Open-Meteo rate limit (HTTP 429); stopped.'; continue; }
-    if (meter.openMeteoWeight + COLD_REGION_WEIGHT > opts.allowance) { status.status = 'deferred'; status.error = `Precompute allowance (${opts.allowance} weighted calls) reached.`; continue; }
+    if (meter.openMeteoWeight + (warm.has(group.key) ? WARM_REGION_WEIGHT : COLD_REGION_WEIGHT) > opts.allowance) { status.status = 'deferred'; status.error = `Precompute allowance (${opts.allowance} weighted calls) reached.`; continue; }
     const before = meter.openMeteoWeight;
+    const blockedBefore = meter.budgetBlocked;
+    const issued: CommodityForecast[] = [];
     // Force the pipeline through the outbound layer (its own in-memory cache would hide the forecast response).
     clearLivePipelineCache();
     let forecastJson: any = null;
@@ -155,21 +161,29 @@ export async function runPrecompute(opts: PrecomputeOptions): Promise<{ file: Ou
         const live = await runLiveAtmospherePipeline({ query: `${commodity.name}: ${region.name}`, target: commodityTarget(commodity, region), fetchJson });
         const f = issueCommodityForecast(commodity, region, live);
         f.precomputed = { issuedAtUtc: issuedAt.toISOString(), issueDate, job: PRECOMPUTE_JOB };
-        results[`${commodity.id}:${region.id}`] = f;
+        issued.push(f);
         if (live.calibratedOutlook) methodVersions.add(live.calibratedOutlook.version);
         status.generatedAtUtc = live.generatedAtUtc;
         if (!snapshotRegions.some((s) => s.key === group.key)) {
           const snap = snapshotRegion(group, live, forecastJson);
           if (snap) snapshotRegions.push(snap);
         }
-        await opts.onIssued?.(f);
       } catch (err) {
         errors.push(`${commodity.id}: ${(err as Error)?.message ?? err}`);
       }
     }
     status.openMeteoWeight = Math.round((meter.openMeteoWeight - before) * 100) / 100;
-    if (errors.length === group.members.length) { status.status = 'failed'; status.error = errors.join('; '); }
-    else if (errors.length) status.error = errors.join('; ');
+    if (meter.rateLimited || meter.budgetBlocked > blockedBefore) {
+      // Inputs were cut short by our own limits: do not publish a degraded result (or snapshot) for this region.
+      status.status = 'deferred';
+      status.error = meter.rateLimited ? 'Open-Meteo rate limit (HTTP 429) during this region; deferred.' : 'Open-Meteo budget reached during this region; deferred.';
+      const i = snapshotRegions.findIndex((s) => s.key === group.key);
+      if (i >= 0) snapshotRegions.splice(i, 1);
+    } else {
+      for (const f of issued) { results[`${f.commodityId}:${f.regionId}`] = f; await opts.onIssued?.(f); }
+      if (errors.length === group.members.length) { status.status = 'failed'; status.error = errors.join('; '); }
+      else if (errors.length) status.error = errors.join('; ');
+    }
     log(`${group.key.padEnd(14)} ${status.status.padEnd(8)} weight ${String(status.openMeteoWeight).padStart(6)}  total ${meter.openMeteoWeight}${status.error ? `  (${status.error})` : ''}`);
   }
 

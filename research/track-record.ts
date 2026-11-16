@@ -30,23 +30,27 @@ function outbound() {
     dataDir: path.join(root, '.astraeus-data'),
     dailyBudget: num(process.env.OPEN_METEO_DAILY_BUDGET, 5000),
     reserve: num(process.env.OPEN_METEO_RESERVE, 1500),
+    perMinute: num(process.env.OPEN_METEO_PER_MINUTE, 300),
     apiKey: process.env.OPEN_METEO_API_KEY || undefined,
   });
 }
 
 async function main() {
-  if (command === 'snapshot') {
+  if (command === 'snapshot' || command === 'precompute') {
     const ob = outbound();
     const ledger = createForecastLedger(path.join(root, '.astraeus-data'));
     const t0 = Date.now();
-    const { file, meter, snapshot } = await runDailyJob({
-      root, outbound: ob, snapshot: true, log,
+    const { file, meter, snapshot, snapshotRegions } = await runDailyJob({
+      root, outbound: ob, snapshot: command === 'snapshot', log,
       allowance: num(arg('allowance') ?? process.env.PRECOMPUTE_ALLOWANCE, 1500),
       only: arg('only')?.split(','),
       onIssued: (f) => ledger.append(issuedSignal(f)),
     });
     ob.flush();
-    console.log(JSON.stringify({ issuedAtUtc: file.issuedAtUtc, seconds: Math.round((Date.now() - t0) / 1000), openMeteo: { weight: meter.openMeteoWeight, requests: meter.openMeteoRequests, cacheHits: meter.cacheHits, rateLimited: meter.rateLimited, byHost: meter.byHost }, budgetToday: ob.budget.snapshot(), snapshot }, null, 2));
+    // How many bands found their raw members (needed for both baselines)
+    const bands = snapshotRegions.flatMap((r) => r.days.flatMap((d) => (['tmax', 'tmean', 'precip'] as const).map((v) => d[v]).filter(Boolean)));
+    const regionsOut = snapshotRegions.map((r) => ({ key: r.key, version: r.outlook.version, models: r.outlook.models.length, bands: r.days.reduce((a, d) => a + (['tmax', 'tmean', 'precip'] as const).filter((v) => d[v]).length, 0) }));
+    console.log(JSON.stringify({ issuedAtUtc: file.issuedAtUtc, seconds: Math.round((Date.now() - t0) / 1000), openMeteo: { weight: meter.openMeteoWeight, requests: meter.openMeteoRequests, cacheHits: meter.cacheHits, rateLimited: meter.rateLimited, byHost: meter.byHost }, budgetToday: ob.budget.snapshot(), snapshot, snapshotRegions: regionsOut, bands: bands.length, bandsWithMembers: bands.filter((b) => b!.members).length }, null, 2));
     if (meter.rateLimited) process.exitCode = 2;
   } else if (command === 'score') {
     const ob = outbound();

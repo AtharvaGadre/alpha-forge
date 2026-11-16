@@ -45,6 +45,7 @@ async function startServer() {
     dataDir,
     dailyBudget: num('OPEN_METEO_DAILY_BUDGET', 5000),
     reserve: num('OPEN_METEO_RESERVE', 1500),
+    perMinute: num('OPEN_METEO_PER_MINUTE', 300),
     apiKey: process.env.OPEN_METEO_API_KEY || undefined,
   });
   configureBacktestFetch((url, timeoutMs) => outbound.fetchJson(url, timeoutMs, { priority: 'interactive' }));
