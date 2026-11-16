@@ -1,23 +1,41 @@
 /**
- * Live calibrated 7-day outlook (Astraeus v2).
+ * Live calibrated 7-day outlook (Astraeus v3 by default; v2 selectable).
  *
- * For the region being analysed, the frozen v2 method — skill-weighted NGR for temperature (minimum CRPS,
- * cf. Gneiting et al. 2005) and a skill-weighted ensemble for rain — is fitted on up to 90 days of what each
- * global model forecast at the matching lead, verified against ERA5, using the same membership (≥ 90 %
- * availability) and day-aggregation rules as the benchmark. It is applied to today's run to give calibrated
- * daily quantiles and event probabilities. A time-ordered held-out check (older half → newer half) is
- * published alongside as local, small-sample evidence.
+ * For the region being analysed, a frozen Astraeus method is fitted on up to 90 days of what each global model
+ * forecast at the matching lead, verified against ERA5, using the same membership (≥ 90 % availability) and
+ * day-aggregation rules as the benchmark, and applied to today's run to give calibrated daily quantiles and event
+ * probabilities. A time-ordered held-out check (older half → newer half) is published alongside as local,
+ * small-sample evidence.
+ *  - v2: skill-weighted Gaussian NGR for temperature (minimum CRPS, cf. Gneiting et al. 2005), skill-weighted ensemble for rain.
+ *  - v3: skill-weighted logistic NGR with 35-day recency weights and a cross-validated scale factor for temperature; rain as v2.
  */
 import {
-  fitNgrSkill, predictNgrSkill, skillWeights, crpsOf, crpsEnsemble,
-  quantileOf, exceedanceOf, pointOf, type PredictiveForecast, type TrainingRow,
+  fitNgrSkill, predictNgrSkill, skillWeights, crpsOf, crpsEnsemble, fitAstraeusV3, predictAstraeusV3,
+  quantileOf, exceedanceOf, pointOf, type PredictiveForecast, type TrainingRow, type AgedTrainingRow,
 } from './weatherPostprocessing';
 
-/** Method frozen from the development-period benchmark (docs/results/archive/weather-dev-period.json). */
-export const OUTLOOK_METHOD_VERSION = 'astraeus-v2';
+export type OutlookMethod = 'astraeus-v2' | 'astraeus-v3';
+
+/**
+ * Method used by the live outlook, set by the live-adoption rule written before the confirmation period was scored
+ * (docs/results/WEATHER_V3.md, Section 5): switch to v3 only if its pooled confirmation temperature CRPS is ≤ v2's
+ * and its 80 % coverage is closer to 80 %. Outcome (Section 8, public/research/weather-skill.json): CRPS 0.74099 vs
+ * 0.75005 °C and coverage 78.1 % vs 75.5 % — both conditions hold, so the outlook uses v3.
+ */
+export const OUTLOOK_METHOD_VERSION: OutlookMethod = 'astraeus-v3';
+
+const METHOD_TEXT: Record<OutlookMethod, string> = {
+  'astraeus-v2': 'Astraeus v2: bias-corrected, skill-weighted non-homogeneous Gaussian regression for temperature (minimum-CRPS fit, Gneiting et al. 2005) and a skill-weighted multi-model ensemble for rainfall, trained on up to 90 days of previous-run forecasts verified against ERA5. Chosen on a development period and confirmed on a later held-out period (see the forecast-skill report).',
+  'astraeus-v3': 'Astraeus v3: bias-corrected, skill-weighted non-homogeneous regression with a heavier-tailed logistic law for temperature, recency-weighted training (35-day half-life) and a spread factor estimated from cross-validated errors; rainfall as in v2 (skill-weighted multi-model ensemble). Trained on up to 90 days of previous-run forecasts verified against ERA5. Chosen on a development period, frozen, then scored on a later period (see docs/results/WEATHER_V3.md).',
+};
+
 type Predict = (f: number[]) => PredictiveForecast;
-function fitV2(rows: TrainingRow[], kind: 'temperature' | 'precipitation'): Predict | null {
+function fitMethod(method: OutlookMethod, rows: AgedTrainingRow[], kind: 'temperature' | 'precipitation'): Predict | null {
   if (rows.length < 10) return null;
+  if (method === 'astraeus-v3') {
+    const m = fitAstraeusV3(rows, kind);
+    return m ? (f) => predictAstraeusV3(m, f) : null;
+  }
   if (kind === 'temperature') {
     const m = fitNgrSkill(rows);
     return m ? (f) => predictNgrSkill(m, f) : null;
@@ -25,6 +43,10 @@ function fitV2(rows: TrainingRow[], kind: 'temperature' | 'precipitation'): Pred
   const w = skillWeights(rows, 0.25);
   return (f) => ({ kind: 'weighted-ensemble', members: f, weights: w });
 }
+
+const DAY_MS = 86_400_000;
+/** Whole days from `date` back to `latest` (both YYYY-MM-DD): the training-row age used by recency weights. */
+const ageInDays = (latest: string, date: string) => Math.round((Date.parse(`${latest}T00:00:00Z`) - Date.parse(`${date}T00:00:00Z`)) / DAY_MS);
 
 export type OutlookVariable = 'tmean' | 'tmax' | 'precip';
 
@@ -59,7 +81,8 @@ export interface OutlookHeldOut {
 }
 
 export interface CalibratedOutlook {
-  version: 'astraeus-v2';
+  /** The method actually used for this outlook. */
+  version: OutlookMethod;
   method: string;
   truth: string;
   trainingDates: { start: string; end: string };
@@ -117,8 +140,12 @@ export function buildCalibratedOutlook(input: {
   eraLocs: any[];
   nextDates: string[];
   verifyDates: string[];
+  /** Calibration method; defaults to the one chosen by the live-adoption rule. */
+  method?: OutlookMethod;
 }): CalibratedOutlook | null {
   const { models, usable, fcLocs, prevLocs, eraLocs, nextDates, verifyDates } = input;
+  const method = input.method ?? OUTLOOK_METHOD_VERSION;
+  const latestVerify = verifyDates[verifyDates.length - 1];
   if (!fcLocs.length || !prevLocs.length || !eraLocs.length || prevLocs.length !== fcLocs.length || eraLocs.length !== fcLocs.length) return null;
   const live = models.map((m, i) => ({ ...m, i })).filter((m) => usable[m.i]);
   if (live.length < 2) return null;
@@ -173,19 +200,19 @@ export function buildCalibratedOutlook(input: {
       const truthDays = verifyDates.filter((d) => t.has(d));
       const members = series.filter(({ m, s }) => truthDays.length > 0 && truthDays.filter((d) => s.has(d)).length >= MIN_AVAILABILITY * truthDays.length && dayIdx.every((i) => current(v, m.apiId, days[i].date) !== null));
       if (members.length < 2) continue;
-      const rows: Array<TrainingRow & { date: string }> = [];
+      const rows: Array<TrainingRow & { date: string; age: number }> = [];
       for (const d of verifyDates) {
         const y = t.get(d);
         if (y === undefined) continue;
         const f = members.map(({ s }) => s.get(d));
-        if (f.every((x) => x !== undefined)) rows.push({ date: d, f: f as number[], y });
+        if (f.every((x) => x !== undefined)) rows.push({ date: d, f: f as number[], y, age: ageInDays(latestVerify, d) });
       }
       rows.sort((a, b) => a.date.localeCompare(b.date));
       if (rows.length) {
         trainStart = !trainStart || rows[0].date < trainStart ? rows[0].date : trainStart;
         trainEnd = rows[rows.length - 1].date > trainEnd ? rows[rows.length - 1].date : trainEnd;
       }
-      const fit = (r: TrainingRow[]) => fitV2(r, v.kind);
+      const fit = (r: AgedTrainingRow[]) => fitMethod(method, r, v.kind);
 
       // honest local check: older half → newer half
       if (rows.length >= 20) {
@@ -218,8 +245,8 @@ export function buildCalibratedOutlook(input: {
 
   if (!days.some((d) => d.tmean || d.tmax || d.precip)) return null;
   return {
-    version: 'astraeus-v2',
-    method: 'Astraeus v2: bias-corrected, skill-weighted non-homogeneous Gaussian regression for temperature (minimum-CRPS fit, Gneiting et al. 2005) and a skill-weighted multi-model ensemble for rainfall, trained on up to 90 days of previous-run forecasts verified against ERA5. Chosen on a development period and confirmed on a later held-out period (see the forecast-skill report).',
+    version: method,
+    method: METHOD_TEXT[method],
     truth: 'ERA5 reanalysis (Open-Meteo archive), areal mean of the region’s sample points',
     trainingDates: { start: trainStart, end: trainEnd },
     models: [...usedModels],

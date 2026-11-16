@@ -7,7 +7,10 @@ import {
   blockBootstrapMeanCI, seededRandom, quantileOf, exceedanceOf, pointOf, calibrate, type TrainingRow,
   crpsWeightedEnsemble, skillWeights, fitNgrSkill, predictNgrSkill, fitCensoredPower, predictCensoredPower,
   crpsCensoredPower, powerCdf, insideCentral, rawGaussian,
+  cdfOf, crpsLogistic, logisticCdf, fitNgrV3, predictNgrV3, fitScaleFactor,
+  ASTRAEUS_V3_TEMPERATURE, fitAstraeusV3, predictAstraeusV3,
 } from './weatherPostprocessing';
+import { buildCalibratedOutlook, OUTLOOK_METHOD_VERSION } from './calibratedOutlook';
 
 const close = (a: number, b: number, tol: number, msg?: string) => assert.ok(Math.abs(a - b) <= tol, `${msg ?? ''} ${a} vs ${b} (tol ${tol})`);
 
@@ -262,4 +265,147 @@ test('raw Gaussian baseline uses the member mean and sample standard deviation',
   close(fc.mu, 2, 1e-12);
   close(fc.sigma, 1, 1e-12);
   assert.equal(rawGaussian([0, 0, 1], 'precipitation').kind, 'censored-normal');
+});
+
+// ---------------------------------------------------------------------------
+// Astraeus v3 machinery (docs/results/WEATHER_V3.md)
+// ---------------------------------------------------------------------------
+
+/** n rows, newest first: five biased, noisy models of a 15 °C ± 4 truth; `drift(age)` adds a time-varying bias. */
+function syntheticWindow(seed: number, drift: (age: number) => number = () => 0, n = 90): TrainingRow[] {
+  const rnd = seededRandom(seed);
+  return Array.from({ length: n }, (_, age) => {
+    const y = 15 + 4 * gaussian(rnd);
+    const f = [0.5, -0.8, 1.2, 0, 0.3].map((b, i) => y + b + drift(age) + [0.7, 1, 1.3, 1.6, 2][i] * gaussian(rnd));
+    return { f, y };
+  });
+}
+
+test('logistic CRPS equals numerical integration; quantiles invert the CDF; calibrated PIT covers 80%', () => {
+  for (const [mu, s, y] of [[0, 1, 0], [2, 0.5, 3.1], [-1, 3, 4], [10, 2, -2]]) {
+    const num = crpsNumeric((x) => logisticCdf((x - mu) / s), y, mu - 60 * s, mu + 60 * s, 40000);
+    close(crpsLogistic(mu, s, y), num, 1e-7, `L(${mu},${s}) y=${y}`);
+  }
+  close(crpsLogistic(0, 1, 0), 2 * Math.log(2) - 1, 1e-12);
+  close(crpsLogistic(0, 1, 800), 799, 1e-9); // no overflow in the far tail
+  const fc = { kind: 'logistic' as const, mu: 3, scale: 0.7 };
+  for (const p of [0.01, 0.1, 0.5, 0.9, 0.99]) close(cdfOf(fc, quantileOf(fc, p)), p, 1e-12);
+  close(pointOf(fc), 3, 0);
+  close(exceedanceOf(fc, 3), 0.5, 1e-12);
+  const rnd = seededRandom(37);
+  let inside = 0;
+  for (let i = 0; i < 20000; i++) {
+    const u = Math.min(1 - 1e-12, Math.max(1e-12, rnd()));
+    inside += insideCentral(pitOf(fc, 3 + 0.7 * Math.log(u / (1 - u)), rnd())) ? 1 : 0;
+  }
+  close(inside / 20000, 0.8, 0.012);
+});
+
+test('fitNgrV3 with default options reproduces Astraeus v2 (fitNgrSkill) exactly, in either row order', () => {
+  const rows = syntheticWindow(41, (age) => 0.01 * age);
+  const v2 = fitNgrSkill(rows)!;
+  const v3 = fitNgrV3(rows)!;
+  const oldestFirst = fitNgrV3(rows.map((r, age) => ({ ...r, age })).reverse())!;
+  for (const f of [[14, 15, 16, 15.5, 13], [30, 29, 31, 28, 33], [0, -1, 1, 0.5, 2]]) {
+    const a = predictNgrSkill(v2, f) as { mu: number; sigma: number };
+    for (const b of [predictNgrV3(v3, f), predictNgrV3(oldestFirst, f)] as Array<{ kind: string; mu: number; sigma: number }>) {
+      assert.equal(b.kind, 'normal');
+      assert.equal(b.mu, a.mu);
+      assert.equal(b.sigma, a.sigma);
+    }
+  }
+  assert.equal(v3.kappa, 1);
+});
+
+test('scale factor search recovers a known dispersion error', () => {
+  const rnd = seededRandom(43);
+  const held = Array.from({ length: 20000 }, () => ({ mu: 0, scale: 1, y: 1.3 * gaussian(rnd), omega: 1 }));
+  close(fitScaleFactor(held, 'normal'), 1.3, 0.03);
+  close(fitScaleFactor([], 'normal'), 1, 0);
+});
+
+test('v3 options behave as specified on synthetic windows', () => {
+  // stationary, well-specified: out-of-sample recalibration stays near 1
+  const flat = syntheticWindow(47);
+  for (const recalibrate of ['cv', 'trailing'] as const) {
+    const k = fitNgrV3(flat, { recalibrate })!.kappa;
+    assert.ok(k > 0.8 && k < 1.25, `${recalibrate} kappa ${k}`);
+  }
+  // model bias drifting toward the present: forecasts made across a gap are worse than the in-sample fit admits
+  const drifting = syntheticWindow(53, (age) => 0.05 * (90 - age));
+  const trail = fitNgrV3(drifting, { recalibrate: 'trailing' })!;
+  assert.ok(trail.kappa > 1.05, `trailing kappa ${trail.kappa}`);
+  // recency weights move the bias estimate toward the recent regime (a +2 °C step in the last 20 days)
+  const step = syntheticWindow(59, (age) => (age < 20 ? 2 : 0));
+  const eq = fitNgrV3(step)!;
+  const rec = fitNgrV3(step, { halfLifeDays: 35 })!;
+  const meanBias = (m: { bias: number[] }) => m.bias.reduce((a, b) => a + b, 0) / m.bias.length;
+  assert.ok(meanBias(rec) > meanBias(eq) + 0.2, `recency ${meanBias(rec)} vs equal ${meanBias(eq)}`);
+  // cross-fitted predictors carry estimation error, so the fitted spread is not narrower than the in-sample one
+  const short = syntheticWindow(61, () => 0, 40);
+  const probe = [15, 16, 14, 15.5, 15];
+  const sIn = (predictNgrV3(fitNgrV3(short)!, probe) as { sigma: number }).sigma;
+  const sCross = (predictNgrV3(fitNgrV3(short, { crossFit: true })!, probe) as { sigma: number }).sigma;
+  assert.ok(sCross >= sIn * 0.98, `cross-fit sigma ${sCross} vs in-sample ${sIn}`);
+  // the logistic family returns a logistic law with a positive scale
+  const lg = predictNgrV3(fitNgrV3(flat, { family: 'logistic' })!, probe);
+  assert.ok(lg.kind === 'logistic' && lg.scale > 0);
+});
+
+test('Astraeus v3 is the frozen C6 configuration for temperature and v2 for precipitation', () => {
+  assert.deepEqual({ ...ASTRAEUS_V3_TEMPERATURE }, { family: 'logistic', halfLifeDays: 35, recalibrate: 'cv', shrink: 0.25 });
+  assert.ok(Object.isFrozen(ASTRAEUS_V3_TEMPERATURE));
+  const rows = syntheticWindow(67, (age) => 0.02 * (90 - age));
+  const v3 = fitAstraeusV3(rows, 'temperature')!;
+  const c6 = fitNgrV3(rows, { family: 'logistic', halfLifeDays: 35, recalibrate: 'cv' })!;
+  const f = [15, 16, 14, 15.5, 17];
+  const a = predictAstraeusV3(v3, f);
+  assert.deepEqual(a, predictNgrV3(c6, f));
+  assert.ok(a.kind === 'logistic');
+  assert.ok(v3.kind === 'temperature' && v3.ngr.kappa >= 0.5 && v3.ngr.kappa <= 2.5);
+  const q = [0.1, 0.5, 0.9].map((p) => quantileOf(a, p));
+  assert.ok(q[0] < q[1] && q[1] < q[2], `quantiles ${q}`);
+  // precipitation: v2's skill-weighted raw ensemble, unchanged
+  const rain = rows.map((r) => ({ f: r.f.map((v) => Math.max(0, v - 14)), y: Math.max(0, r.y - 14) }));
+  const pr = fitAstraeusV3(rain, 'precipitation')!;
+  assert.deepEqual(predictAstraeusV3(pr, [0, 1, 2, 0.5, 3]), { kind: 'weighted-ensemble', members: [0, 1, 2, 0.5, 3], weights: skillWeights(rain, 0.25) });
+  assert.equal(fitAstraeusV3(rows.slice(0, 9), 'temperature'), null);
+});
+
+test('live outlook uses the method chosen by the adoption rule, reports it in `version`, and v2 stays selectable', () => {
+  const rnd = seededRandom(71);
+  const day = (k: number) => new Date(Date.UTC(2026, 7, 1) + k * 86_400_000).toISOString().slice(0, 10);
+  const verifyDates = Array.from({ length: 90 }, (_, k) => day(k));
+  const nextDates = Array.from({ length: 7 }, (_, k) => day(97 + k));
+  const models = [{ apiId: 'm1', name: 'M1' }, { apiId: 'm2', name: 'M2' }, { apiId: 'm3', name: 'M3' }];
+  const bias = [0.8, -0.5, 0.2];
+  const truth = verifyDates.map((_, k) => ({ tm: 15 + 6 * Math.sin(k / 15) + 2 * gaussian(rnd), rain: Math.max(0, 3 * gaussian(rnd)) }));
+  const eraLoc = { daily: { time: verifyDates, temperature_2m_mean: truth.map((t) => t.tm), temperature_2m_max: truth.map((t) => t.tm + 5), precipitation_sum: truth.map((t) => t.rain) } };
+  const hourly: Record<string, unknown> = { time: verifyDates.flatMap((d) => Array.from({ length: 24 }, (_, h) => `${d}T${String(h).padStart(2, '0')}:00`)) };
+  for (const lead of [1, 2, 3, 4, 5, 6]) models.forEach((m, i) => {
+    const daily = truth.map((t) => ({ tm: t.tm + bias[i] + (0.6 + 0.2 * i) * gaussian(rnd), rain: Math.max(0, t.rain + gaussian(rnd)) }));
+    // hourly profile with mean = daily mean and maximum = daily mean + 5
+    hourly[`temperature_2m_previous_day${lead}_${m.apiId}`] = daily.flatMap((x) => Array.from({ length: 24 }, (_, h) => x.tm + (h === 12 ? 5 : -5 / 23)));
+    hourly[`precipitation_previous_day${lead}_${m.apiId}`] = daily.flatMap((x) => Array.from({ length: 24 }, () => x.rain / 24));
+  });
+  const fcDaily: Record<string, unknown> = { time: nextDates };
+  models.forEach((m, i) => {
+    fcDaily[`temperature_2m_mean_${m.apiId}`] = nextDates.map(() => 16 + bias[i]);
+    fcDaily[`temperature_2m_max_${m.apiId}`] = nextDates.map(() => 21 + bias[i]);
+    fcDaily[`precipitation_sum_${m.apiId}`] = nextDates.map(() => 2 + i);
+  });
+  const input = { models, usable: [true, true, true], fcLocs: [{ daily: fcDaily }], prevLocs: [{ hourly }], eraLocs: [eraLoc], nextDates, verifyDates };
+  assert.equal(OUTLOOK_METHOD_VERSION, 'astraeus-v3');
+  const v3 = buildCalibratedOutlook(input)!;
+  const v2 = buildCalibratedOutlook({ ...input, method: 'astraeus-v2' })!;
+  assert.equal(v3.version, 'astraeus-v3');
+  assert.equal(v2.version, 'astraeus-v2');
+  assert.ok(v3.method.startsWith('Astraeus v3') && v2.method.startsWith('Astraeus v2'));
+  for (const o of [v3, v2]) for (const d of o.days) for (const b of [d.tmean, d.tmax, d.precip]) {
+    assert.ok(b && b.calibrated, `${o.version} ${d.date} calibrated`);
+    assert.ok(b!.p10 <= b!.p50 && b!.p50 <= b!.p90, `${o.version} ${d.date} quantiles ${b!.p10} ${b!.p50} ${b!.p90}`);
+  }
+  // rain is the same skill-weighted ensemble in both versions; temperature differs
+  assert.deepEqual(v3.days.map((d) => d.precip), v2.days.map((d) => d.precip));
+  assert.notDeepEqual(v3.days.map((d) => d.tmean), v2.days.map((d) => d.tmean));
 });

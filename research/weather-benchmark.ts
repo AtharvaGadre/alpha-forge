@@ -27,8 +27,9 @@ import {
   crpsOf, pointOf, pitOf, exceedanceOf, quantileOf, histogram, reliabilityBins, brierDecomposition,
   dieboldMariano, seededRandom, insideCentral, rawGaussian, crpsEnsemble,
   fitEmosNormal, predictEmosNormal, fitEmosCensored, predictEmosCensored, fitNgrSkill, predictNgrSkill, skillWeights, fitCensoredPower, predictCensoredPower,
-  fitAstraeusV1, predictAstraeusV1, biasCorrectedEnsemble, applyBiasCorrection,
-  type PredictiveForecast, type TrainingRow, type VariableKind,
+  fitAstraeusV1, predictAstraeusV1, biasCorrectedEnsemble, applyBiasCorrection, fitNgrV3, predictNgrV3,
+  fitAstraeusV3, predictAstraeusV3, ASTRAEUS_V3_WINDOW_DAYS,
+  type PredictiveForecast, type TrainingRow, type VariableKind, type NgrV3Options,
 } from '../src/engine/weatherPostprocessing';
 
 // ---------------------------------------------------------------------------
@@ -260,6 +261,11 @@ interface Variant {
   applies: VariableKind | 'both';
   window: number;
   fit: (train: Row[], kind: VariableKind) => Predictor | null;
+  /**
+   * Draw this method's randomised-PIT numbers from its own seeded stream. Set for every method added after the v2
+   * freeze, so adding one to a suite leaves the PIT (and coverage) of the existing methods bit-for-bit unchanged.
+   */
+  ownPitStream?: boolean;
 }
 
 const V: Record<string, Variant> = {
@@ -295,12 +301,51 @@ V['astraeus-v2'] = {
 /** Zero-training reference: Gaussian (zero-censored for rain) with the members' mean and sd. */
 V['raw-gauss'] = { id: 'raw-gauss', label: 'Raw-ensemble Gaussian (no training)', applies: 'both', window: 0, fit: (_t, k) => (f) => rawGaussian(f, k) };
 
+/**
+ * Astraeus v3 candidates for temperature, pre-specified in docs/results/WEATHER_V3.md (Section 3) before any was run,
+ * and compared on the development period only. All use v2's 90-day window; precipitation is not a candidate.
+ */
+const V3_CANDIDATES: Array<{ id: string; label: string; opts: NgrV3Options }> = [
+  { id: 'v3c1-crossfit', label: 'C1 skill-weighted NGR, out-of-sample (cross-fitted) bias and weights', opts: { crossFit: true } },
+  { id: 'v3c2-kappa-cv', label: 'C2 skill-weighted NGR, scale recalibrated from blocked-CV standardized errors', opts: { recalibrate: 'cv' } },
+  { id: 'v3c3-kappa-trail', label: 'C3 skill-weighted NGR, scale recalibrated from trailing out-of-sample errors', opts: { recalibrate: 'trailing' } },
+  { id: 'v3c4-recency', label: 'C4 skill-weighted NGR, recency-weighted training (half-life 35 d)', opts: { halfLifeDays: 35 } },
+  { id: 'v3c5-logistic', label: 'C5 skill-weighted logistic NGR (heavy-tailed)', opts: { family: 'logistic' } },
+  // C6 by the pre-specified rule: C5, C4 and (best of C1–C3) C2 each lowered pooled dev CRPS below v2's; C1, C3 did not
+  { id: 'v3c6-combo', label: 'C6 combination: logistic NGR + recency weights (35 d) + blocked-CV scale recalibration', opts: { family: 'logistic', halfLifeDays: 35, recalibrate: 'cv' } },
+];
+for (const c of V3_CANDIDATES) {
+  V[c.id] = { id: c.id, label: c.label, applies: 'temperature', window: 90, ownPitStream: true, fit: (t) => { const m = fitNgrV3(t, c.opts); return m ? (f) => predictNgrV3(m, f) : null; } };
+}
+
+/**
+ * Astraeus v3 — frozen on 2026-11-16 from the development period only (docs/results/WEATHER_V3.md): candidate C6 for
+ * temperature (logistic skill-weighted NGR, 35-day recency weights, blocked-CV scale recalibration); v2's skill-weighted
+ * ensemble for precipitation.
+ */
+V['astraeus-v3'] = {
+  id: 'astraeus-v3', label: 'Astraeus v3 (logistic skill-weighted NGR, recency-weighted, CV-recalibrated scale, for temperature; skill-weighted ensemble for rain; 90-day window)',
+  applies: 'both', window: ASTRAEUS_V3_WINDOW_DAYS, ownPitStream: true,
+  fit: (t, k) => { const m = fitAstraeusV3(t, k); return m ? (f) => predictAstraeusV3(m, f) : null; },
+};
+
+const ownPitStreams = new Map<string, () => number>();
+/** Uniform draw for the randomised PIT of method `m`: the shared stream, or the method's own (Variant.ownPitStream). */
+function pitDraw(m: string, shared: () => number): number {
+  if (!V[m]?.ownPitStream) return shared();
+  if (!ownPitStreams.has(m)) ownPitStreams.set(m, seededRandom(20261116 + [...m].reduce((a, ch) => (a * 31 + ch.charCodeAt(0)) >>> 0, 0)));
+  return ownPitStreams.get(m)!();
+}
+
 const SUITES: Record<string, string[]> = {
-  final: ['raw-ensemble', 'raw-gauss', 'astraeus-v1', 'emos', 'astraeus-v2'],
+  // astraeus-v3 is appended last and draws its own PIT stream, so the other methods' scores are unchanged by its presence
+  final: ['raw-ensemble', 'raw-gauss', 'astraeus-v1', 'emos', 'astraeus-v2', 'astraeus-v3'],
   run1: ['raw-ensemble', 'astraeus-v1', 'bias-corrected', 'emos', 'emos-weighted'],
   dev: ['raw-ensemble', 'astraeus-v1', 'emos',
     'ngr-skill-40', 'ngr-skill-60', 'ngr-skill-90', 'ngr-skill-clim-60', 'ngr-skill-clim-90', 'weighted-ensemble-40', 'weighted-ensemble-90',
     'sqrt-censored-40', 'sqrt-censored-90', 'sqrt-censored-w-60', 'sqrt-censored-w-90', 'cbrt-censored-w-90'],
+  /** v3 selection (development period only): references, v2 and the pre-specified candidates. */
+  v3dev: ['raw-ensemble', 'raw-gauss', 'astraeus-v2', ...V3_CANDIDATES.map((c) => c.id)],
 };
 
 const arg = (name: string, dflt: string) => {
@@ -312,7 +357,7 @@ const PERIOD = arg('period', 'all') as 'dev' | 'confirm' | 'prospective' | 'all'
 const PROSPECTIVE_START = '2026-11-16';
 const DM_LAG = 14; // Newey–West bandwidth (days); robustness reported at lead, 7 and 21
 const BOOT_BLOCK = 7;
-const SUITE = arg('suite', 'run1');
+const SUITE = arg('suite', PERIOD === 'prospective' ? 'final' : 'run1'); // the prospective test scores v2 and v3
 const DEV_END = '2026-03-31';
 const MAX_WINDOW = 90;
 
@@ -404,7 +449,7 @@ async function main() {
               if (!fcst) { fcst = raw; fallback = true; }
             }
             if (!fcst) continue;
-            const pit = pitOf(fcst, row.y, rnd());
+            const pit = pitOf(fcst, row.y, pitDraw(m, rnd));
             records.push({
               site: site.id, variable: v.id, lead, date: d, method: m, fallback,
               crps: crpsOf(fcst, row.y),
