@@ -1,24 +1,24 @@
 {
  "schema": "astraeus-track-record-v1",
  "startDate": "2026-11-16",
- "latestSnapshot": "2026-11-19",
- "snapshots": 4,
- "regionsLatest": 15,
+ "latestSnapshot": "2026-11-20",
+ "snapshots": 5,
+ "regionsLatest": 21,
  "ledger": {
-  "head": "2537b75ee654332aa62439c1ce69c65b275982dc8f27562d40bdb667877b7161",
-  "length": 4,
+  "head": "ac327eae2a3c18a1b98e2cc9ed15e4278924a7deaeded55712ccec1fc861b6ff",
+  "length": 5,
   "ok": true,
   "problems": []
  },
  "cases": {
-  "total": 840,
+  "total": 1281,
   "scored": 0,
-  "pending": 840
+  "pending": 1281
  },
  "nextScoresExpected": "2026-11-22",
  "methodVersions": {
   "astraeus-v2": 12,
-  "astraeus-v3.1": 28
+  "astraeus-v3.1": 49
  },
  "cells": [],
  "verify": "npx tsx research/track-record.ts verify"
