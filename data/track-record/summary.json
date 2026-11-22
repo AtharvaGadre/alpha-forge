@@ -1,25 +1,158 @@
 {
  "schema": "astraeus-track-record-v1",
  "startDate": "2026-11-16",
- "latestSnapshot": "2026-11-21",
- "snapshots": 6,
- "regionsLatest": 24,
+ "latestSnapshot": "2026-11-22",
+ "snapshots": 7,
+ "regionsLatest": 21,
  "ledger": {
-  "head": "43c5ca19b22db79151484bc03b7847154b7402298a7eec4c49f10d1d86e861eb",
-  "length": 6,
+  "head": "75301b2831a0c2f26fda9cd5fe17e5049546f282cfa3d1ca702f33a1d32785f1",
+  "length": 7,
   "ok": true,
   "problems": []
  },
  "cases": {
-  "total": 1785,
-  "scored": 0,
-  "pending": 1785
+  "total": 2226,
+  "scored": 36,
+  "pending": 2190
  },
- "nextScoresExpected": "2026-11-22",
+ "nextScoresExpected": "2026-11-23",
  "methodVersions": {
   "astraeus-v2": 12,
-  "astraeus-v3.1": 73
+  "astraeus-v3.1": 94
  },
- "cells": [],
+ "cells": [
+  {
+   "variable": "tmax",
+   "lead": 0,
+   "n": 12,
+   "metric": "crps",
+   "outlook": {
+    "crps": 0.8505,
+    "qs": 0.7569,
+    "inside80": 0.5,
+    "bins": [
+     0,
+     0.25,
+     0.25,
+     0.5
+    ],
+    "brier": 0
+   },
+   "gaussian": {
+    "crps": 0.9225,
+    "qs": 0.8299,
+    "inside80": 0.5,
+    "bins": [
+     0,
+     0.0833,
+     0.4167,
+     0.5
+    ],
+    "brier": 0.0094
+   },
+   "raw": {
+    "crps": 0.9424,
+    "qs": 0.8914,
+    "inside80": 0.4167,
+    "bins": [
+     0,
+     0.0833,
+     0.3333,
+     0.5833
+    ],
+    "brier": 0.0023
+   },
+   "skillVsGaussian": 0.078,
+   "skillVsRaw": 0.0975
+  },
+  {
+   "variable": "tmean",
+   "lead": 0,
+   "n": 12,
+   "metric": "crps",
+   "outlook": {
+    "crps": 0.3579,
+    "qs": 0.3226,
+    "inside80": 0.75,
+    "bins": [
+     0,
+     0.25,
+     0.5,
+     0.25
+    ],
+    "brier": null
+   },
+   "gaussian": {
+    "crps": 0.2939,
+    "qs": 0.2761,
+    "inside80": 0.8333,
+    "bins": [
+     0,
+     0.25,
+     0.5833,
+     0.1667
+    ],
+    "brier": null
+   },
+   "raw": {
+    "crps": 0.3164,
+    "qs": 0.2528,
+    "inside80": 0.8167,
+    "bins": [
+     0,
+     0.0833,
+     0.7333,
+     0.1833
+    ],
+    "brier": null
+   },
+   "skillVsGaussian": -0.2178,
+   "skillVsRaw": -0.1312
+  },
+  {
+   "variable": "precip",
+   "lead": 0,
+   "n": 12,
+   "metric": "qs",
+   "outlook": {
+    "crps": null,
+    "qs": 1.2461,
+    "inside80": 0.7241,
+    "bins": [
+     0.0676,
+     0.437,
+     0.287,
+     0.2083
+    ],
+    "brier": 0.0705
+   },
+   "gaussian": {
+    "crps": null,
+    "qs": 1.2078,
+    "inside80": 0.7704,
+    "bins": [
+     0.063,
+     0.4602,
+     0.3102,
+     0.1667
+    ],
+    "brier": 0.0506
+   },
+   "raw": {
+    "crps": null,
+    "qs": 1.2339,
+    "inside80": 0.6574,
+    "bins": [
+     0.1343,
+     0.3704,
+     0.287,
+     0.2083
+    ],
+    "brier": 0.0579
+   },
+   "skillVsGaussian": -0.0317,
+   "skillVsRaw": -0.0099
+  }
+ ],
  "verify": "npx tsx research/track-record.ts verify"
 }
